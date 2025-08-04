@@ -1,1 +1,59 @@
-Tuist/.build
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+build/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.playground/Pages/
+
+# Tuist generated files
+Tuist/Derived/
+Tuist/graph.dot
+*.xcodeproj
+*.xcworkspace
+
+# Swift Package Manager (Tuist가 SPM을 사용하므로)
+.build/
+.swiftpm/
+Package.resolved
+
+# App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods (사용 시)
+Pods/
+Podfile.lock
+
+# Carthage (사용 시)
+Carthage/Build
+Carthage/Checkouts
+
+# Fastlane (사용 시)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Other
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
