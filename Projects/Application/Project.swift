@@ -14,6 +14,18 @@ let infoPlist: [String: Plist.Value] = [
         "UIColorName": "",
         "UIImageName": "",
     ],
+    // UIKit lifecycle with UIScene + SceneDelegate
+    "UIApplicationSceneManifest": [
+        "UIApplicationSupportsMultipleScenes": false,
+        "UISceneConfigurations": [
+            "UIWindowSceneSessionRoleApplication": [
+                [
+                    "UISceneConfigurationName": "Default Configuration",
+                    "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
+                ]
+            ]
+        ]
+    ]
 ]
 
 // MARK: - App
