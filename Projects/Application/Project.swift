@@ -38,6 +38,8 @@ let appTargets: [Target] = AppFactory(
             Dep.Project.DomainKit,
             Dep.Project.PresentationKit,
             Dep.Project.ThirdPartyManager,
+            .SPM.Then,
+            .SPM.SnapKit,
         ],
         unitTestsDependencies: []
     )

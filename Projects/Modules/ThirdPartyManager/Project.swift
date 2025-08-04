@@ -8,7 +8,8 @@ let frameworkTargets: [Target] = FrameworkFactory(
         frameworkDependencies: [
             .SPM.ComposableArchitecture,
             .SPM.Alamofire,
-            .SPM.Swinject
+            .SPM.Swinject,
+            .SPM.Then,
         ],
         unitTestsDependencies: []
     )
