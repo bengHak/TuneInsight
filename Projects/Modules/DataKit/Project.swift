@@ -1,0 +1,33 @@
+import ProjectDescription
+import ProjectDescriptionHelpers
+
+let frameworkName: String = "DataKit"
+
+let frameworkTargets: [Target] = FrameworkFactory(
+    dependency: .init(
+        frameworkDependencies: [
+            Dep.Project.DomainKit,
+            Dep.Project.FoundationKit,
+            .SPM.Alamofire
+        ],
+        unitTestsDependencies: []
+    )
+).build(
+    payload: .init(
+        name: frameworkName,
+        destinations: .iOS,
+        product: .framework
+    )
+)
+
+let project = ProjectFactory(
+    dependency: .init(
+        appTargets: [],
+        frameworkTargets: frameworkTargets
+    )
+).build(
+    payload: .init(
+        name: frameworkName,
+        organizationName: "Sparkish"
+    )
+)
