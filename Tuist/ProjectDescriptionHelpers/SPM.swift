@@ -18,6 +18,8 @@ public extension TargetDependency.SPM {
     static let Then = Self.external("Then")
     static let SnapKit = Self.external("SnapKit")
     static let ReactorKit = Self.external("ReactorKit")
+    static let RxSwift = Self.external("RxSwift")
+    static let RxCocoa = Self.external("RxCocoa")
     
     private static func external(_ name: String) -> TargetDependency {
         return TargetDependency.external(name: name)

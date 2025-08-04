@@ -9,7 +9,7 @@ let frameworkTargets: [Target] = FrameworkFactory(
             Dep.Project.DIKit,
             Dep.Project.DomainKit,
             Dep.Project.FoundationKit,
-            .SPM.ComposableArchitecture
+            Dep.Project.ThirdPartyManager,
         ],
         unitTestsDependencies: []
     )

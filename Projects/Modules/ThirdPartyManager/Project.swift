@@ -12,6 +12,8 @@ let frameworkTargets: [Target] = FrameworkFactory(
             .SPM.Then,
             .SPM.SnapKit,
             .SPM.ReactorKit,
+            .SPM.RxSwift,
+            .SPM.RxCocoa,
         ],
         unitTestsDependencies: []
     )

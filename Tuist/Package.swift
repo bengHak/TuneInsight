@@ -23,5 +23,6 @@ let package = Package(
         .package(url: "https://github.com/devxoul/Then", from: "3.0.0"),
         .package(url: "https://github.com/SnapKit/SnapKit", from: "5.7.0"),
         .package(url: "https://github.com/ReactorKit/ReactorKit", from: "3.2.0"),
+        .package(url: "https://github.com/ReactiveX/RxSwift", from: "6.6.0"),
     ]
 )

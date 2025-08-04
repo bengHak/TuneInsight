@@ -1,6 +1,8 @@
 //  SceneDelegate.swift
 //  SpotifyStats
 import UIKit
+import Then
+import SnapKit
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -11,16 +13,15 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        
+        // Ensure UIKit lifecycle is active via AppDelegate (see Projects/Application/Sources/AppDelegate.swift:5)
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
         
-        // Root: UINavigationController with HomeViewController
-        let homeVC = HomeViewController()
-        homeVC.title = "SpotifyStats"
-        let navigationController = UINavigationController(rootViewController: homeVC)
-        navigationController.navigationBar.prefersLargeTitles = true
+        // Root: UINavigationController with SplashViewController (Projects/Application/Sources/SplashViewController.swift)
+        let splashVC = SplashViewController()
+        let navigationController = UINavigationController(rootViewController: splashVC)
+        navigationController.navigationBar.isHidden = true
         
         window.rootViewController = navigationController
         self.window = window
