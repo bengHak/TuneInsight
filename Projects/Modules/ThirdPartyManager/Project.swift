@@ -10,6 +10,8 @@ let frameworkTargets: [Target] = FrameworkFactory(
             .SPM.Alamofire,
             .SPM.Swinject,
             .SPM.Then,
+            .SPM.SnapKit,
+            .SPM.ReactorKit,
         ],
         unitTestsDependencies: []
     )
