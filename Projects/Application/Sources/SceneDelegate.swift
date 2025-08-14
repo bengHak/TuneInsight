@@ -1,6 +1,7 @@
 //  SceneDelegate.swift
 //  SpotifyStats
 import UIKit
+import PresentationKit
 import Then
 import SnapKit
 
@@ -34,4 +35,11 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillResignActive(_ scene: UIScene) {}
     func sceneWillEnterForeground(_ scene: UIScene) {}
     func sceneDidEnterBackground(_ scene: UIScene) {}
+
+    // Handle Spotify OAuth redirect
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url else { return }
+        // Pass to Spotify auth manager
+        SpotifyAuthManager.shared.handle(url: url)
+    }
 }

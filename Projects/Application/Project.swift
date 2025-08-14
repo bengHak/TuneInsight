@@ -14,7 +14,6 @@ let infoPlist: [String: Plist.Value] = [
         "UIColorName": "",
         "UIImageName": "",
     ],
-    // UIKit lifecycle with UIScene + SceneDelegate
     "UIApplicationSceneManifest": [
         "UIApplicationSupportsMultipleScenes": false,
         "UISceneConfigurations": [
@@ -25,7 +24,15 @@ let infoPlist: [String: Plist.Value] = [
                 ]
             ]
         ]
-    ]
+    ],
+    "SPOTIFY_CLIENT_ID": "$(SPOTIFY_CLIENT_ID)",
+    "CFBundleURLTypes": [
+        [
+            "CFBundleURLName": "spotify-stats",
+            "CFBundleURLSchemes": ["sparkspotifystats"]
+        ]
+    ],
+    "LSApplicationQueriesSchemes": ["spotify"],
 ]
 
 // MARK: - App

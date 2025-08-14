@@ -14,6 +14,7 @@ let frameworkTargets: [Target] = FrameworkFactory(
             .SPM.ReactorKit,
             .SPM.RxSwift,
             .SPM.RxCocoa,
+            .SPM.SpotifyiOS,
         ],
         unitTestsDependencies: []
     )

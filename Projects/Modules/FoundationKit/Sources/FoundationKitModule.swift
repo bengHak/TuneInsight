@@ -11,3 +11,33 @@ public final class FoundationKitModule {
         // Foundation 관련 설정을 위한 기본 코드
     }
 }
+
+// MARK: - AppConstants
+public enum AppConstants {
+    private static let searchBundles: [Bundle] = {
+        var bundles: [Bundle] = [Bundle.main]
+        if let foundationBundle = Bundle(identifier: Bundle.main.bundleIdentifier ?? "") { // fallback logic
+            if !bundles.contains(foundationBundle) { bundles.append(foundationBundle) }
+        }
+        return bundles
+    }()
+
+    private static func infoValue(_ key: String) -> String? {
+        for bundle in searchBundles {
+            if let value = bundle.object(forInfoDictionaryKey: key) as? String, !value.isEmpty { return value }
+        }
+        return nil
+    }
+
+    public enum Keys: String {
+        case spotifyClientID = "SPOTIFY_CLIENT_ID"
+    }
+
+    public static var spotifyClientID: String {
+        guard let v = infoValue(Keys.spotifyClientID.rawValue) else {
+            assertionFailure("Missing Info.plist key: \(Keys.spotifyClientID.rawValue)")
+            return ""
+        }
+        return v
+    }
+}
