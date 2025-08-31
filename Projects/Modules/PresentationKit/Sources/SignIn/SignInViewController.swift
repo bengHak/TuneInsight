@@ -15,8 +15,7 @@ import SpotifyiOS
 import ThirdPartyManager
 
 public final class SignInViewController: UIViewController {
-	private let disposeBag = DisposeBag()
-	public weak var coordinator: SignInCoordinator?
+    
 	private let titleLabel = UILabel().then {
 		$0.text = "Sign in with Spotify"
 		$0.font = .preferredFont(forTextStyle: .title1)
@@ -31,6 +30,9 @@ public final class SignInViewController: UIViewController {
 		$0.layer.cornerRadius = 12
 		$0.accessibilityIdentifier = "spotify_login_button"
 	}
+    
+    private let disposeBag = DisposeBag()
+    public weak var coordinator: SignInCoordinator?
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
@@ -61,7 +63,7 @@ public final class SignInViewController: UIViewController {
 		loginButton.rx.tap
 			.throttle(.milliseconds(500), scheduler: MainScheduler.instance)
 			.bind(onNext: { [weak self] in
-				guard let self = self else { return }
+				guard let self else { return }
 				SpotifyAuthManager.shared.startAuthorization(from: self)
 			})
 			.disposed(by: disposeBag)
@@ -69,17 +71,45 @@ public final class SignInViewController: UIViewController {
 		SpotifyAuthManager.shared.authorizationState
 			.observe(on: MainScheduler.asyncInstance)
 			.subscribe(onNext: { [weak self] state in
+                guard let self else { return }
 				switch state {
-				case .failed(let error):
-					let alert = UIAlertController(title: "Spotify Auth Failed", message: error.localizedDescription, preferredStyle: .alert)
-					alert.addAction(UIAlertAction(title: "OK", style: .default))
-					self?.present(alert, animated: true)
-				case .authorized, .idle, .authorizing:
+				case let .failed(error):
+                    self.showAlert(error)
+                case let .authorized(session):
+                    self.handleToken(
+                        accessToken: session.accessToken,
+                        refreshToken: session.refreshToken,
+                        expirationDate: session.expirationDate
+                    )
+                case .idle, .authorizing:
 					break
 				}
 			})
 			.disposed(by: disposeBag)
 	}
+    
+    private func showAlert(_ error: Error) {
+        let alert = UIAlertController(
+            title: "Spotify Auth Failed",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: "OK",
+                style: .default
+            )
+        )
+        self.present(alert, animated: true)
+    }
+    
+    private func handleToken(
+        accessToken: String,
+        refreshToken: String,
+        expirationDate: Date
+    ) {
+        // reactor에서 처리
+    }
 }
 
 #Preview {
