@@ -8,6 +8,7 @@ import PresentationKit
 
 final class SplashViewController: UIViewController, View {
     var disposeBag = DisposeBag()
+    weak var coordinator: SplashCoordinator?
     private let activityIndicator = UIActivityIndicatorView(style: .large)
     private let titleLabel = UILabel().then {
         $0.text = "SpotifyStats"
@@ -69,15 +70,7 @@ final class SplashViewController: UIViewController, View {
     }
 
     private func routeToOnboarding() {
-        let onboardingVC = OnboardingViewController()
-        guard let navigationController = self.navigationController else {
-            // 네비게이션 컨텍스트가 없으면 rootViewController 자체를 교체
-            view.window?.rootViewController = UINavigationController(rootViewController: onboardingVC)
-            view.window?.makeKeyAndVisible()
-            return
-        }
-        // 네비게이션 컨트롤러의 루트뷰를 Onboarding으로 교체
-        navigationController.setViewControllers([onboardingVC], animated: false)
+        coordinator?.routeToOnboarding()
     }
 }
 

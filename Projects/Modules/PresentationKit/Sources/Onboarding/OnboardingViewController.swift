@@ -7,6 +7,7 @@ import RxSwift
 
 public final class OnboardingViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
+    public weak var coordinator: OnboardingCoordinator?
 
     private let titleLabel = UILabel().then {
         $0.text = "Onboarding"
@@ -46,9 +47,7 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     }
     
     private func presentSignIn() {
-        let signInVC = SignInViewController()
-        signInVC.modalPresentationStyle = .fullScreen
-        self.present(signInVC, animated: true, completion: nil)
+        coordinator?.showSignIn()
     }
 }
 

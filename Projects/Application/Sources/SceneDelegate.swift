@@ -7,26 +7,20 @@ import SnapKit
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
+    private var appCoordinator: AppCoordinator?
     
-    // Configure window and root view controller
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        // Ensure UIKit lifecycle is active via AppDelegate (see Projects/Application/Sources/AppDelegate.swift:5)
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        
-        // Root: UINavigationController with SplashViewController (Projects/Application/Sources/SplashViewController.swift)
-        let splashVC = SplashViewController()
-        let navigationController = UINavigationController(rootViewController: splashVC)
-        navigationController.navigationBar.isHidden = true
-        
-        window.rootViewController = navigationController
         self.window = window
-        window.makeKeyAndVisible()
+        
+        appCoordinator = AppCoordinator(window: window)
+        appCoordinator?.start()
     }
     
     // Stubs for lifecycle (skeleton)

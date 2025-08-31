@@ -16,6 +16,7 @@ import ThirdPartyManager
 
 public final class SignInViewController: UIViewController {
 	private let disposeBag = DisposeBag()
+	public weak var coordinator: SignInCoordinator?
 	private let titleLabel = UILabel().then {
 		$0.text = "Sign in with Spotify"
 		$0.font = .preferredFont(forTextStyle: .title1)
@@ -69,16 +70,11 @@ public final class SignInViewController: UIViewController {
 			.observe(on: MainScheduler.asyncInstance)
 			.subscribe(onNext: { [weak self] state in
 				switch state {
-				case .authorized(let session):
-					// TODO: route to main app content; placeholder alert for now
-					let alert = UIAlertController(title: "Authorized", message: "Access token: \(session.accessToken.prefix(10))...", preferredStyle: .alert)
-					alert.addAction(UIAlertAction(title: "OK", style: .default))
-					self?.present(alert, animated: true)
 				case .failed(let error):
 					let alert = UIAlertController(title: "Spotify Auth Failed", message: error.localizedDescription, preferredStyle: .alert)
 					alert.addAction(UIAlertAction(title: "OK", style: .default))
 					self?.present(alert, animated: true)
-				case .idle, .authorizing:
+				case .authorized, .idle, .authorizing:
 					break
 				}
 			})
