@@ -35,9 +35,20 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
             make.trailing.lessThanOrEqualTo(view.safeAreaLayoutGuide.snp.trailing).inset(24)
         }
     }
+    
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        presentSignIn()
+    }
 
     public func bind(reactor: OnboardingReactor) {
         // 기본 바인딩 없음 (최소 화면)
+    }
+    
+    private func presentSignIn() {
+        let signInVC = SignInViewController()
+        signInVC.modalPresentationStyle = .fullScreen
+        self.present(signInVC, animated: true, completion: nil)
     }
 }
 
