@@ -44,7 +44,6 @@ let appTargets: [Target] = AppFactory(
             Dep.Project.DataKit,
             Dep.Project.DomainKit,
             Dep.Project.PresentationKit,
-            Dep.Project.ThirdPartyManager,
             .SPM.Then,
             .SPM.SnapKit,
             .SPM.ReactorKit,

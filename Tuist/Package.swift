@@ -11,10 +11,6 @@ import PackageDescription
             "Swinject": .framework,
             "Then": .framework,
             "SnapKit": .framework,
-            "ReactorKit": .framework,
-            "RxSwift": .framework,
-            "RxCocoa": .framework,
-            "RxRelay": .framework,
             "SpotifyiOS": .framework,
         ]
     )

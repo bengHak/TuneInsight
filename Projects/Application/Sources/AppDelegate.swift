@@ -1,6 +1,7 @@
 //  AppDelegate.swift
 //  SpotifyStats
 import UIKit
+import DIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -10,8 +11,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        // Skeleton: add DI setup / ThirdParty init here later if needed.
+        setupDependencyInjection()
         return true
+    }
+    
+    private func setupDependencyInjection() {
+        let appAssembly = AppAssembly()
+        appAssembly.setupDI()
     }
     
     // MARK: UISceneSession Lifecycle

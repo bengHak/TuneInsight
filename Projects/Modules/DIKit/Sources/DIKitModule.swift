@@ -1,35 +1,56 @@
 import Foundation
 import Swinject
 
-// DIKit 모듈 - 의존성 주입을 위한 컨테이너 관리
+public protocol DIAssembly {
+    func assemble(container: Container)
+}
+
 public final class DIContainer {
     public static let shared = DIContainer()
     
     private let container = Container()
+    private var assemblies: [DIAssembly] = []
     
-    private init() {
-        setupDependencies()
+    private init() {}
+    
+    public func addAssembly(_ assembly: DIAssembly) {
+        assemblies.append(assembly)
+        assembly.assemble(container: container)
     }
     
     public func resolve<T>(_ type: T.Type) -> T? {
         return container.resolve(type)
     }
     
-    public func register<T>(_ type: T.Type, factory: @escaping (Resolver) -> T) {
-        container.register(type, factory: factory)
+    public func resolve<T>(_ type: T.Type, name: String?) -> T? {
+        return container.resolve(type, name: name)
     }
     
-    private func setupDependencies() {
-        // 기본 의존성들을 여기에 등록
-        // 예: container.register(SomeProtocol.self) { _ in SomeImplementation() }
+    public func register<T>(_ type: T.Type, name: String? = nil, factory: @escaping (Resolver) -> T) {
+        container.register(type, name: name, factory: factory)
     }
 }
 
-// 편의를 위한 전역 함수들
+public class DIResolver {
+    private let container: DIContainer
+    
+    public init(container: DIContainer = .shared) {
+        self.container = container
+    }
+    
+    public func resolve<T>(_ type: T.Type) -> T? {
+        return container.resolve(type)
+    }
+    
+    public func resolve<T>(_ type: T.Type, name: String?) -> T? {
+        return container.resolve(type, name: name)
+    }
+}
+
 public func resolve<T>(_ type: T.Type) -> T? {
     return DIContainer.shared.resolve(type)
 }
 
-public func register<T>(_ type: T.Type, factory: @escaping (Resolver) -> T) {
-    DIContainer.shared.register(type, factory: factory)
+public func resolve<T>(_ type: T.Type, name: String?) -> T? {
+    return DIContainer.shared.resolve(type, name: name)
 }

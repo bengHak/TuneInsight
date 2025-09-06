@@ -291,12 +291,14 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         // Loading State
         reactor.state.map { $0.isLoading }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .bind(to: refreshControl.rx.isRefreshing)
             .disposed(by: disposeBag)
         
         // Current Playback
         reactor.state.map { $0.currentPlayback }
             .distinctUntilChanged { $0?.track?.id == $1?.track?.id && $0?.isPlaying == $1?.isPlaying }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] playback in
                 self?.updateCurrentPlayback(playback)
             })
@@ -304,18 +306,23 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         
         // Recent Tracks
         reactor.state.map { $0.recentTracks }
-            .distinctUntilChanged { $0.count == $1.count && $0.first?.track.id == $1.first?.track.id }
-            .bind(to: recentTracksTableView.rx.items(
-                cellIdentifier: RecentTrackCell.identifier,
-                cellType: RecentTrackCell.self
-            )) { index, track, cell in
-                cell.configure(with: track)
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { tracks in
+                print(tracks)
             }
+//            .bind(to: recentTracksTableView.rx.items(
+//                cellIdentifier: RecentTrackCell.identifier,
+//                cellType: RecentTrackCell.self
+//            )) { index, track, cell in
+//                cell.configure(with: track)
+//            }
             .disposed(by: disposeBag)
         
         // Error Message
         reactor.state.map { $0.errorMessage }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] error in
                 self?.updateErrorState(error)
             })

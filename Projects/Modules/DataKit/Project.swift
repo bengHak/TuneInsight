@@ -8,7 +8,7 @@ let frameworkTargets: [Target] = FrameworkFactory(
         frameworkDependencies: [
             Dep.Project.DomainKit,
             Dep.Project.FoundationKit,
-            .SPM.Alamofire
+            Dep.Project.DIKit,
         ],
         unitTestsDependencies: []
     )
