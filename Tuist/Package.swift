@@ -9,6 +9,13 @@ import PackageDescription
             "Alamofire": .framework,
             "ComposableArchitecture": .framework,
             "Swinject": .framework,
+            "Then": .framework,
+            "SnapKit": .framework,
+            "ReactorKit": .framework,
+            "RxSwift": .framework,
+            "RxCocoa": .framework,
+            "RxRelay": .framework,
+            "SpotifyiOS": .framework,
         ]
     )
 
