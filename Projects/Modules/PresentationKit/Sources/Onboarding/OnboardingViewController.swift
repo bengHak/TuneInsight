@@ -17,8 +17,17 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
         $0.numberOfLines = 0
         $0.accessibilityIdentifier = "onboarding_title_label"
     }
+    
+    private let nextButton = UIButton(type: .system).then {
+        $0.setTitle("다음", for: .normal)
+        $0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
+        $0.backgroundColor = UIColor.systemBlue
+        $0.setTitleColor(.white, for: .normal)
+        $0.layer.cornerRadius = 12
+        $0.accessibilityIdentifier = "onboarding_next_button"
+    }
 
-    public init(reactor: OnboardingReactor = OnboardingReactor()) {
+    public init(reactor: OnboardingReactor) {
         super.init(nibName: nil, bundle: nil)
         self.reactor = reactor
     }
@@ -30,10 +39,19 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
         view.backgroundColor = .systemBackground
 
         view.addSubview(titleLabel)
+        view.addSubview(nextButton)
+        
         titleLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.leading.greaterThanOrEqualTo(view.safeAreaLayoutGuide.snp.leading).offset(24)
             make.trailing.lessThanOrEqualTo(view.safeAreaLayoutGuide.snp.trailing).inset(24)
+        }
+        
+        nextButton.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(40)
+            make.leading.equalTo(view.safeAreaLayoutGuide.snp.leading).offset(24)
+            make.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing).inset(24)
+            make.height.equalTo(54)
         }
     }
     
@@ -43,7 +61,10 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     }
 
     public func bind(reactor: OnboardingReactor) {
-        // 기본 바인딩 없음 (최소 화면)
+        nextButton.rx.tap
+            .map { OnboardingReactor.Action.nextButtonTapped }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func checkAuthenticationStatusAndPresentSignIn() {
@@ -58,5 +79,5 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
 }
 
 #Preview {
-    OnboardingViewController()
+    OnboardingViewController(reactor: OnboardingReactor())
 }

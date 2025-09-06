@@ -14,7 +14,8 @@ public final class OnboardingCoordinator {
     }
     
     public func start() {
-        let onboardingVC = OnboardingViewController()
+        let onboardingReactor = OnboardingReactor(coordinator: self)
+        let onboardingVC = OnboardingViewController(reactor: onboardingReactor)
         onboardingVC.coordinator = self
         navigationController.setViewControllers([onboardingVC], animated: false)
     }
@@ -26,6 +27,13 @@ public final class OnboardingCoordinator {
         signInCoordinator.start()
     }
     
+    public func showMainTab() {
+        let mainTabCoordinator = MainTabBarCoordinator(navigationController: navigationController)
+        mainTabCoordinator.delegate = self
+        childCoordinators.append(mainTabCoordinator)
+        mainTabCoordinator.start()
+    }
+    
     public func removeChild(_ child: AnyObject) {
         childCoordinators.removeAll { $0 === child }
     }
@@ -33,6 +41,12 @@ public final class OnboardingCoordinator {
 
 extension OnboardingCoordinator: SignInCoordinatorDelegate {
     public func signInCoordinatorDidFinish(_ coordinator: SignInCoordinator) {
+        removeChild(coordinator)
+    }
+}
+
+extension OnboardingCoordinator: MainTabBarCoordinatorDelegate {
+    public func mainTabBarCoordinatorDidFinish(_ coordinator: MainTabBarCoordinator) {
         removeChild(coordinator)
     }
 }

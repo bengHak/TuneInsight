@@ -2,14 +2,12 @@ import Foundation
 import ReactorKit
 import RxSwift
 
-public final class OnboardingReactor: Reactor {
+public final class StatisticsReactor: Reactor {
     public enum Action {
         case viewDidLoad
-        case nextButtonTapped
     }
     
     public enum Mutation {
-        case showMainTab
     }
     
     public struct State {
@@ -17,19 +15,12 @@ public final class OnboardingReactor: Reactor {
     }
     
     public let initialState: State = .init()
-    
-    public weak var coordinator: OnboardingCoordinator?
 
-    public init(coordinator: OnboardingCoordinator? = nil) {
-        self.coordinator = coordinator
-    }
+    public init() {}
 
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            return .empty()
-        case .nextButtonTapped:
-            coordinator?.showMainTab()
             return .empty()
         }
     }
