@@ -57,8 +57,7 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
     }
 
     private func loadStoredSession() {
-        if let sessionData = UserDefaults.standard.data(forKey: "SpotifySession"),
-           let session = try? NSKeyedUnarchiver.unarchivedObject(ofClass: SPTSession.self, from: sessionData) {
+        if let session = UserDefaultsManager.shared.getSecurely(SPTSession.self, for: .spotifySession) {
             currentSession = session
             if !session.isExpired {
                 stateSubject.onNext(.authorized(session: session))
@@ -68,9 +67,7 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
     
     private func storeSession(_ session: SPTSession) {
         currentSession = session
-        if let sessionData = try? NSKeyedArchiver.archivedData(withRootObject: session, requiringSecureCoding: true) {
-            UserDefaults.standard.set(sessionData, forKey: "SpotifySession")
-        }
+        UserDefaultsManager.shared.saveSecurely(session, for: .spotifySession)
     }
 }
 
