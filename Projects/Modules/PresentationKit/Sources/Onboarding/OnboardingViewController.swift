@@ -39,11 +39,17 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        presentSignIn()
+        checkAuthenticationStatusAndPresentSignIn()
     }
 
     public func bind(reactor: OnboardingReactor) {
         // 기본 바인딩 없음 (최소 화면)
+    }
+    
+    private func checkAuthenticationStatusAndPresentSignIn() {
+        if !SpotifyAuthManager.shared.isAuthorized {
+            presentSignIn()
+        }
     }
     
     private func presentSignIn() {
