@@ -47,6 +47,10 @@ public final class SignInCoordinator {
         }
     }
     
+    public func signInDidComplete() {
+        handleAuthenticationSuccess()
+    }
+    
     public func removeChild(_ child: AnyObject) {
         childCoordinators.removeAll { $0 === child }
     }

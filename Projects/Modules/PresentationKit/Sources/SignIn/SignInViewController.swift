@@ -13,6 +13,7 @@ import RxSwift
 import RxCocoa
 import SpotifyiOS
 import ThirdPartyManager
+import FoundationKit
 
 public final class SignInViewController: UIViewController {
     
@@ -32,7 +33,18 @@ public final class SignInViewController: UIViewController {
 	}
     
     private let disposeBag = DisposeBag()
+    private let tokenStorage: TokenStorageProtocol
     public weak var coordinator: SignInCoordinator?
+    
+    public init(tokenStorage: TokenStorageProtocol = TokenStorage.shared) {
+        self.tokenStorage = tokenStorage
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        self.tokenStorage = TokenStorage.shared
+        super.init(coder: coder)
+    }
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
@@ -108,7 +120,43 @@ public final class SignInViewController: UIViewController {
         refreshToken: String,
         expirationDate: Date
     ) {
-        // reactor에서 처리
+        let spotifyToken = SpotifyToken(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expirationDate: expirationDate
+        )
+        
+        do {
+            try tokenStorage.saveToken(spotifyToken)
+            print("[SignIn] 토큰이 성공적으로 저장되었습니다.")
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.coordinator?.signInDidComplete()
+            }
+        } catch {
+            print("[SignIn] 토큰 저장 실패: \(error.localizedDescription)")
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.showTokenSaveErrorAlert(error)
+            }
+        }
+    }
+    
+    private func showTokenSaveErrorAlert(_ error: Error) {
+        let alert = UIAlertController(
+            title: "토큰 저장 실패",
+            message: "로그인은 성공했지만 토큰 저장에 실패했습니다.\n\(error.localizedDescription)",
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: "확인",
+                style: .default
+            ) { [weak self] _ in
+                self?.coordinator?.signInDidComplete()
+            }
+        )
+        present(alert, animated: true)
     }
 }
 
