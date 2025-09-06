@@ -95,12 +95,19 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         $0.textColor = .label
     }
     
-    private let recentTracksTableView = UITableView().then {
-        $0.backgroundColor = .clear
-        $0.separatorStyle = .none
-        $0.isScrollEnabled = false
-        $0.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
-    }
+    private lazy var recentTracksCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.itemSize = CGSize(width: UIScreen.main.bounds.width - 40, height: 60)
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 8
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.isScrollEnabled = false
+        collectionView.register(RecentTrackCollectionViewCell.self, forCellWithReuseIdentifier: RecentTrackCollectionViewCell.identifier)
+        return collectionView
+    }()
     
     // 에러 표시
     private let errorLabel = UILabel().then {
@@ -175,7 +182,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     private func setupRecentTracksSection() {
         contentView.addSubview(recentTracksLabel)
-        contentView.addSubview(recentTracksTableView)
+        contentView.addSubview(recentTracksCollectionView)
     }
     
     private func setupConstraints() {
@@ -234,10 +241,10 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
             make.leading.trailing.equalToSuperview().inset(20)
         }
         
-        recentTracksTableView.snp.makeConstraints { make in
+        recentTracksCollectionView.snp.makeConstraints { make in
             make.top.equalTo(recentTracksLabel.snp.bottom).offset(16)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(300) // 5개 셀 * 60 높이
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(340) // 5개 셀 * 60 높이 + 스페이싱
             make.bottom.equalToSuperview().inset(20)
         }
     }
@@ -305,19 +312,16 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
             .disposed(by: disposeBag)
         
         // Recent Tracks
-        reactor.state.map { $0.recentTracks }
-            .distinctUntilChanged()
-            .observe(on: MainScheduler.asyncInstance)
-            .bind { tracks in
-                print(tracks)
-            }
-//            .bind(to: recentTracksTableView.rx.items(
-//                cellIdentifier: RecentTrackCell.identifier,
-//                cellType: RecentTrackCell.self
+//        reactor.state.map { $0.recentTracks }
+//            .distinctUntilChanged()
+//            .observe(on: MainScheduler.asyncInstance)
+//            .bind(to: recentTracksCollectionView.rx.items(
+//                cellIdentifier: RecentTrackCollectionViewCell.identifier,
+//                cellType: RecentTrackCollectionViewCell.self
 //            )) { index, track, cell in
 //                cell.configure(with: track)
 //            }
-            .disposed(by: disposeBag)
+//            .disposed(by: disposeBag)
         
         // Error Message
         reactor.state.map { $0.errorMessage }
@@ -381,9 +385,9 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     }
 }
 
-// MARK: - Recent Track Cell
+// MARK: - Recent Track Collection View Cell
 
-private class RecentTrackCell: UITableViewCell {
+private class RecentTrackCollectionViewCell: UICollectionViewCell {
     
     private let trackImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
@@ -404,8 +408,8 @@ private class RecentTrackCell: UITableViewCell {
         $0.numberOfLines = 1
     }
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupUI()
     }
     
@@ -413,25 +417,24 @@ private class RecentTrackCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    static let identifier = "\(RecentTrackCell.self)"
+    static let identifier = "\(RecentTrackCollectionViewCell.self)"
     
     private func setupUI() {
         backgroundColor = .clear
-        selectionStyle = .none
         
         contentView.addSubview(trackImageView)
         contentView.addSubview(trackNameLabel)
         contentView.addSubview(artistNameLabel)
         
         trackImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(20)
+            make.leading.equalToSuperview()
             make.centerY.equalToSuperview()
             make.size.equalTo(50)
         }
         
         trackNameLabel.snp.makeConstraints { make in
             make.leading.equalTo(trackImageView.snp.trailing).offset(12)
-            make.trailing.equalToSuperview().inset(20)
+            make.trailing.equalToSuperview()
             make.top.equalTo(trackImageView.snp.top).offset(4)
         }
         

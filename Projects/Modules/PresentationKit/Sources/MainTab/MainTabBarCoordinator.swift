@@ -2,6 +2,7 @@ import UIKit
 
 public protocol MainTabBarCoordinatorDelegate: AnyObject {
     func mainTabBarCoordinatorDidFinish(_ coordinator: MainTabBarCoordinator)
+    func mainTabBarCoordinatorDidLogout(_ coordinator: MainTabBarCoordinator)
 }
 
 public final class MainTabBarCoordinator {
@@ -43,6 +44,7 @@ public final class MainTabBarCoordinator {
         let settingsNav = UINavigationController()
         settingsNav.navigationBar.isHidden = true
         let settingsCoordinator = SettingsCoordinator(navigationController: settingsNav)
+        settingsCoordinator.delegate = self
         let settingsVC = settingsCoordinator.start()
         settingsNav.setViewControllers([settingsVC], animated: false)
         childCoordinators.append(settingsCoordinator)
@@ -60,5 +62,15 @@ public final class MainTabBarCoordinator {
     
     public func removeChild(_ child: AnyObject) {
         childCoordinators.removeAll { $0 === child }
+    }
+}
+
+extension MainTabBarCoordinator: SettingsCoordinatorDelegate {
+    public func settingsCoordinatorDidFinish(_ coordinator: SettingsCoordinator) {
+        removeChild(coordinator)
+    }
+    
+    public func settingsCoordinatorDidLogout(_ coordinator: SettingsCoordinator) {
+        delegate?.mainTabBarCoordinatorDidLogout(self)
     }
 }

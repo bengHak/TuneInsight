@@ -41,6 +41,7 @@ public protocol TokenStorageProtocol {
     func saveToken(_ token: SpotifyToken) throws
     func loadToken() throws -> SpotifyToken
     func deleteToken() throws
+    func clearTokens() throws
     func hasValidToken() -> Bool
     func getCurrentAccessToken() throws -> String
     func getCurrentRefreshToken() throws -> String
@@ -105,6 +106,10 @@ public final class TokenStorage: TokenStorageProtocol, Sendable {
     }
     
     public func deleteToken() throws {
+        try clearTokens()
+    }
+    
+    public func clearTokens() throws {
         do {
             try keychainManager.delete(for: accessTokenKey)
             try keychainManager.delete(for: refreshTokenKey)

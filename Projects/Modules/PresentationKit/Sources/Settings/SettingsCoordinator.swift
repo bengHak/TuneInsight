@@ -2,6 +2,7 @@ import UIKit
 
 public protocol SettingsCoordinatorDelegate: AnyObject {
     func settingsCoordinatorDidFinish(_ coordinator: SettingsCoordinator)
+    func settingsCoordinatorDidLogout(_ coordinator: SettingsCoordinator)
 }
 
 public final class SettingsCoordinator {
@@ -22,5 +23,9 @@ public final class SettingsCoordinator {
     
     public func removeChild(_ child: AnyObject) {
         childCoordinators.removeAll { $0 === child }
+    }
+    
+    public func didLogout() {
+        delegate?.settingsCoordinatorDidLogout(self)
     }
 }

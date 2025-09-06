@@ -48,9 +48,30 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
             stateSubject.onNext(.failed(error: NSError(domain: "SpotifyAuthManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Client ID is not configured."])))
             return
         }
-        let scope: SPTScope = [.userReadPrivate, .userTopRead]
+        let scopes: SPTScope = [
+            .playlistReadPrivate,
+            .playlistReadCollaborative,
+            .playlistModifyPublic,
+            .playlistModifyPrivate,
+            .userFollowRead,
+            .userFollowModify,
+            .userLibraryRead,
+            .userLibraryModify,
+            .userReadEmail,
+            .userReadPrivate,
+            .userTopRead,
+            .ugcImageUpload,
+            .appRemoteControl,            // iOS/Android SDK용 리모트 제어
+            .userReadPlaybackState,
+            .userModifyPlaybackState,
+            .userReadCurrentlyPlaying,
+            .userReadRecentlyPlayed
+            // 제거: .userReadBirthDate (폐지), .openid (미지원)
+            // 선택: .streaming (Web Playback SDK 쓸 때만)
+        ]
+
         stateSubject.onNext(.authorizing)
-        sessionManager.initiateSession(with: scope, campaign: nil)
+        sessionManager.initiateSession(with: scopes, campaign: nil)
     }
 
     public func handle(url: URL) {

@@ -49,4 +49,9 @@ extension OnboardingCoordinator: MainTabBarCoordinatorDelegate {
     public func mainTabBarCoordinatorDidFinish(_ coordinator: MainTabBarCoordinator) {
         removeChild(coordinator)
     }
+    
+    public func mainTabBarCoordinatorDidLogout(_ coordinator: MainTabBarCoordinator) {
+        removeChild(coordinator)
+        delegate?.onboardingCoordinatorDidFinish(self)
+    }
 }
