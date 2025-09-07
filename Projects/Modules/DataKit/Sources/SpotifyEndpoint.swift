@@ -46,15 +46,26 @@ public enum SpotifyEndpoint: APIEndpoint {
     }
     
     public var parameters: [String: Any]? {
+        return nil
+    }
+    
+    public var queryParameters: [String: Any]? {
         switch self {
         case .recentlyPlayed(let limit):
             if let limit = limit {
                 return ["limit": limit]
             }
             return nil
+        case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous, .seek:
+            return nil
+        }
+    }
+    
+    public var bodyParameters: [String: Any]? {
+        switch self {
         case .seek(let positionMs):
             return ["position_ms": positionMs]
-        case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous:
+        case .currentlyPlaying, .recentlyPlayed, .userProfile, .play, .pause, .next, .previous:
             return nil
         }
     }

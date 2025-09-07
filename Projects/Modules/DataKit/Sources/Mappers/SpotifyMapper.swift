@@ -19,7 +19,10 @@ public enum SpotifyMapper {
     
     public static func toDomain(_ response: RecentlyPlayedResponse) -> [RecentTrack] {
         return response.items.compactMap { playHistory in
-            guard let playedAt = ISO8601DateFormatter().date(from: playHistory.playedAt) else {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            
+            guard let playedAt = formatter.date(from: playHistory.playedAt) else {
                 return nil
             }
             

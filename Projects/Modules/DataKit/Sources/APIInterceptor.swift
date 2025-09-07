@@ -7,14 +7,19 @@ public protocol APIInterceptorProtocol {
 }
 
 public final class APIInterceptor: RequestInterceptor, APIInterceptorProtocol, Sendable {
+    private let logger: APILoggerProtocol
     
-    public init() {}
+    public init(logger: APILoggerProtocol = APILogger.shared) {
+        self.logger = logger
+    }
     
     public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
         var adaptedRequest = urlRequest
         
         adaptedRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         adaptedRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        
+        logger.logRequest(adaptedRequest, endpoint: nil)
         
         completion(.success(adaptedRequest))
     }
@@ -31,6 +36,7 @@ public final class APIInterceptor: RequestInterceptor, APIInterceptorProtocol, S
             completion(.doNotRetry)
         case 500...599:
             if request.retryCount < 2 {
+                logger.logRetry(request, attempt: request.retryCount + 1, error: error)
                 completion(.retryWithDelay(1.0))
             } else {
                 completion(.doNotRetryWithError(error))

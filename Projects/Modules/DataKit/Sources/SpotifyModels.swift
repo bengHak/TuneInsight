@@ -258,6 +258,7 @@ public struct RecentlyPlayedResponse: Codable, Sendable {
     public let cursors: Cursor?
     public let limit: Int
     public let href: String
+    public let total: Int?
 }
 
 // MARK: - Play History

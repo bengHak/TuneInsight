@@ -91,7 +91,7 @@ public final class HomeReactor: Reactor {
             return performPlayPauseAction()
             
         case .nextTrack:
-            return performPlaybackControlAction { 
+            return performPlaybackControlAction {
                 try await self.playbackControlUseCase.nextTrack()
             }
             

@@ -42,7 +42,6 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         reactor?.action.onNext(.checkAuthentication)
-        print(#function)
     }
     
     private func configureSubviews() {
