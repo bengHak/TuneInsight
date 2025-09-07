@@ -47,6 +47,7 @@ public final class SettingsReactor: Reactor {
 
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
+        newState.isLogoutCompleted = false
         
         switch mutation {
         case .setShowLogoutAlert(let show):
@@ -64,14 +65,9 @@ public final class SettingsReactor: Reactor {
     
     private func performLogout() -> Observable<Mutation> {
         return Observable.create { observer in
-            do {
-                try self.tokenStorage.clearTokens()
-                observer.onNext(.setLogoutCompleted(true))
-                observer.onNext(.setShowLogoutAlert(false))
-            } catch {
-                observer.onNext(.setError("로그아웃 중 오류가 발생했습니다: \(error.localizedDescription)"))
-                observer.onNext(.setShowLogoutAlert(false))
-            }
+            SpotifyAuthManager.shared.signOut()
+            observer.onNext(.setLogoutCompleted(true))
+            observer.onNext(.setShowLogoutAlert(false))
             observer.onCompleted()
             return Disposables.create()
         }

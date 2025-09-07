@@ -62,7 +62,7 @@ final class AppCoordinator: Coordinator {
 }
 
 extension AppCoordinator: OnboardingCoordinatorDelegate {
-    func onboardingCoordinatorDidFinish(_ coordinator: OnboardingCoordinator) {
+    func showMainTab(_ coordinator: OnboardingCoordinator) {
         removePresentationChild(coordinator)
         showMainTabBar()
     }
@@ -75,7 +75,7 @@ extension AppCoordinator: MainTabBarCoordinatorDelegate {
     
     func mainTabBarCoordinatorDidLogout(_ coordinator: MainTabBarCoordinator) {
         removePresentationChild(coordinator)
-        showSignIn()
+        showOnboarding()
     }
 }
 

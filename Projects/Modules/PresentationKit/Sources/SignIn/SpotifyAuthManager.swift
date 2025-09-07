@@ -65,7 +65,8 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
             .userReadPlaybackState,
             .userModifyPlaybackState,
             .userReadCurrentlyPlaying,
-            .userReadRecentlyPlayed
+            .userReadRecentlyPlayed,
+            .streaming
             // 제거: .userReadBirthDate (폐지), .openid (미지원)
             // 선택: .streaming (Web Playback SDK 쓸 때만)
         ]

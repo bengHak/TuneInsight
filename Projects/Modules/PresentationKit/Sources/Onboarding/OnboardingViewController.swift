@@ -36,6 +36,16 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        configureSubviews()
+    }
+    
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        reactor?.action.onNext(.checkAuthentication)
+        print(#function)
+    }
+    
+    private func configureSubviews() {
         view.backgroundColor = .systemBackground
 
         view.addSubview(titleLabel)
@@ -54,27 +64,20 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
             make.height.equalTo(54)
         }
     }
-    
-    public override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        checkAuthenticationStatusAndPresentSignIn()
-    }
 
     public func bind(reactor: OnboardingReactor) {
         nextButton.rx.tap
             .map { OnboardingReactor.Action.nextButtonTapped }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-    }
-    
-    private func checkAuthenticationStatusAndPresentSignIn() {
-        if !SpotifyAuthManager.shared.isAuthorized {
-            presentSignIn()
-        }
-    }
-    
-    private func presentSignIn() {
-        coordinator?.showSignIn()
+        
+        reactor.state.map { $0.shouldShowSignIn }
+            .distinctUntilChanged()
+            .filter { $0 }
+            .subscribe(onNext: { [weak self] _ in
+                self?.coordinator?.showSignIn()
+            })
+            .disposed(by: disposeBag)
     }
 }
 

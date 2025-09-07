@@ -131,7 +131,3 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         present(alert, animated: true)
     }
 }
-
-#Preview {
-    SettingsViewController()
-}
