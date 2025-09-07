@@ -108,7 +108,7 @@ public final class HomeReactor: Reactor {
         case .viewDidLoad:
             return .concat([
                 .just(.setLoading(true)),
-                loadCurrentPlayback(),
+                loadCurrentPlaybackSafely(),
                 loadRecentTracks(),
                 .just(.setLoading(false)),
                 startAutoRefreshMutation()
@@ -117,7 +117,7 @@ public final class HomeReactor: Reactor {
         case .refresh:
             return .concat([
                 .just(.setLoading(true)),
-                loadCurrentPlayback(),
+                loadCurrentPlaybackSafely(),
                 loadRecentTracks(),
                 .just(.setLoading(false))
             ])
@@ -129,17 +129,20 @@ public final class HomeReactor: Reactor {
             return performPlayPauseAction()
             
         case .nextTrack:
-            return performPlaybackControlAction {
+            return performPlaybackControlAction { [weak self] in
+                guard let self else { return }
                 try await self.playbackControlUseCase.nextTrack()
             }
             
         case .previousTrack:
-            return performPlaybackControlAction {
+            return performPlaybackControlAction { [weak self] in
+                guard let self else { return }
                 try await self.playbackControlUseCase.previousTrack()
             }
             
         case .seek(let positionMs):
-            return performPlaybackControlAction {
+            return performPlaybackControlAction { [weak self] in
+                guard let self else { return }
                 try await self.playbackControlUseCase.seek(to: positionMs)
             }
             
@@ -230,6 +233,11 @@ public final class HomeReactor: Reactor {
     
     // MARK: - Private Methods
     
+    private func loadCurrentPlaybackSafely() -> Observable<Mutation> {
+        return loadCurrentPlayback()
+            .catchAndReturn(.setError(nil)) // 오류가 발생해도 빈 결과로 처리하여 체인이 계속되도록 함
+    }
+    
     private func loadCurrentPlayback() -> Observable<Mutation> {
         return Observable.create { [weak self] observer in
             Task {
@@ -282,7 +290,8 @@ public final class HomeReactor: Reactor {
             return .just(.setError("재생 중인 곡이 없습니다."))
         }
         
-        let action: () async throws -> Void = {
+        let action: () async throws -> Void = { [weak self] in
+            guard let self else { return }
             if currentPlayback.isPlaying {
                 try await self.playbackControlUseCase.pause()
             } else {
@@ -306,15 +315,7 @@ public final class HomeReactor: Reactor {
                     // 0.5초 후 재생 상태 업데이트
                     try await Task.sleep(nanoseconds: 500_000_000)
                     
-                    let playback = try await self.getCurrentPlaybackUseCase.execute()
-                    observer.onNext(.setCurrentPlayback(playback))
-                    observer.onNext(.setLastPlaybackFetchTime(Date()))
                     
-                    if playback.isPlaying && playback.track != nil {
-                        self.action.onNext(.startProgressTimer)
-                    } else {
-                        self.action.onNext(.stopProgressTimer)
-                    }
                 } catch SpotifyRepositoryError.unauthorized {
                     observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
                 } catch {

@@ -40,8 +40,10 @@ public enum SpotifyEndpoint: APIEndpoint {
         switch self {
         case .currentlyPlaying, .recentlyPlayed, .userProfile:
             return .GET
-        case .play, .pause, .next, .previous, .seek:
+        case .play, .pause, .seek:
             return .PUT
+        case .next, .previous:
+            return .POST
         }
     }
     

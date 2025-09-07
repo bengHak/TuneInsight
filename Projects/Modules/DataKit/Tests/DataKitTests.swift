@@ -180,18 +180,18 @@ final class APIHandlerTests: XCTestCase {
         
         let endpoint = MockEndpoint(baseURL: "", path: "")
         
-        async let result1: Result<MockResponse, Error> = {
+        async let result1: Result<MockResponse?, Error> = {
             do {
-                let response: MockResponse = try await handler1.request(endpoint)
+                let response: MockResponse? = try await handler1.request(endpoint)
                 return .success(response)
             } catch {
                 return .failure(error)
             }
         }()
         
-        async let result2: Result<MockResponse, Error> = {
+        async let result2: Result<MockResponse?, Error> = {
             do {
-                let response: MockResponse = try await handler2.request(endpoint)
+                let response: MockResponse? = try await handler2.request(endpoint)
                 return .success(response)
             } catch {
                 return .failure(error)

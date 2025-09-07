@@ -42,7 +42,9 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func getCurrentlyPlaying() async throws -> CurrentlyPlayingResponse {
         do {
-            let response: CurrentlyPlayingResponse = try await apiHandler.request(SpotifyEndpoint.currentlyPlaying)
+            guard let response: CurrentlyPlayingResponse = try await apiHandler.request(SpotifyEndpoint.currentlyPlaying) else {
+                throw SpotifyServiceError.noCurrentlyPlaying
+            }
             return response
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
@@ -55,7 +57,9 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func getRecentlyPlayed(limit: Int = 20) async throws -> RecentlyPlayedResponse {
         do {
-            let response: RecentlyPlayedResponse = try await apiHandler.request(SpotifyEndpoint.recentlyPlayed(limit: limit))
+            guard let response: RecentlyPlayedResponse = try await apiHandler.request(SpotifyEndpoint.recentlyPlayed(limit: limit)) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
             return response
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
@@ -68,7 +72,9 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func getUserProfile() async throws -> UserProfile {
         do {
-            let response: UserProfile = try await apiHandler.request(SpotifyEndpoint.userProfile)
+            guard let response: UserProfile = try await apiHandler.request(SpotifyEndpoint.userProfile) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
             return response
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
@@ -81,9 +87,9 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func play() async throws {
         do {
-            // PUT 요청이므로 응답 데이터가 없을 수 있음
-            struct EmptyResponse: Codable, Sendable {}
-            let _: EmptyResponse = try await apiHandler.request(SpotifyEndpoint.play)
+            // PUT 요청이므로 응답 데이터가 없을 수 있음 (nil 반환 허용)
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(SpotifyEndpoint.play)
+            // nil 반환도 정상적인 경우로 처리
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
         } catch let error as APIError {
@@ -95,8 +101,8 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func pause() async throws {
         do {
-            struct EmptyResponse: Codable, Sendable {}
-            let _: EmptyResponse = try await apiHandler.request(SpotifyEndpoint.pause)
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(SpotifyEndpoint.pause)
+            // nil 반환도 정상적인 경우로 처리
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
         } catch let error as APIError {
@@ -108,8 +114,8 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func nextTrack() async throws {
         do {
-            struct EmptyResponse: Codable, Sendable {}
-            let _: EmptyResponse = try await apiHandler.request(SpotifyEndpoint.next)
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(SpotifyEndpoint.next)
+            // nil 반환도 정상적인 경우로 처리
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
         } catch let error as APIError {
@@ -121,8 +127,8 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func previousTrack() async throws {
         do {
-            struct EmptyResponse: Codable, Sendable {}
-            let _: EmptyResponse = try await apiHandler.request(SpotifyEndpoint.previous)
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(SpotifyEndpoint.previous)
+            // nil 반환도 정상적인 경우로 처리
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
         } catch let error as APIError {
@@ -134,8 +140,8 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func seek(to positionMs: Int) async throws {
         do {
-            struct EmptyResponse: Codable, Sendable {}
-            let _: EmptyResponse = try await apiHandler.request(SpotifyEndpoint.seek(positionMs: positionMs))
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(SpotifyEndpoint.seek(positionMs: positionMs))
+            // nil 반환도 정상적인 경우로 처리
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
         } catch let error as APIError {

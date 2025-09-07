@@ -13,8 +13,9 @@ public enum APIError: Error {
 }
 
 public protocol APIHandlerProtocol: Sendable {
-    func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T
-    func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint, responseType: T.Type) async throws -> T
+    func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T?
+    func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint, responseType: T.Type) async throws -> T?
+    func requestWithoutContentTypeValidation<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T?
 }
 
 public actor APIHandler: APIHandlerProtocol {
@@ -28,7 +29,7 @@ public actor APIHandler: APIHandlerProtocol {
         self.session = Session(interceptor: interceptor)
     }
     
-    public func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T {
+    public func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T? {
         let fullURL = try buildFullURL(for: endpoint)
         let timer = APITimer()
         
@@ -48,19 +49,12 @@ public actor APIHandler: APIHandlerProtocol {
                 headers: HTTPHeaders(endpoint.headers ?? [:])
             )
             .validate()
-            .responseData { [weak self] response in
+            .responseDecodable(of: T.self) { [weak self] response in
                 let duration = timer.duration
                 switch response.result {
-                case .success(let data):
-                    self?.logger.logResponse(response.response, data: data, error: nil, duration: duration)
-                    do {
-                        let decodedData = try JSONDecoder().decode(T.self, from: data)
-                        continuation.resume(returning: decodedData)
-                    } catch {
-                        let decodingError = APIError.decodingError(error)
-                        self?.logger.logResponse(response.response, data: data, error: decodingError, duration: duration)
-                        continuation.resume(throwing: decodingError)
-                    }
+                case .success(let decodedData):
+                    self?.logger.logResponse(response.response, data: response.data, error: nil, duration: duration)
+                    continuation.resume(returning: decodedData)
                 case .failure(let error):
                     let apiError = APIHandler.handleError(error, response: response.response)
                     self?.logger.logResponse(response.response, data: response.data, error: apiError, duration: duration)
@@ -118,8 +112,58 @@ public actor APIHandler: APIHandlerProtocol {
         return request
     }
     
-    public func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint, responseType: T.Type) async throws -> T {
+    public func request<T: Decodable & Sendable>(_ endpoint: APIEndpoint, responseType: T.Type) async throws -> T? {
         return try await request(endpoint)
+    }
+    
+    public func requestWithoutContentTypeValidation<T: Decodable & Sendable>(_ endpoint: APIEndpoint) async throws -> T? {
+        let fullURL = try buildFullURL(for: endpoint)
+        let timer = APITimer()
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let urlRequest = createURLRequest(url: fullURL, endpoint: endpoint)
+            
+            logger.logRequest(urlRequest, endpoint: endpoint)
+            
+            let parameters = getRequestParameters(for: endpoint)
+            let encoding = getParameterEncoding(for: endpoint)
+            
+            session.request(
+                fullURL,
+                method: endpoint.method.alamofireMethod,
+                parameters: parameters,
+                encoding: encoding,
+                headers: HTTPHeaders(endpoint.headers ?? [:])
+            )
+            .validate(statusCode: 200..<300)
+            .responseData { [weak self] response in
+                let duration = timer.duration
+                switch response.result {
+                case .success(let data):
+                    self?.logger.logResponse(response.response, data: data, error: nil, duration: duration)
+                    
+                    if T.self == String.self {
+                        let stringResponse = String(data: data, encoding: .utf8) ?? ""
+                        continuation.resume(returning: stringResponse as? T)
+                    } else if data.isEmpty {
+                        continuation.resume(returning: nil)
+                    } else {
+                        do {
+                            let decodedData = try JSONDecoder().decode(T.self, from: data)
+                            continuation.resume(returning: decodedData)
+                        } catch {
+                            let decodingError = APIError.decodingError(error)
+                            self?.logger.logResponse(response.response, data: data, error: decodingError, duration: duration)
+                            continuation.resume(throwing: decodingError)
+                        }
+                    }
+                case .failure(let error):
+                    let apiError = APIHandler.handleError(error, response: response.response)
+                    self?.logger.logResponse(response.response, data: response.data, error: apiError, duration: duration)
+                    continuation.resume(throwing: apiError)
+                }
+            }
+        }
     }
     
     private static func handleError(_ error: AFError, response: HTTPURLResponse?) -> APIError {
