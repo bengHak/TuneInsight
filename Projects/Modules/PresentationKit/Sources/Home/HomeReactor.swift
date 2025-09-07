@@ -315,6 +315,16 @@ public final class HomeReactor: Reactor {
                     // 0.5초 후 재생 상태 업데이트
                     try await Task.sleep(nanoseconds: 500_000_000)
                     
+                    // 원격 플레이어 상태를 다시 불러와서 UI 업데이트
+                    let playback = try await self.getCurrentPlaybackUseCase.execute()
+                    observer.onNext(.setLastPlaybackFetchTime(Date()))
+                    observer.onNext(.setCurrentPlayback(playback))
+                    
+                    if playback.isPlaying && playback.track != nil {
+                        self.action.onNext(.startProgressTimer)
+                    } else {
+                        self.action.onNext(.stopProgressTimer)
+                    }
                     
                 } catch SpotifyRepositoryError.unauthorized {
                     observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
