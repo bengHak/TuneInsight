@@ -9,13 +9,7 @@ public final class MainTabBarController: UITabBarController {
     }
     
     private func setupTabBar() {
-        tabBar.tintColor = .systemBlue
-        tabBar.unselectedItemTintColor = .systemGray
-        tabBar.backgroundColor = .systemBackground
-        tabBar.layer.shadowColor = UIColor.black.cgColor
-        tabBar.layer.shadowOpacity = 0.1
-        tabBar.layer.shadowOffset = CGSize(width: 0, height: -1)
-        tabBar.layer.shadowRadius = 8
+        tabBar.tintColor = .systemGreen
     }
     
     public func setupViewControllers(

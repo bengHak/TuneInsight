@@ -294,8 +294,12 @@ public final class HomeReactor: Reactor {
     }
     
     private func performPlaybackControlAction(action: @escaping () async throws -> Void) -> Observable<Mutation> {
-        return Observable.create { observer in
+        return Observable.create { [weak self] observer in
             Task {
+                guard let self else {
+                    observer.onCompleted()
+                    return
+                }
                 do {
                     try await action()
                     
@@ -307,13 +311,9 @@ public final class HomeReactor: Reactor {
                     observer.onNext(.setLastPlaybackFetchTime(Date()))
                     
                     if playback.isPlaying && playback.track != nil {
-                        DispatchQueue.main.async {
-                            self.action.onNext(.startProgressTimer)
-                        }
+                        self.action.onNext(.startProgressTimer)
                     } else {
-                        DispatchQueue.main.async {
-                            self.action.onNext(.stopProgressTimer)
-                        }
+                        self.action.onNext(.stopProgressTimer)
                     }
                 } catch SpotifyRepositoryError.unauthorized {
                     observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))

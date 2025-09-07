@@ -105,7 +105,7 @@ public final class PlayerView: UIView {
     }
     
     private let progressView = UIProgressView(progressViewStyle: .default).then {
-        $0.progressTintColor = .systemBlue
+        $0.progressTintColor = .systemGreen
         $0.trackTintColor = .systemGray5
         $0.progress = 0.0
     }

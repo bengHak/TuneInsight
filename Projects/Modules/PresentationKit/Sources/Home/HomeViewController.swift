@@ -41,6 +41,11 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         setupUI()
     }
     
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        reactor?.action.onNext(.startAutoRefresh)
+    }
+    
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         reactor?.action.onNext(.stopAutoRefresh)
