@@ -17,7 +17,7 @@ public final class SplashViewReactor: Reactor {
     }
 
     public let initialState: State = State()
-    private let timerDuration: RxTimeInterval = .seconds(2)
+    private let timerDuration: RxTimeInterval = .milliseconds(500)
 
     public init() {}
 

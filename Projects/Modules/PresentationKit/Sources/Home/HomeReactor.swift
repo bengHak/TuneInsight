@@ -10,12 +10,16 @@ public final class HomeReactor: Reactor {
     public enum Action {
         case viewDidLoad
         case refresh
+        case refreshPlayback
         case playPause
         case nextTrack
         case previousTrack
         case seek(positionMs: Int)
         case startAutoRefresh
         case stopAutoRefresh
+        case startProgressTimer
+        case stopProgressTimer
+        case updateProgressTick
     }
     
     // MARK: - Mutation
@@ -26,17 +30,46 @@ public final class HomeReactor: Reactor {
         case setRecentTracks([RecentTrack])
         case setError(String?)
         case updatePlaybackState
+        case updatePlaybackDisplay
+        case setLastPlaybackFetchTime(Date)
     }
     
     // MARK: - State
     
     public struct State {
         public var currentPlayback: CurrentPlayback?
+        public var lastPlaybackFetchTime: Date?
         public var recentTracks: [RecentTrack] = []
         public var isLoading: Bool = false
         public var errorMessage: String?
+        public var playbackDisplay: PlaybackDisplay?
         
         public init() {}
+    }
+    
+    public struct PlaybackDisplay: Equatable {
+        public let track: SpotifyTrack?
+        public let isPlaying: Bool
+        public let currentProgressMs: Int
+        public let durationMs: Int
+        public let progressPercentage: Float
+        public let formattedProgress: String
+        public let formattedDuration: String
+        
+        public init(track: SpotifyTrack?, isPlaying: Bool, currentProgressMs: Int) {
+            self.track = track
+            self.isPlaying = isPlaying
+            self.currentProgressMs = currentProgressMs
+            self.durationMs = track?.durationMs ?? 0
+            self.progressPercentage = durationMs > 0 ? Float(currentProgressMs) / Float(durationMs) : 0.0
+            
+            let seconds = currentProgressMs / 1000
+            let minutes = seconds / 60
+            let remainingSeconds = seconds % 60
+            self.formattedProgress = String(format: "%d:%02d", minutes, remainingSeconds)
+            
+            self.formattedDuration = track?.durationFormatted ?? "0:00"
+        }
     }
     
     // MARK: - Properties
@@ -49,6 +82,7 @@ public final class HomeReactor: Reactor {
     
     private let autoRefreshScheduler = SerialDispatchQueueScheduler(qos: .background)
     private var autoRefreshDisposable: Disposable?
+    private var progressTimerDisposable: Disposable?
     
     // MARK: - Initializer
     
@@ -64,6 +98,7 @@ public final class HomeReactor: Reactor {
     
     deinit {
         autoRefreshDisposable?.dispose()
+        progressTimerDisposable?.dispose()
     }
     
     // MARK: - Mutate
@@ -86,6 +121,9 @@ public final class HomeReactor: Reactor {
                 loadRecentTracks(),
                 .just(.setLoading(false))
             ])
+            
+        case .refreshPlayback:
+            return loadCurrentPlayback()
             
         case .playPause:
             return performPlayPauseAction()
@@ -111,6 +149,19 @@ public final class HomeReactor: Reactor {
         case .stopAutoRefresh:
             autoRefreshDisposable?.dispose()
             return .empty()
+            
+        case .startProgressTimer:
+            return startProgressTimerMutation()
+            
+        case .stopProgressTimer:
+            progressTimerDisposable?.dispose()
+            return .empty()
+            
+        case .updateProgressTick:
+            guard currentState.currentPlayback != nil else {
+                return .empty()
+            }
+            return .just(.updatePlaybackDisplay)
         }
     }
     
@@ -118,6 +169,7 @@ public final class HomeReactor: Reactor {
     
     public func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
+        newState.errorMessage = nil
         
         switch mutation {
         case .setLoading(let isLoading):
@@ -125,7 +177,17 @@ public final class HomeReactor: Reactor {
             
         case .setCurrentPlayback(let playback):
             newState.currentPlayback = playback
-            newState.errorMessage = nil
+            
+            if let playback,
+               let track = playback.track {
+                newState.playbackDisplay = PlaybackDisplay(
+                    track: track,
+                    isPlaying: playback.isPlaying,
+                    currentProgressMs: playback.progressMs ?? 0
+                )
+            } else {
+                newState.playbackDisplay = nil
+            }
             
         case .setRecentTracks(let tracks):
             newState.recentTracks = tracks
@@ -136,6 +198,31 @@ public final class HomeReactor: Reactor {
             
         case .updatePlaybackState:
             break
+            
+        case .updatePlaybackDisplay:
+            guard let currentPlayback = state.currentPlayback,
+                  let track = currentPlayback.track,
+                  currentPlayback.isPlaying else {
+                newState.playbackDisplay = state.playbackDisplay
+                break
+            }
+            
+            let currentTime = Date().timeIntervalSince1970 * 1000
+            let lastFetchTime = state.lastPlaybackFetchTime?.timeIntervalSince1970 ?? (currentTime / 1000)
+            let elapsedTime = currentTime - lastFetchTime * 1000
+            let originalProgressMs = currentPlayback.progressMs ?? 0
+            
+            var newProgressMs = originalProgressMs + Int(elapsedTime)
+            newProgressMs = min(newProgressMs, track.durationMs)
+            
+            newState.playbackDisplay = PlaybackDisplay(
+                track: track,
+                isPlaying: currentPlayback.isPlaying,
+                currentProgressMs: newProgressMs
+            )
+            
+        case .setLastPlaybackFetchTime(let date):
+            newState.lastPlaybackFetchTime = date
         }
         
         return newState
@@ -144,13 +231,22 @@ public final class HomeReactor: Reactor {
     // MARK: - Private Methods
     
     private func loadCurrentPlayback() -> Observable<Mutation> {
-        return Observable.create { observer in
+        return Observable.create { [weak self] observer in
             Task {
+                guard let self else { return }
                 do {
                     let playback = try await self.getCurrentPlaybackUseCase.execute()
+                    observer.onNext(.setLastPlaybackFetchTime(Date()))
                     observer.onNext(.setCurrentPlayback(playback))
+                    
+                    if playback.isPlaying && playback.track != nil {
+                        self.action.onNext(.startProgressTimer)
+                    } else {
+                        self.action.onNext(.stopProgressTimer)
+                    }
                 } catch SpotifyRepositoryError.noCurrentlyPlaying {
                     observer.onNext(.setCurrentPlayback(nil))
+                    self.action.onNext(.stopProgressTimer)
                 } catch SpotifyRepositoryError.unauthorized {
                     observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
                 } catch {
@@ -208,6 +304,17 @@ public final class HomeReactor: Reactor {
                     
                     let playback = try await self.getCurrentPlaybackUseCase.execute()
                     observer.onNext(.setCurrentPlayback(playback))
+                    observer.onNext(.setLastPlaybackFetchTime(Date()))
+                    
+                    if playback.isPlaying && playback.track != nil {
+                        DispatchQueue.main.async {
+                            self.action.onNext(.startProgressTimer)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.action.onNext(.stopProgressTimer)
+                        }
+                    }
                 } catch SpotifyRepositoryError.unauthorized {
                     observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
                 } catch {
@@ -225,25 +332,26 @@ public final class HomeReactor: Reactor {
         
         autoRefreshDisposable = Observable<Int>
             .interval(.seconds(10), scheduler: autoRefreshScheduler)
-            .flatMap { _ in self.loadCurrentPlayback() }
-            .subscribe()
+            .map { _ in Action.refreshPlayback }
+            .bind(to: action.asObserver())
         
         return .empty()
     }
-}
-
-// MARK: - Computed Properties
-
-public extension HomeReactor.State {
-    var hasCurrentPlayback: Bool {
-        return currentPlayback?.isActive == true
-    }
     
-    var playButtonTitle: String {
-        return currentPlayback?.isPlaying == true ? "일시정지" : "재생"
-    }
-    
-    var playButtonImageName: String {
-        return currentPlayback?.isPlaying == true ? "pause.fill" : "play.fill"
+    private func startProgressTimerMutation() -> Observable<Mutation> {
+        progressTimerDisposable?.dispose()
+        
+        guard let currentPlayback = currentState.currentPlayback,
+              currentPlayback.isPlaying,
+              currentPlayback.track != nil else {
+            return .empty()
+        }
+        
+        progressTimerDisposable = Observable<Int>
+            .interval(.seconds(1), scheduler: MainScheduler.instance)
+            .map { _ in Action.updateProgressTick }
+            .bind(to: action.asObserver())
+        
+        return .empty()
     }
 }

@@ -12,6 +12,7 @@ import PackageDescription
             "Then": .framework,
             "SnapKit": .framework,
             "SpotifyiOS": .framework,
+            "Kingfisher": .framework,
         ]
     )
 
@@ -28,5 +29,6 @@ let package = Package(
         .package(url: "https://github.com/ReactorKit/ReactorKit", from: "3.2.0"),
         .package(url: "https://github.com/ReactiveX/RxSwift", from: "6.6.0"),
         .package(url: "https://github.com/spotify/ios-sdk", from: "5.0.1"),
+        .package(url: "https://github.com/onevcat/Kingfisher", from: "7.10.0"),
     ]
 )

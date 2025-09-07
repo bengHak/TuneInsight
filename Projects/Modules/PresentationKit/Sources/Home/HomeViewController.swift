@@ -13,6 +13,17 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
 
     // MARK: - UI Components
     
+    private lazy var playerView = PlayerView().then {
+        $0.delegate = self
+        $0.isHidden = true
+    }
+    
+    private let scrollView = UIScrollView().then {
+        $0.showsVerticalScrollIndicator = false
+        $0.alwaysBounceVertical = true
+    }
+    
+    private let contentView = UIView()
     
     // MARK: - Initializer
 
@@ -40,6 +51,31 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     private func setupUI() {
         view.backgroundColor = .systemBackground
         
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(playerView)
+        
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+        
+        playerView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+        }
+        
+        // contentView의 bottom constraint는 나중에 다른 뷰들이 추가되면 업데이트
+        contentView.snp.makeConstraints { make in
+            make.bottom.equalTo(playerView.snp.bottom)
+        }
     }
 
 
@@ -58,24 +94,63 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     }
     
     private func bindState(_ reactor: HomeReactor) {
-        reactor.state.map { $0.currentPlayback }
+        reactor.state.map { $0.playbackDisplay }
             .distinctUntilChanged()
-            .bind { currentPlayback in
-//                dump(currentPlayback)
+            .observe(on: MainScheduler.instance)
+            .bind { [weak self] playbackDisplay in
+                self?.updatePlayerView(with: playbackDisplay)
             }.disposed(by: disposeBag)
         
         reactor.state.map { $0.recentTracks }
             .distinctUntilChanged()
             .bind { recentTrack in
-                dump(recentTrack)
+//                dump(recentTrack)
             }.disposed(by: disposeBag)
+        
         
         reactor.state.map { $0.errorMessage }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .compactMap { $0 }
-            .bind { message in
-//                print(message)
+            .bind { [weak self] message in
+                self?.showError(message: message)
             }.disposed(by: disposeBag)
     }
     
+    // MARK: - Private Methods
+    
+    private func updatePlayerView(with playbackDisplay: HomeReactor.PlaybackDisplay?) {
+        playerView.updatePlaybackDisplay(playbackDisplay)
+        
+        // 재생 중인 곡이 있으면 PlayerView를 보여주고, 없으면 숨김
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            self?.playerView.isHidden = (playbackDisplay?.track == nil)
+        }
+    }
+    
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+}
+
+// MARK: - PlayerViewDelegate
+
+extension HomeViewController: PlayerViewDelegate {
+    public func playerView(_ playerView: PlayerView, didTapPlayPause isPlaying: Bool) {
+        reactor?.action.onNext(.playPause)
+    }
+    
+    public func playerView(_ playerView: PlayerView, didTapNext: Void) {
+        reactor?.action.onNext(.nextTrack)
+    }
+    
+    public func playerView(_ playerView: PlayerView, didTapPrevious: Void) {
+        reactor?.action.onNext(.previousTrack)
+    }
+    
+    public func playerView(_ playerView: PlayerView, didSeekTo positionMs: Int) {
+        reactor?.action.onNext(.seek(positionMs: positionMs))
+    }
 }
