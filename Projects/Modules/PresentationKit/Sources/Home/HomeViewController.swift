@@ -18,6 +18,8 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         $0.isHidden = false
     }
     
+    private lazy var recentTracksView = RecentTracksView()
+    
     private let scrollView = UIScrollView().then {
         $0.showsVerticalScrollIndicator = false
         $0.alwaysBounceVertical = true
@@ -59,6 +61,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(playerView)
+        contentView.addSubview(recentTracksView)
         
         setupConstraints()
     }
@@ -77,9 +80,15 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
             make.top.leading.trailing.equalToSuperview()
         }
         
-        // contentView의 bottom constraint는 나중에 다른 뷰들이 추가되면 업데이트
+        recentTracksView.snp.makeConstraints { make in
+            make.top.equalTo(playerView.snp.bottom).offset(20)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(450) // 최근 트랙 리스트 높이 설정 (타이틀 추가로 늘림)
+        }
+        
+        // contentView의 bottom constraint 업데이트
         contentView.snp.makeConstraints { make in
-            make.bottom.equalTo(playerView.snp.bottom)
+            make.bottom.equalTo(recentTracksView.snp.bottom)
         }
     }
 
@@ -108,8 +117,8 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         
         reactor.state.map { $0.recentTracks }
             .distinctUntilChanged()
-            .bind { recentTrack in
-//                dump(recentTrack)
+            .bind { [weak self] recentTracks in
+                self?.recentTracksView.updateTracks(recentTracks)
             }.disposed(by: disposeBag)
         
         

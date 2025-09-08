@@ -13,6 +13,12 @@ import PackageDescription
             "SnapKit": .framework,
             "SpotifyiOS": .framework,
             "Kingfisher": .framework,
+            "RxSwift": .framework,
+            "RxRelay": .framework,
+            "RxCocoa": .framework,
+            "RxCocoaRuntime": .framework,
+            "RxDataSources": .framework,
+            "ReactorKit": .framework,
         ]
     )
 
@@ -30,5 +36,6 @@ let package = Package(
         .package(url: "https://github.com/ReactiveX/RxSwift", from: "6.6.0"),
         .package(url: "https://github.com/spotify/ios-sdk", from: "5.0.1"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.10.0"),
+        .package(url: "https://github.com/RxSwiftCommunity/RxDataSources", from: "5.0.0"),
     ]
 )

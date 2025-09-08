@@ -16,6 +16,7 @@ let frameworkTargets: [Target] = FrameworkFactory(
             .SPM.RxCocoa,
             .SPM.SpotifyiOS,
             .SPM.Kingfisher,
+            .SPM.RxDataSources,
         ],
         unitTestsDependencies: []
     )
@@ -23,7 +24,7 @@ let frameworkTargets: [Target] = FrameworkFactory(
     payload: .init(
         name: frameworkName,
         destinations: .iOS,
-        product: .staticFramework
+        product: .staticFramework,
     )
 )
 
