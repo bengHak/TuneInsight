@@ -54,7 +54,7 @@ public final class PlayerView: UIView {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = .label
         $0.numberOfLines = 1
-        $0.text = "재생 중인 곡이 없습니다"
+        $0.text = "현재 재생중이지 않습니다."
         $0.accessibilityIdentifier = "player_track_name"
     }
     
@@ -131,6 +131,15 @@ public final class PlayerView: UIView {
         $0.accessibilityIdentifier = "player_total_time"
     }
     
+    private let emptyStateLabel = UILabel().then {
+        $0.text = "현재 재생중이지 않습니다."
+        $0.font = .systemFont(ofSize: 16, weight: .medium)
+        $0.textColor = .secondaryLabel
+        $0.textAlignment = .center
+        $0.numberOfLines = 0
+        $0.isHidden = false
+    }
+    
     // MARK: - Initializers
     
     public override init(frame: CGRect) {
@@ -157,6 +166,7 @@ public final class PlayerView: UIView {
         containerView.addSubview(trackInfoStackView)
         containerView.addSubview(controlStackView)
         containerView.addSubview(progressStackView)
+        containerView.addSubview(emptyStateLabel)
         
         trackInfoStackView.addArrangedSubview(trackNameLabel)
         trackInfoStackView.addArrangedSubview(artistNameLabel)
@@ -211,6 +221,10 @@ public final class PlayerView: UIView {
         
         progressView.snp.makeConstraints { make in
             make.height.equalTo(6)
+        }
+        
+        emptyStateLabel.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
     
@@ -283,11 +297,18 @@ public final class PlayerView: UIView {
     // MARK: - Private Methods
     
     private func updateToNoTrackState() {
-        trackNameLabel.text = "재생 중인 곡이 없습니다"
-        artistNameLabel.text = ""
+        // 모든 기존 UI 요소들 숨김
+        albumImageView.isHidden = true
+        trackInfoStackView.isHidden = true
+        controlStackView.isHidden = true
+        progressStackView.isHidden = true
+        
+        // emptyStateLabel만 표시
+        emptyStateLabel.isHidden = false
+        
+        // 기존 데이터 초기화
         albumImageView.kf.cancelDownloadTask()
         albumImageView.image = UIImage(systemName: "music.note")
-        
         progressView.progress = 0.0
         currentTimeLabel.text = "0:00"
         totalTimeLabel.text = "0:00"
@@ -297,6 +318,16 @@ public final class PlayerView: UIView {
     }
     
     private func updateTrackInfo(_ track: SpotifyTrack) {
+        // emptyStateLabel 숨김
+        emptyStateLabel.isHidden = true
+        
+        // 모든 기존 UI 요소들 표시
+        albumImageView.isHidden = false
+        trackInfoStackView.isHidden = false
+        controlStackView.isHidden = false
+        progressStackView.isHidden = false
+        
+        // 트랙 정보 업데이트
         trackNameLabel.text = track.name
         artistNameLabel.text = track.primaryArtist
         totalTimeLabel.text = track.durationFormatted

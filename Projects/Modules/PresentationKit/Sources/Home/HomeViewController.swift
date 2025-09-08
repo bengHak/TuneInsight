@@ -15,7 +15,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     private lazy var playerView = PlayerView().then {
         $0.delegate = self
-        $0.isHidden = true
+        $0.isHidden = false
     }
     
     private let scrollView = UIScrollView().then {
@@ -126,11 +126,6 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     private func updatePlayerView(with playbackDisplay: HomeReactor.PlaybackDisplay?) {
         playerView.updatePlaybackDisplay(playbackDisplay)
-        
-        // 재생 중인 곡이 있으면 PlayerView를 보여주고, 없으면 숨김
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            self?.playerView.isHidden = (playbackDisplay?.track == nil)
-        }
     }
     
     private func showError(message: String) {
