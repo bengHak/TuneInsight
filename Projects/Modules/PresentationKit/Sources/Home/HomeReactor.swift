@@ -235,7 +235,14 @@ public final class HomeReactor: Reactor {
     
     private func loadCurrentPlaybackSafely() -> Observable<Mutation> {
         return loadCurrentPlayback()
-            .catchAndReturn(.setError(nil)) // 오류가 발생해도 빈 결과로 처리하여 체인이 계속되도록 함
+            .catch { error in
+                // SpotifyRepositoryError.noCurrentlyPlaying의 경우 에러 alert를 띄우지 않음
+                if case SpotifyRepositoryError.noCurrentlyPlaying = error {
+                    return .just(.setCurrentPlayback(nil))
+                } else {
+                    return .just(.setError(nil)) // 다른 오류의 경우에도 alert를 띄우지 않음
+                }
+            }
     }
     
     private func loadCurrentPlayback() -> Observable<Mutation> {
@@ -252,13 +259,23 @@ public final class HomeReactor: Reactor {
                     } else {
                         self.action.onNext(.stopProgressTimer)
                     }
-                } catch SpotifyRepositoryError.noCurrentlyPlaying {
+                } catch let error as SpotifyRepositoryError {
+                    switch error {
+                    case .noCurrentlyPlaying:
+                        // 현재 재생 중인 곡이 없는 경우 - 에러가 아님
+                        observer.onNext(.setCurrentPlayback(nil))
+                        self.action.onNext(.stopProgressTimer)
+                    case .unauthorized:
+                        observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
+                    case .networkError, .unknown:
+                        // 네트워크 오류나 알 수 없는 오류의 경우에도 alert를 띄우지 않음
+                        observer.onNext(.setCurrentPlayback(nil))
+                        self.action.onNext(.stopProgressTimer)
+                    }
+                } catch {
+                    // 기타 예기치 않은 오류의 경우에도 alert를 띄우지 않음
                     observer.onNext(.setCurrentPlayback(nil))
                     self.action.onNext(.stopProgressTimer)
-                } catch SpotifyRepositoryError.unauthorized {
-                    observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
-                } catch {
-                    observer.onNext(.setError(error.localizedDescription))
                 }
                 observer.onCompleted()
             }

@@ -42,6 +42,8 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
     
     public func getCurrentlyPlaying() async throws -> CurrentlyPlayingResponse {
         do {
+            // Spotify API는 현재 재생 중인 곡이 없을 때 HTTP 204 (No Content)를 반환
+            // APIHandler에서 204의 경우 nil을 반환하도록 처리됨
             guard let response: CurrentlyPlayingResponse = try await apiHandler.request(SpotifyEndpoint.currentlyPlaying) else {
                 throw SpotifyServiceError.noCurrentlyPlaying
             }

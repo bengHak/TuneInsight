@@ -20,7 +20,7 @@ public enum SpotifyRepositoryError: Error {
     }
 }
 
-public protocol SpotifyRepository {
+public protocol SpotifyRepository: Sendable {
     func getCurrentPlayback() async throws -> CurrentPlayback
     func getRecentlyPlayed(limit: Int) async throws -> [RecentTrack]
     func play() async throws

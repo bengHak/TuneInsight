@@ -56,9 +56,15 @@ public actor APIHandler: APIHandlerProtocol {
                     self?.logger.logResponse(response.response, data: response.data, error: nil, duration: duration)
                     continuation.resume(returning: decodedData)
                 case .failure(let error):
-                    let apiError = APIHandler.handleError(error, response: response.response)
-                    self?.logger.logResponse(response.response, data: response.data, error: apiError, duration: duration)
-                    continuation.resume(throwing: apiError)
+                    // 204 No Content의 경우 nil 반환
+                    if response.response?.statusCode == 204 {
+                        self?.logger.logResponse(response.response, data: response.data, error: nil, duration: duration)
+                        continuation.resume(returning: nil)
+                    } else {
+                        let apiError = APIHandler.handleError(error, response: response.response)
+                        self?.logger.logResponse(response.response, data: response.data, error: apiError, duration: duration)
+                        continuation.resume(throwing: apiError)
+                    }
                 }
             }
         }
