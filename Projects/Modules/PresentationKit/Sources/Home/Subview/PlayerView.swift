@@ -20,7 +20,7 @@ public final class PlayerView: UIView {
     
     public weak var delegate: PlayerViewDelegate?
     private var disposeBag = DisposeBag()
-    private var playbackDisplay: HomeReactor.PlaybackDisplay?
+    private var playbackDisplay: PlaybackDisplay?
     private var isPlaying: Bool = false
     
     // MARK: - UI Components
@@ -272,7 +272,7 @@ public final class PlayerView: UIView {
     
     // MARK: - Public Methods
     
-    public func updatePlaybackDisplay(_ display: HomeReactor.PlaybackDisplay?) {
+    public func updatePlaybackDisplay(_ display: PlaybackDisplay?) {
         playbackDisplay = display
         
         guard let display,
@@ -288,7 +288,7 @@ public final class PlayerView: UIView {
         updateProgress(display)
     }
     
-    private func updateProgress(_ display: HomeReactor.PlaybackDisplay) {
+    private func updateProgress(_ display: PlaybackDisplay) {
         progressView.progress = display.progressPercentage
         currentTimeLabel.text = display.formattedProgress
         totalTimeLabel.text = display.formattedDuration

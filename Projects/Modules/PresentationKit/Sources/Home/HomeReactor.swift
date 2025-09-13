@@ -17,9 +17,6 @@ public final class HomeReactor: Reactor {
         case seek(positionMs: Int)
         case startAutoRefresh
         case stopAutoRefresh
-        case startProgressTimer
-        case stopProgressTimer
-        case updateProgressTick
     }
     
     // MARK: - Mutation
@@ -29,9 +26,8 @@ public final class HomeReactor: Reactor {
         case setCurrentPlayback(CurrentPlayback?)
         case setRecentTracks([RecentTrack])
         case setError(String?)
-        case updatePlaybackState
-        case updatePlaybackDisplay
         case setLastPlaybackFetchTime(Date)
+        case setPlaybackDisplay(PlaybackDisplay?)
     }
     
     // MARK: - State
@@ -47,125 +43,86 @@ public final class HomeReactor: Reactor {
         public init() {}
     }
     
-    public struct PlaybackDisplay: Equatable {
-        public let track: SpotifyTrack?
-        public let isPlaying: Bool
-        public let currentProgressMs: Int
-        public let durationMs: Int
-        public let progressPercentage: Float
-        public let formattedProgress: String
-        public let formattedDuration: String
-        
-        public init(track: SpotifyTrack?, isPlaying: Bool, currentProgressMs: Int) {
-            self.track = track
-            self.isPlaying = isPlaying
-            self.currentProgressMs = currentProgressMs
-            self.durationMs = track?.durationMs ?? 0
-            self.progressPercentage = durationMs > 0 ? Float(currentProgressMs) / Float(durationMs) : 0.0
-            
-            let seconds = currentProgressMs / 1000
-            let minutes = seconds / 60
-            let remainingSeconds = seconds % 60
-            self.formattedProgress = String(format: "%d:%02d", minutes, remainingSeconds)
-            
-            self.formattedDuration = track?.durationFormatted ?? "0:00"
-        }
-    }
     
     // MARK: - Properties
     
     public let initialState = State()
     
-    private let getCurrentPlaybackUseCase: GetCurrentPlaybackUseCaseProtocol
-    private let getRecentlyPlayedUseCase: GetRecentlyPlayedUseCaseProtocol
-    private let playbackControlUseCase: PlaybackControlUseCaseProtocol
-    
-    private let autoRefreshScheduler = SerialDispatchQueueScheduler(qos: .background)
-    private var autoRefreshDisposable: Disposable?
-    private var progressTimerDisposable: Disposable?
+    private let spotifyStateManager: SpotifyStateManagerProtocol
     
     // MARK: - Initializer
     
-    public init(
-        getCurrentPlaybackUseCase: GetCurrentPlaybackUseCaseProtocol,
-        getRecentlyPlayedUseCase: GetRecentlyPlayedUseCaseProtocol,
-        playbackControlUseCase: PlaybackControlUseCaseProtocol
-    ) {
-        self.getCurrentPlaybackUseCase = getCurrentPlaybackUseCase
-        self.getRecentlyPlayedUseCase = getRecentlyPlayedUseCase
-        self.playbackControlUseCase = playbackControlUseCase
+    public init(spotifyStateManager: SpotifyStateManagerProtocol) {
+        self.spotifyStateManager = spotifyStateManager
     }
     
-    deinit {
-        autoRefreshDisposable?.dispose()
-        progressTimerDisposable?.dispose()
-    }
+    deinit {}
     
     // MARK: - Mutate
     
     public func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            return .concat([
-                .just(.setLoading(true)),
-                loadCurrentPlaybackSafely(),
-                loadRecentTracks(),
-                .just(.setLoading(false)),
-                startAutoRefreshMutation()
-            ])
+            spotifyStateManager.loadInitialData()
+            return .empty()
             
         case .refresh:
-            return .concat([
-                .just(.setLoading(true)),
-                loadCurrentPlaybackSafely(),
-                loadRecentTracks(),
-                .just(.setLoading(false))
-            ])
+            spotifyStateManager.refreshPlayback()
+            spotifyStateManager.refreshRecentTracks()
+            return .empty()
             
         case .refreshPlayback:
-            return loadCurrentPlayback()
+            spotifyStateManager.refreshPlayback()
+            return .empty()
             
         case .playPause:
-            return performPlayPauseAction()
+            spotifyStateManager.playPause()
+            return .empty()
             
         case .nextTrack:
-            return performPlaybackControlAction { [weak self] in
-                guard let self else { return }
-                try await self.playbackControlUseCase.nextTrack()
-            }
+            spotifyStateManager.nextTrack()
+            return .empty()
             
         case .previousTrack:
-            return performPlaybackControlAction { [weak self] in
-                guard let self else { return }
-                try await self.playbackControlUseCase.previousTrack()
-            }
+            spotifyStateManager.previousTrack()
+            return .empty()
             
         case .seek(let positionMs):
-            return performPlaybackControlAction { [weak self] in
-                guard let self else { return }
-                try await self.playbackControlUseCase.seek(to: positionMs)
-            }
+            spotifyStateManager.seek(to: positionMs)
+            return .empty()
             
         case .startAutoRefresh:
-            return startAutoRefreshMutation()
+            spotifyStateManager.startAutoRefresh()
+            return .empty()
             
         case .stopAutoRefresh:
-            autoRefreshDisposable?.dispose()
+            spotifyStateManager.stopAutoRefresh()
             return .empty()
-            
-        case .startProgressTimer:
-            return startProgressTimerMutation()
-            
-        case .stopProgressTimer:
-            progressTimerDisposable?.dispose()
-            return .empty()
-            
-        case .updateProgressTick:
-            guard currentState.currentPlayback != nil else {
-                return .empty()
-            }
-            return .just(.updatePlaybackDisplay)
         }
+    }
+    
+    // MARK: - Transform
+    
+    public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        let spotifyMutations = Observable.merge([
+            spotifyStateManager.currentPlayback
+                .map { Mutation.setCurrentPlayback($0) },
+            
+            spotifyStateManager.recentTracks
+                .map { Mutation.setRecentTracks($0) },
+            
+            spotifyStateManager.playbackDisplay
+                .map { Mutation.setPlaybackDisplay($0) },
+            
+            spotifyStateManager.error
+                .compactMap { $0 }
+                .map { Mutation.setError($0) },
+            
+            spotifyStateManager.isLoading
+                .map { Mutation.setLoading($0) }
+        ])
+        
+        return Observable.merge(mutation, spotifyMutations)
     }
     
     // MARK: - Reduce
@@ -181,17 +138,6 @@ public final class HomeReactor: Reactor {
         case .setCurrentPlayback(let playback):
             newState.currentPlayback = playback
             
-            if let playback,
-               let track = playback.track {
-                newState.playbackDisplay = PlaybackDisplay(
-                    track: track,
-                    isPlaying: playback.isPlaying,
-                    currentProgressMs: playback.progressMs ?? 0
-                )
-            } else {
-                newState.playbackDisplay = nil
-            }
-            
         case .setRecentTracks(let tracks):
             newState.recentTracks = tracks
             newState.errorMessage = nil
@@ -199,187 +145,14 @@ public final class HomeReactor: Reactor {
         case .setError(let error):
             newState.errorMessage = error
             
-        case .updatePlaybackState:
-            break
-            
-        case .updatePlaybackDisplay:
-            guard let currentPlayback = state.currentPlayback,
-                  let track = currentPlayback.track,
-                  currentPlayback.isPlaying else {
-                newState.playbackDisplay = state.playbackDisplay
-                break
-            }
-            
-            let currentTime = Date().timeIntervalSince1970 * 1000
-            let lastFetchTime = state.lastPlaybackFetchTime?.timeIntervalSince1970 ?? (currentTime / 1000)
-            let elapsedTime = currentTime - lastFetchTime * 1000
-            let originalProgressMs = currentPlayback.progressMs ?? 0
-            
-            var newProgressMs = originalProgressMs + Int(elapsedTime)
-            newProgressMs = min(newProgressMs, track.durationMs)
-            
-            newState.playbackDisplay = PlaybackDisplay(
-                track: track,
-                isPlaying: currentPlayback.isPlaying,
-                currentProgressMs: newProgressMs
-            )
-            
         case .setLastPlaybackFetchTime(let date):
             newState.lastPlaybackFetchTime = date
+            
+        case .setPlaybackDisplay(let display):
+            newState.playbackDisplay = display
         }
         
         return newState
     }
     
-    // MARK: - Private Methods
-    
-    private func loadCurrentPlaybackSafely() -> Observable<Mutation> {
-        return loadCurrentPlayback()
-            .catch { error in
-                // SpotifyRepositoryError.noCurrentlyPlaying의 경우 에러 alert를 띄우지 않음
-                if case SpotifyRepositoryError.noCurrentlyPlaying = error {
-                    return .just(.setCurrentPlayback(nil))
-                } else {
-                    return .just(.setError(nil)) // 다른 오류의 경우에도 alert를 띄우지 않음
-                }
-            }
-    }
-    
-    private func loadCurrentPlayback() -> Observable<Mutation> {
-        return Observable.create { [weak self] observer in
-            Task {
-                guard let self else { return }
-                do {
-                    let playback = try await self.getCurrentPlaybackUseCase.execute()
-                    observer.onNext(.setLastPlaybackFetchTime(Date()))
-                    observer.onNext(.setCurrentPlayback(playback))
-                    
-                    if playback.isPlaying && playback.track != nil {
-                        self.action.onNext(.startProgressTimer)
-                    } else {
-                        self.action.onNext(.stopProgressTimer)
-                    }
-                } catch let error as SpotifyRepositoryError {
-                    switch error {
-                    case .noCurrentlyPlaying:
-                        // 현재 재생 중인 곡이 없는 경우 - 에러가 아님
-                        observer.onNext(.setCurrentPlayback(nil))
-                        self.action.onNext(.stopProgressTimer)
-                    case .unauthorized:
-                        observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
-                    case .networkError, .unknown:
-                        // 네트워크 오류나 알 수 없는 오류의 경우에도 alert를 띄우지 않음
-                        observer.onNext(.setCurrentPlayback(nil))
-                        self.action.onNext(.stopProgressTimer)
-                    }
-                } catch {
-                    // 기타 예기치 않은 오류의 경우에도 alert를 띄우지 않음
-                    observer.onNext(.setCurrentPlayback(nil))
-                    self.action.onNext(.stopProgressTimer)
-                }
-                observer.onCompleted()
-            }
-            
-            return Disposables.create()
-        }
-    }
-    
-    private func loadRecentTracks() -> Observable<Mutation> {
-        return Observable.create { observer in
-            Task {
-                do {
-                    let tracks = try await self.getRecentlyPlayedUseCase.execute(limit: 5)
-                    observer.onNext(.setRecentTracks(tracks))
-                } catch SpotifyRepositoryError.unauthorized {
-                    observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
-                } catch {
-                    observer.onNext(.setError(error.localizedDescription))
-                }
-                observer.onCompleted()
-            }
-            
-            return Disposables.create()
-        }
-    }
-    
-    private func performPlayPauseAction() -> Observable<Mutation> {
-        guard let currentPlayback = currentState.currentPlayback else {
-            return .just(.setError("재생 중인 곡이 없습니다."))
-        }
-        
-        let action: () async throws -> Void = { [weak self] in
-            guard let self else { return }
-            if currentPlayback.isPlaying {
-                try await self.playbackControlUseCase.pause()
-            } else {
-                try await self.playbackControlUseCase.play()
-            }
-        }
-        
-        return performPlaybackControlAction(action: action)
-    }
-    
-    private func performPlaybackControlAction(action: @escaping () async throws -> Void) -> Observable<Mutation> {
-        return Observable.create { [weak self] observer in
-            Task {
-                guard let self else {
-                    observer.onCompleted()
-                    return
-                }
-                do {
-                    try await action()
-                    
-                    // 0.5초 후 재생 상태 업데이트
-                    try await Task.sleep(nanoseconds: 500_000_000)
-                    
-                    // 원격 플레이어 상태를 다시 불러와서 UI 업데이트
-                    let playback = try await self.getCurrentPlaybackUseCase.execute()
-                    observer.onNext(.setLastPlaybackFetchTime(Date()))
-                    observer.onNext(.setCurrentPlayback(playback))
-                    
-                    if playback.isPlaying && playback.track != nil {
-                        self.action.onNext(.startProgressTimer)
-                    } else {
-                        self.action.onNext(.stopProgressTimer)
-                    }
-                    
-                } catch SpotifyRepositoryError.unauthorized {
-                    observer.onNext(.setError("Spotify 인증이 만료되었습니다. 다시 로그인해주세요."))
-                } catch {
-                    observer.onNext(.setError(error.localizedDescription))
-                }
-                observer.onCompleted()
-            }
-            
-            return Disposables.create()
-        }
-    }
-    
-    private func startAutoRefreshMutation() -> Observable<Mutation> {
-        autoRefreshDisposable?.dispose()
-        
-        autoRefreshDisposable = Observable<Int>
-            .interval(.seconds(10), scheduler: autoRefreshScheduler)
-            .map { _ in Action.refreshPlayback }
-            .bind(to: action.asObserver())
-        
-        return .empty()
-    }
-    
-    private func startProgressTimerMutation() -> Observable<Mutation> {
-        progressTimerDisposable?.dispose()
-        
-        guard let currentPlayback = currentState.currentPlayback,
-              currentPlayback.isPlaying,
-              currentPlayback.track != nil else {
-            return .empty()
-        }
-        
-        progressTimerDisposable = Observable<Int>
-            .interval(.seconds(1), scheduler: MainScheduler.instance)
-            .map { _ in Action.updateProgressTick }
-            .bind(to: action.asObserver())
-        
-        return .empty()
-    }
 }

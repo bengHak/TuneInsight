@@ -21,6 +21,7 @@ public final class RecentTracksView: UIView {
         tv.rowHeight = 80
         tv.separatorStyle = .none
         tv.backgroundColor = .clear
+        tv.isScrollEnabled = false
         return tv
     }()
     

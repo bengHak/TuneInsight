@@ -133,7 +133,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     // MARK: - Private Methods
     
-    private func updatePlayerView(with playbackDisplay: HomeReactor.PlaybackDisplay?) {
+    private func updatePlayerView(with playbackDisplay: PlaybackDisplay?) {
         playerView.updatePlaybackDisplay(playbackDisplay)
     }
     

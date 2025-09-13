@@ -37,17 +37,25 @@ public final class MockAssembly: DIAssembly {
         }
     }
     
-    private func assembleReactors(container: Container) {
-        container.register(HomeReactor.self) { resolver in
+    private func assembleSpotifyStateManager(container: Container) {
+        container.register(SpotifyStateManager.self) { resolver in
             let getCurrentPlaybackUseCase = resolver.resolve(GetCurrentPlaybackUseCaseProtocol.self)!
             let getRecentlyPlayedUseCase = resolver.resolve(GetRecentlyPlayedUseCaseProtocol.self)!
             let playbackControlUseCase = resolver.resolve(PlaybackControlUseCaseProtocol.self)!
-            
-            return HomeReactor(
+            SpotifyStateManager.shared.configure(
                 getCurrentPlaybackUseCase: getCurrentPlaybackUseCase,
                 getRecentlyPlayedUseCase: getRecentlyPlayedUseCase,
                 playbackControlUseCase: playbackControlUseCase
             )
+            return SpotifyStateManager.shared
+        }
+        .inObjectScope(.container)
+    }
+    
+    private func assembleReactors(container: Container) {
+        container.register(HomeReactor.self) { resolver in
+            let spotifyStateManager = resolver.resolve(SpotifyStateManager.self)!
+            return HomeReactor(spotifyStateManager: spotifyStateManager)
         }
     }
 }
