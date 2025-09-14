@@ -17,8 +17,8 @@ public final class HomeTopPlayedArtistView: UIView {
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 16
-        layout.minimumLineSpacing = 16
+        layout.minimumInteritemSpacing = 8
+        layout.minimumLineSpacing = 8
         layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -90,13 +90,15 @@ public final class HomeTopPlayedArtistView: UIView {
     
     public func getHeight() -> CGFloat {
         let titleHeight: CGFloat = 44
-        let cellHeight: CGFloat = 120
+        let padding: CGFloat = 40
+        let cellWidth = (UIScreen.main.bounds.width - padding) / 2
+        let textHeight: CGFloat = 60
+        let cellHeight = cellWidth + textHeight
         let verticalSpacing: CGFloat = 16
-        let padding: CGFloat = 32
-        
+
         let rows = min(ceil(Double(artists.count) / 2.0), 3)
         let collectionHeight = (cellHeight * CGFloat(rows)) + (verticalSpacing * CGFloat(max(0, rows - 1))) + padding
-        
+
         return titleHeight + collectionHeight
     }
 }
@@ -133,9 +135,10 @@ extension HomeTopPlayedArtistView: UICollectionViewDataSource {
 extension HomeTopPlayedArtistView: UICollectionViewDelegateFlowLayout {
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let padding: CGFloat = 48
-        let cellWidth = (collectionView.bounds.width - padding) / 2
-        return CGSize(width: cellWidth, height: 120)
+        let padding: CGFloat = 40
+        let cellWidth = (UIScreen.main.bounds.width - padding) / 2
+        let textHeight: CGFloat = 60
+        return CGSize(width: cellWidth, height: cellWidth + textHeight)
     }
 }
 
@@ -151,18 +154,18 @@ private final class TopArtistCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 35
+        imageView.layer.cornerRadius = 8
         imageView.backgroundColor = .systemGray5
         return imageView
     }()
     
     private let rankLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.font = .systemFont(ofSize: 14, weight: .bold)
         label.textColor = .white
         label.backgroundColor = .systemBlue
         label.textAlignment = .center
-        label.layer.cornerRadius = 10
+        label.layer.cornerRadius = 12
         label.layer.masksToBounds = true
         return label
     }()
@@ -198,21 +201,20 @@ private final class TopArtistCell: UICollectionViewCell {
         contentView.addSubview(artistNameLabel)
         
         artistImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(8)
-            make.centerX.equalToSuperview()
-            make.width.height.equalTo(70)
+            make.top.leading.trailing.equalToSuperview().inset(4)
+            make.width.equalTo(artistImageView.snp.height)
         }
         
         rankLabel.snp.makeConstraints { make in
-            make.top.equalTo(artistImageView.snp.top)
-            make.trailing.equalTo(artistImageView.snp.trailing).offset(5)
-            make.width.height.equalTo(20)
+            make.top.equalTo(artistImageView.snp.top).offset(8)
+            make.trailing.equalTo(artistImageView.snp.trailing).offset(-8)
+            make.width.height.equalTo(24)
         }
         
         artistNameLabel.snp.makeConstraints { make in
             make.top.equalTo(artistImageView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(4)
-            make.bottom.lessThanOrEqualToSuperview().offset(-8)
+            make.bottom.equalToSuperview().offset(-8)
         }
     }
     

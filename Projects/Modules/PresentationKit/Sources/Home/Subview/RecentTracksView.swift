@@ -18,7 +18,7 @@ public final class RecentTracksView: UIView {
     private let tableView: UITableView = {
         let tv = UITableView()
         tv.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
-        tv.rowHeight = 80
+        tv.rowHeight = 64
         tv.separatorStyle = .none
         tv.backgroundColor = .clear
         tv.isScrollEnabled = false
@@ -54,10 +54,14 @@ public final class RecentTracksView: UIView {
         titleLabel.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview().inset(16)
         }
-        
+
         tableView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(16)
             make.leading.trailing.bottom.equalToSuperview()
+        }
+
+        self.snp.makeConstraints { make in
+            make.height.equalTo(76) // 초기 최소 높이 (타이틀만 있을 때)
         }
     }
     
@@ -68,7 +72,23 @@ public final class RecentTracksView: UIView {
         self.tracks = tracks
         DispatchQueue.main.async { [weak self] in
             self?.tableView.reloadData()
+            self?.updateHeight()
         }
+    }
+
+    private func updateHeight() {
+        let calculatedHeight = getHeight()
+        snp.updateConstraints { make in
+            make.height.equalTo(calculatedHeight)
+        }
+    }
+
+    public func getHeight() -> CGFloat {
+        let titleHeight: CGFloat = 60 // 타이틀 + 패딩
+        let rowHeight: CGFloat = 64
+        let tableHeight = CGFloat(tracks.count) * rowHeight
+
+        return titleHeight + tableHeight
     }
 }
 

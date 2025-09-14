@@ -86,7 +86,6 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         recentTracksView.snp.makeConstraints { make in
             make.top.equalTo(playerView.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(450)
         }
 
         topPlayedArtistView.snp.makeConstraints { make in
