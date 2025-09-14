@@ -17,9 +17,11 @@ public final class PresentationAssembly: DIAssembly {
             let getCurrentPlaybackUseCase = resolver.resolve(GetCurrentPlaybackUseCaseProtocol.self)!
             let getRecentlyPlayedUseCase = resolver.resolve(GetRecentlyPlayedUseCaseProtocol.self)!
             let playbackControlUseCase = resolver.resolve(PlaybackControlUseCaseProtocol.self)!
+            let getTopArtistsUseCase = resolver.resolve(GetTopArtistsUseCaseProtocol.self)!
             SpotifyStateManager.shared.configure(
                 getCurrentPlaybackUseCase: getCurrentPlaybackUseCase,
                 getRecentlyPlayedUseCase: getRecentlyPlayedUseCase,
+                getTopArtistsUseCase: getTopArtistsUseCase,
                 playbackControlUseCase: playbackControlUseCase
             )
             return SpotifyStateManager.shared

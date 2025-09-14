@@ -319,9 +319,21 @@ public struct UserProfile: Codable, Sendable {
 public struct ExplicitContent: Codable, Sendable {
     public let filterEnabled: Bool
     public let filterLocked: Bool
-    
+
     enum CodingKeys: String, CodingKey {
         case filterEnabled = "filter_enabled"
         case filterLocked = "filter_locked"
     }
+}
+
+// MARK: - Top Artists Response
+
+public struct TopArtistsResponse: Codable, Sendable {
+    public let items: [Artist]
+    public let total: Int
+    public let limit: Int
+    public let offset: Int
+    public let href: String
+    public let previous: String?
+    public let next: String?
 }

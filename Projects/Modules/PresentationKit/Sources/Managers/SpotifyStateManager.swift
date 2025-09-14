@@ -32,6 +32,7 @@ public struct PlaybackDisplay: Equatable {
 public protocol SpotifyStateManagerProtocol {
     var currentPlayback: Observable<CurrentPlayback?> { get }
     var recentTracks: Observable<[RecentTrack]> { get }
+    var topArtists: Observable<[TopArtist]> { get }
     var playbackDisplay: Observable<PlaybackDisplay?> { get }
     var error: Observable<String?> { get }
     var isLoading: Observable<Bool> { get }
@@ -39,12 +40,14 @@ public protocol SpotifyStateManagerProtocol {
     func configure(
         getCurrentPlaybackUseCase: GetCurrentPlaybackUseCaseProtocol,
         getRecentlyPlayedUseCase: GetRecentlyPlayedUseCaseProtocol,
+        getTopArtistsUseCase: GetTopArtistsUseCaseProtocol,
         playbackControlUseCase: PlaybackControlUseCaseProtocol
     )
     
     func loadInitialData()
     func refreshPlayback()
     func refreshRecentTracks()
+    func refreshTopArtists(timeRange: TopArtistTimeRange, limit: Int)
     func playPause()
     func nextTrack()
     func previousTrack()
@@ -60,13 +63,15 @@ public final class SpotifyStateManager: SpotifyStateManagerProtocol {
     public static let shared = SpotifyStateManager()
     
     // MARK: - Private Properties
-    
+
     private var getCurrentPlaybackUseCase: GetCurrentPlaybackUseCaseProtocol?
     private var getRecentlyPlayedUseCase: GetRecentlyPlayedUseCaseProtocol?
+    private var getTopArtistsUseCase: GetTopArtistsUseCaseProtocol?
     private var playbackControlUseCase: PlaybackControlUseCaseProtocol?
     
     private let currentPlaybackRelay = BehaviorRelay<CurrentPlayback?>(value: nil)
     private let recentTracksRelay = BehaviorRelay<[RecentTrack]>(value: [])
+    private let topArtistsRelay = BehaviorRelay<[TopArtist]>(value: [])
     private let playbackDisplayRelay = BehaviorRelay<PlaybackDisplay?>(value: nil)
     private let errorRelay = PublishRelay<String?>()
     private let isLoadingRelay = BehaviorRelay<Bool>(value: false)
@@ -85,6 +90,10 @@ public final class SpotifyStateManager: SpotifyStateManagerProtocol {
     
     public var recentTracks: Observable<[RecentTrack]> {
         recentTracksRelay.asObservable()
+    }
+
+    public var topArtists: Observable<[TopArtist]> {
+        topArtistsRelay.asObservable()
     }
     
     public var playbackDisplay: Observable<PlaybackDisplay?> {
@@ -115,22 +124,25 @@ public final class SpotifyStateManager: SpotifyStateManagerProtocol {
     public func configure(
         getCurrentPlaybackUseCase: GetCurrentPlaybackUseCaseProtocol,
         getRecentlyPlayedUseCase: GetRecentlyPlayedUseCaseProtocol,
+        getTopArtistsUseCase: GetTopArtistsUseCaseProtocol,
         playbackControlUseCase: PlaybackControlUseCaseProtocol
     ) {
         self.getCurrentPlaybackUseCase = getCurrentPlaybackUseCase
         self.getRecentlyPlayedUseCase = getRecentlyPlayedUseCase
+        self.getTopArtistsUseCase = getTopArtistsUseCase
         self.playbackControlUseCase = playbackControlUseCase
     }
     
     public func loadInitialData() {
         isLoadingRelay.accept(true)
-        
+
         Observable.zip(
             refreshPlaybackInternal(),
-            refreshRecentTracksInternal()
+            refreshRecentTracksInternal(),
+            refreshTopArtistsInternal(timeRange: .mediumTerm, limit: 10)
         )
         .subscribe(
-            onNext: { [weak self] _, _ in
+            onNext: { [weak self] _, _, _ in
                 self?.isLoadingRelay.accept(false)
                 self?.startAutoRefresh()
             },
@@ -150,6 +162,12 @@ public final class SpotifyStateManager: SpotifyStateManagerProtocol {
     
     public func refreshRecentTracks() {
         refreshRecentTracksInternal()
+            .subscribe()
+            .disposed(by: disposeBag)
+    }
+
+    public func refreshTopArtists(timeRange: TopArtistTimeRange = .mediumTerm, limit: Int = 10) {
+        refreshTopArtistsInternal(timeRange: timeRange, limit: limit)
             .subscribe()
             .disposed(by: disposeBag)
     }
@@ -265,7 +283,7 @@ private extension SpotifyStateManager {
         guard let getRecentlyPlayedUseCase = getRecentlyPlayedUseCase else {
             return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "UseCase가 설정되지 않았습니다."]))
         }
-        
+
         return Observable.create { [weak self] observer in
             Task {
                 guard let self else { return }
@@ -280,7 +298,35 @@ private extension SpotifyStateManager {
                 }
                 observer.onCompleted()
             }
-            
+
+            return Disposables.create()
+        }
+    }
+
+    func refreshTopArtistsInternal(timeRange: TopArtistTimeRange, limit: Int) -> Observable<Void> {
+        guard let getTopArtistsUseCase = getTopArtistsUseCase else {
+            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "UseCase가 설정되지 않았습니다."]))
+        }
+
+        return Observable.create { [weak self] observer in
+            Task {
+                guard let self else { return }
+                do {
+                    let artists = try await getTopArtistsUseCase.execute(
+                        timeRange: timeRange,
+                        limit: limit,
+                        offset: 0
+                    )
+                    self.topArtistsRelay.accept(artists)
+                    observer.onNext(())
+                } catch SpotifyRepositoryError.unauthorized {
+                    observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "Spotify 인증이 만료되었습니다. 다시 로그인해주세요."]))
+                } catch {
+                    observer.onError(error)
+                }
+                observer.onCompleted()
+            }
+
             return Disposables.create()
         }
     }

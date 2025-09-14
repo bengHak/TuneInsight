@@ -35,6 +35,27 @@ public final class SpotifyRepositoryImpl: SpotifyRepository, Sendable {
             throw SpotifyRepositoryError.unknown(error)
         }
     }
+
+    public func getTopArtists(
+        timeRange: TopArtistTimeRange,
+        limit: Int,
+        offset: Int
+    ) async throws -> [TopArtist] {
+        do {
+            let response = try await service.getTopArtists(
+                timeRange: timeRange.rawValue,
+                limit: limit,
+                offset: offset
+            )
+            return SpotifyMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
     
     public func play() async throws {
         do {

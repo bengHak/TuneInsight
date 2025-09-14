@@ -21,15 +21,24 @@ public enum SpotifyMapper {
         return response.items.compactMap { playHistory in
             let formatter = ISO8601DateFormatter()
             formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            
+
             guard let playedAt = formatter.date(from: playHistory.playedAt) else {
                 return nil
             }
-            
+
             return RecentTrack(
                 track: playHistory.track.toDomain(),
                 playedAt: playedAt,
                 context: playHistory.context?.toDomain()
+            )
+        }
+    }
+
+    public static func toDomain(_ response: TopArtistsResponse) -> [TopArtist] {
+        return response.items.enumerated().map { index, artist in
+            return TopArtist(
+                artist: artist.toDomain(),
+                rank: response.offset + index + 1
             )
         }
     }

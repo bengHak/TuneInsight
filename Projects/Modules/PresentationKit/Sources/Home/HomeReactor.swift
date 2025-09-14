@@ -25,6 +25,7 @@ public final class HomeReactor: Reactor {
         case setLoading(Bool)
         case setCurrentPlayback(CurrentPlayback?)
         case setRecentTracks([RecentTrack])
+        case setTopArtists([TopArtist])
         case setError(String?)
         case setLastPlaybackFetchTime(Date)
         case setPlaybackDisplay(PlaybackDisplay?)
@@ -36,10 +37,11 @@ public final class HomeReactor: Reactor {
         public var currentPlayback: CurrentPlayback?
         public var lastPlaybackFetchTime: Date?
         public var recentTracks: [RecentTrack] = []
+        public var topArtists: [TopArtist] = []
         public var isLoading: Bool = false
         public var errorMessage: String?
         public var playbackDisplay: PlaybackDisplay?
-        
+
         public init() {}
     }
     
@@ -107,17 +109,20 @@ public final class HomeReactor: Reactor {
         let spotifyMutations = Observable.merge([
             spotifyStateManager.currentPlayback
                 .map { Mutation.setCurrentPlayback($0) },
-            
+
             spotifyStateManager.recentTracks
                 .map { Mutation.setRecentTracks($0) },
-            
+
+            spotifyStateManager.topArtists
+                .map { Mutation.setTopArtists($0) },
+
             spotifyStateManager.playbackDisplay
                 .map { Mutation.setPlaybackDisplay($0) },
-            
+
             spotifyStateManager.error
                 .compactMap { $0 }
                 .map { Mutation.setError($0) },
-            
+
             spotifyStateManager.isLoading
                 .map { Mutation.setLoading($0) }
         ])
@@ -134,20 +139,23 @@ public final class HomeReactor: Reactor {
         switch mutation {
         case .setLoading(let isLoading):
             newState.isLoading = isLoading
-            
+
         case .setCurrentPlayback(let playback):
             newState.currentPlayback = playback
-            
+
         case .setRecentTracks(let tracks):
             newState.recentTracks = tracks
             newState.errorMessage = nil
-            
+
+        case .setTopArtists(let artists):
+            newState.topArtists = artists
+
         case .setError(let error):
             newState.errorMessage = error
-            
+
         case .setLastPlaybackFetchTime(let date):
             newState.lastPlaybackFetchTime = date
-            
+
         case .setPlaybackDisplay(let display):
             newState.playbackDisplay = display
         }

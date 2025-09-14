@@ -10,13 +10,15 @@ import DomainKit
 public final class HomeViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
     public weak var coordinator: HomeCoordinator?
-
+    
     // MARK: - UI Components
     
     private lazy var playerView = PlayerView().then {
         $0.delegate = self
         $0.isHidden = false
     }
+    
+    private lazy var topPlayedArtistView = HomeTopPlayedArtistView()
     
     private lazy var recentTracksView = RecentTracksView()
     
@@ -28,16 +30,16 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     private let contentView = UIView()
     
     // MARK: - Initializer
-
+    
     public init(reactor: HomeReactor) {
         super.init(nibName: nil, bundle: nil)
         self.reactor = reactor
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -52,7 +54,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         super.viewWillDisappear(animated)
         reactor?.action.onNext(.stopAutoRefresh)
     }
-
+    
     // MARK: - Setup
     
     private func setupUI() {
@@ -61,6 +63,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(playerView)
+        contentView.addSubview(topPlayedArtistView)
         contentView.addSubview(recentTracksView)
         
         setupConstraints()
@@ -83,18 +86,23 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         recentTracksView.snp.makeConstraints { make in
             make.top.equalTo(playerView.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(450) // 최근 트랙 리스트 높이 설정 (타이틀 추가로 늘림)
+            make.height.equalTo(450)
+        }
+
+        topPlayedArtistView.snp.makeConstraints { make in
+            make.top.equalTo(recentTracksView.snp.bottom).offset(20)
+            make.leading.trailing.equalToSuperview()
         }
         
         // contentView의 bottom constraint 업데이트
         contentView.snp.makeConstraints { make in
-            make.bottom.equalTo(recentTracksView.snp.bottom)
+            make.bottom.equalTo(topPlayedArtistView.snp.bottom)
         }
     }
-
-
+    
+    
     // MARK: - Reactor Binding
-
+    
     public func bind(reactor: HomeReactor) {
         bindActions(reactor)
         bindState(reactor)
@@ -119,6 +127,12 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
             .distinctUntilChanged()
             .bind { [weak self] recentTracks in
                 self?.recentTracksView.updateTracks(recentTracks)
+            }.disposed(by: disposeBag)
+        
+        reactor.state.map { $0.topArtists }
+            .distinctUntilChanged()
+            .bind { [weak self] topArtists in
+                self?.topPlayedArtistView.updateArtists(topArtists)
             }.disposed(by: disposeBag)
         
         

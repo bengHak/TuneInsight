@@ -23,6 +23,7 @@ public enum SpotifyServiceError: Error {
 public protocol SpotifyServiceProtocol: Sendable {
     func getCurrentlyPlaying() async throws -> CurrentlyPlayingResponse
     func getRecentlyPlayed(limit: Int) async throws -> RecentlyPlayedResponse
+    func getTopArtists(timeRange: String, limit: Int, offset: Int) async throws -> TopArtistsResponse
     func getUserProfile() async throws -> UserProfile
     func play() async throws
     func pause() async throws
@@ -72,6 +73,23 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
         }
     }
     
+    public func getTopArtists(timeRange: String, limit: Int, offset: Int) async throws -> TopArtistsResponse {
+        do {
+            guard let response: TopArtistsResponse = try await apiHandler.request(
+                SpotifyEndpoint.topArtists(timeRange: timeRange, limit: limit, offset: offset)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
     public func getUserProfile() async throws -> UserProfile {
         do {
             guard let response: UserProfile = try await apiHandler.request(SpotifyEndpoint.userProfile) else {

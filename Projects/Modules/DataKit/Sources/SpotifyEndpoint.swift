@@ -4,6 +4,7 @@ import FoundationKit
 public enum SpotifyEndpoint: APIEndpoint {
     case currentlyPlaying
     case recentlyPlayed(limit: Int? = nil)
+    case topArtists(timeRange: String, limit: Int, offset: Int)
     case userProfile
     case play
     case pause
@@ -21,6 +22,8 @@ public enum SpotifyEndpoint: APIEndpoint {
             return "/me/player/currently-playing"
         case .recentlyPlayed:
             return "/me/player/recently-played"
+        case .topArtists:
+            return "/me/top/artists"
         case .userProfile:
             return "/me"
         case .play:
@@ -38,7 +41,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var method: HTTPMethod {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .userProfile:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile:
             return .GET
         case .play, .pause, .seek:
             return .PUT
@@ -58,6 +61,12 @@ public enum SpotifyEndpoint: APIEndpoint {
                 return ["limit": limit]
             }
             return nil
+        case .topArtists(let timeRange, let limit, let offset):
+            return [
+                "time_range": timeRange,
+                "limit": limit,
+                "offset": offset
+            ]
         case .seek(let positionMs):
             return ["position_ms": positionMs]
         case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous:
@@ -67,7 +76,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var bodyParameters: [String: Any]? {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .userProfile, .play, .pause, .next, .previous, .seek:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .play, .pause, .next, .previous, .seek:
             return nil
         }
     }
