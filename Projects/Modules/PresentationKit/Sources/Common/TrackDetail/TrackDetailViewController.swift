@@ -11,6 +11,7 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
 
     private let rootView = TrackDetailView()
     private let playerView = PlayerView()
+    weak var coordinator: TrackDetailCoordinator?
 
     public init(reactor: TrackDetailReactor) {
         super.init(nibName: nil, bundle: nil)
@@ -42,6 +43,10 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
         playerView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
+        }
+
+        rootView.didSelectAlbum = { [weak self] album in
+            self?.showAlbumDetail(album: album)
         }
     }
 
@@ -109,6 +114,10 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
         let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
+    }
+
+    private func showAlbumDetail(album: SpotifyAlbum) {
+        coordinator?.showAlbumDetail(album: album)
     }
 }
 

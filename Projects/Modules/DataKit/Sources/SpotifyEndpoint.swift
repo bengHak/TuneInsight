@@ -8,6 +8,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     case artist(id: String)
     case artists(ids: [String])
     case artistAlbums(id: String, includeGroups: String?, market: String?, limit: Int?, offset: Int?)
+    case albumTracks(id: String, market: String?, limit: Int?, offset: Int?)
     case artistTopTracks(id: String, market: String)
     case userProfile
     case play
@@ -37,6 +38,8 @@ public enum SpotifyEndpoint: APIEndpoint {
             return "/artists/\(id)/albums"
         case .artistTopTracks(let id, _):
             return "/artists/\(id)/top-tracks"
+        case .albumTracks(let id, _, _, _):
+            return "/albums/\(id)/tracks"
         case .userProfile:
             return "/me"
         case .play:
@@ -56,7 +59,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var method: HTTPMethod {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks:
             return .GET
         case .play, .pause, .seek:
             return .PUT
@@ -91,6 +94,12 @@ public enum SpotifyEndpoint: APIEndpoint {
             if let limit { params["limit"] = limit }
             if let offset { params["offset"] = offset }
             return params.isEmpty ? nil : params
+        case .albumTracks(_, let market, let limit, let offset):
+            var params: [String: Any] = [:]
+            if let market { params["market"] = market }
+            if let limit { params["limit"] = limit }
+            if let offset { params["offset"] = offset }
+            return params.isEmpty ? nil : params
         case .artistTopTracks(_, let market):
             return ["market": market]
         case .seek(let positionMs):
@@ -104,7 +113,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var bodyParameters: [String: Any]? {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .play, .pause, .next, .previous, .seek, .addToQueue:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks, .play, .pause, .next, .previous, .seek, .addToQueue:
             return nil
         }
     }

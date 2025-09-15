@@ -60,6 +60,26 @@ final class TrackDetailView: UIView {
         $0.accessibilityIdentifier = "trackdetail_popularity"
     }
 
+    private let albumSectionTitleLabel = UILabel().then {
+        $0.text = "앨범"
+        $0.font = .systemFont(ofSize: 18, weight: .semibold)
+        $0.textColor = .label
+        $0.isHidden = true
+    }
+
+    let albumCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .clear
+        collectionView.isHidden = true
+        return collectionView
+    }()
+
     let addToQueueButton = UIButton(type: .system).then {
         $0.setTitle("대기열에 추가", for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
@@ -86,6 +106,12 @@ final class TrackDetailView: UIView {
         $0.accessibilityIdentifier = "trackdetail_player_container"
     }
 
+    // MARK: - Callbacks
+    var didSelectAlbum: ((SpotifyAlbum) -> Void)?
+
+    // MARK: - Data
+    private var albumItems: [SpotifyAlbum] = []
+
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -110,11 +136,17 @@ final class TrackDetailView: UIView {
         contentView.addSubview(artistLabel)
         contentView.addSubview(albumLabel)
         contentView.addSubview(infoStack)
+        contentView.addSubview(albumSectionTitleLabel)
+        contentView.addSubview(albumCollectionView)
         contentView.addSubview(addToQueueButton)
         contentView.addSubview(skipNextButton)
 
         infoStack.addArrangedSubview(durationLabel)
         infoStack.addArrangedSubview(popularityLabel)
+
+        albumCollectionView.register(AlbumSummaryCell.self, forCellWithReuseIdentifier: AlbumSummaryCell.identifier)
+        albumCollectionView.dataSource = self
+        albumCollectionView.delegate = self
 
         setupConstraints()
     }
@@ -160,8 +192,19 @@ final class TrackDetailView: UIView {
             make.leading.trailing.equalTo(titleLabel)
         }
 
+        albumSectionTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(infoStack.snp.bottom).offset(24)
+            make.leading.trailing.equalTo(titleLabel)
+        }
+
+        albumCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(albumSectionTitleLabel.snp.bottom).offset(12)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(180)
+        }
+
         addToQueueButton.snp.makeConstraints { make in
-            make.top.equalTo(infoStack.snp.bottom).offset(20)
+            make.top.equalTo(albumCollectionView.snp.bottom).offset(24)
             make.leading.trailing.equalTo(titleLabel)
         }
 
@@ -184,6 +227,108 @@ final class TrackDetailView: UIView {
             albumImageView.kf.setImage(with: url)
         } else {
             albumImageView.image = nil
+        }
+
+        albumItems = [track.album]
+        let hasAlbum = !albumItems.isEmpty
+        albumSectionTitleLabel.isHidden = !hasAlbum
+        albumCollectionView.isHidden = !hasAlbum
+        albumCollectionView.reloadData()
+    }
+}
+
+// MARK: - UICollectionViewDataSource & Delegate
+extension TrackDetailView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        albumItems.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AlbumSummaryCell.identifier, for: indexPath) as? AlbumSummaryCell else {
+            return UICollectionViewCell()
+        }
+        cell.configure(with: albumItems[indexPath.item])
+        return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        CGSize(width: 140, height: 180)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard albumItems.indices.contains(indexPath.item) else { return }
+        didSelectAlbum?(albumItems[indexPath.item])
+    }
+}
+
+// MARK: - AlbumSummaryCell
+private final class AlbumSummaryCell: UICollectionViewCell {
+    static let identifier = "AlbumSummaryCell"
+
+    private let imageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 10
+        $0.backgroundColor = .secondarySystemBackground
+    }
+
+    private let titleLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.textColor = .label
+        $0.numberOfLines = 2
+        $0.textAlignment = .center
+    }
+
+    private let artistLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 12, weight: .regular)
+        $0.textColor = .secondaryLabel
+        $0.numberOfLines = 2
+        $0.textAlignment = .center
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(imageView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(artistLabel)
+
+        imageView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(140)
+        }
+
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(imageView.snp.bottom).offset(6)
+            make.leading.trailing.equalToSuperview().inset(4)
+        }
+
+        artistLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(2)
+            make.leading.trailing.equalToSuperview().inset(4)
+            make.bottom.equalToSuperview()
+        }
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.kf.cancelDownloadTask()
+        imageView.image = nil
+        titleLabel.text = nil
+        artistLabel.text = nil
+    }
+
+    func configure(with album: SpotifyAlbum) {
+        titleLabel.text = album.name
+        artistLabel.text = album.artists.map { $0.name }.joined(separator: ", ")
+        if let urlString = album.images.first?.url, let url = URL(string: urlString) {
+            imageView.kf.setImage(with: url)
+        } else {
+            imageView.image = UIImage(systemName: "opticaldisc")
+            imageView.tintColor = .systemGray3
         }
     }
 }

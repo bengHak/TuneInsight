@@ -55,5 +55,14 @@ public final class PresentationAssembly: DIAssembly {
                 getArtistTopTracksUseCase: topTracks
             )
         }
+
+        // AlbumDetailReactor factory registration
+        container.register(AlbumDetailReactor.self) { (resolver: Resolver, album: SpotifyAlbum) in
+            let albumTracks = resolver.resolve(GetAlbumTracksUseCaseProtocol.self)!
+            return AlbumDetailReactor(
+                album: album,
+                getAlbumTracksUseCase: albumTracks
+            )
+        }
     }
 }

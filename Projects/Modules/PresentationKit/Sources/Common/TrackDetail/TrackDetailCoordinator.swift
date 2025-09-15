@@ -28,11 +28,25 @@ public final class TrackDetailCoordinator {
             spotifyStateManager: stateManager
         )
         let viewController = TrackDetailViewController(reactor: reactor)
+        viewController.coordinator = self
         return viewController
     }
 
     public func removeChild(_ child: AnyObject) {
         childCoordinators.removeAll { $0 === child }
     }
+
+    public func showAlbumDetail(album: SpotifyAlbum) {
+        let coordinator = AlbumDetailCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
+        childCoordinators.append(coordinator)
+        let viewController = coordinator.start(with: album)
+        navigationController.pushViewController(viewController, animated: true)
+    }
 }
 
+extension TrackDetailCoordinator: AlbumDetailCoordinatorDelegate {
+    public func albumDetailCoordinatorDidFinish(_ coordinator: AlbumDetailCoordinator) {
+        removeChild(coordinator)
+    }
+}

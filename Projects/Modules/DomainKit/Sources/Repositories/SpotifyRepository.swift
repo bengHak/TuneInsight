@@ -33,6 +33,7 @@ public protocol SpotifyRepository: Sendable {
     func getArtists(ids: [String]) async throws -> [SpotifyArtist]
     func getArtistAlbums(artistId: String, limit: Int, offset: Int) async throws -> [SpotifyAlbum]
     func getArtistTopTracks(artistId: String, market: String) async throws -> [SpotifyTrack]
+    func getAlbumTracks(albumId: String, limit: Int, offset: Int) async throws -> SpotifyAlbumTracksPage
     func play() async throws
     func pause() async throws
     func nextTrack() async throws

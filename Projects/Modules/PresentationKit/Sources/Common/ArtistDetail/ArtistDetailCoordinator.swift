@@ -27,11 +27,25 @@ public final class ArtistDetailCoordinator {
             getArtistTopTracksUseCase: topTracksUseCase
         )
         let vc = ArtistDetailViewController(reactor: reactor)
+        vc.coordinator = self
         return vc
     }
 
     public func removeChild(_ child: AnyObject) {
         childCoordinators.removeAll { $0 === child }
     }
+
+    public func showAlbumDetail(album: SpotifyAlbum) {
+        let coordinator = AlbumDetailCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
+        childCoordinators.append(coordinator)
+        let vc = coordinator.start(with: album)
+        navigationController.pushViewController(vc, animated: true)
+    }
 }
 
+extension ArtistDetailCoordinator: AlbumDetailCoordinatorDelegate {
+    public func albumDetailCoordinatorDidFinish(_ coordinator: AlbumDetailCoordinator) {
+        removeChild(coordinator)
+    }
+}

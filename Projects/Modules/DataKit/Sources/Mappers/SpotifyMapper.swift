@@ -59,6 +59,18 @@ public enum SpotifyMapper {
     public static func toDomain(_ response: ArtistTopTracksResponse) -> [SpotifyTrack] {
         return response.tracks.map { $0.toDomain() }
     }
+
+    public static func toDomain(_ response: AlbumTracksResponse) -> SpotifyAlbumTracksPage {
+        let items = response.items.map { $0.toDomain() }
+        return SpotifyAlbumTracksPage(
+            items: items,
+            limit: response.limit ?? items.count,
+            offset: response.offset ?? 0,
+            total: response.total ?? items.count,
+            next: response.next,
+            previous: response.previous
+        )
+    }
 }
 
 // MARK: - Track Extensions
@@ -74,6 +86,26 @@ private extension Track {
             popularity: popularity,
             previewUrl: previewUrl,
             uri: uri
+        )
+    }
+}
+
+private extension SimplifiedTrack {
+    func toDomain() -> SpotifyAlbumTrack {
+        return SpotifyAlbumTrack(
+            id: id,
+            name: name,
+            discNumber: discNumber,
+            trackNumber: trackNumber,
+            durationMs: durationMs,
+            explicit: explicit,
+            uri: uri,
+            previewUrl: previewUrl,
+            isPlayable: isPlayable,
+            isLocal: isLocal,
+            artists: artists.map { $0.toDomain() },
+            availableMarkets: availableMarkets ?? [],
+            restrictions: restrictions?.toDomain()
         )
     }
 }
@@ -143,5 +175,11 @@ private extension PlaybackContext {
             type: type,
             uri: uri
         )
+    }
+}
+
+private extension TrackRestriction {
+    func toDomain() -> DomainKit.TrackRestriction {
+        return DomainKit.TrackRestriction(reason: reason)
     }
 }

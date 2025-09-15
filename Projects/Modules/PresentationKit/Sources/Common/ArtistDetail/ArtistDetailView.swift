@@ -103,6 +103,7 @@ final class ArtistDetailView: UIView {
     }()
     
     private var albumItems: [SpotifyAlbum] = []
+    var didSelectAlbum: ((SpotifyAlbum) -> Void)?
     
     let topTracksTitleLabel = UILabel().then {
         $0.text = "인기 트랙"
@@ -307,6 +308,11 @@ extension ArtistDetailView: UICollectionViewDataSource, UICollectionViewDelegate
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 120, height: 160)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard albumItems.indices.contains(indexPath.item) else { return }
+        didSelectAlbum?(albumItems[indexPath.item])
     }
 }
 

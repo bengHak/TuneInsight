@@ -6,6 +6,7 @@ import RxSwift
 public final class ArtistDetailViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
     private let rootView = ArtistDetailView()
+    weak var coordinator: ArtistDetailCoordinator?
 
     // MARK: - Init
     public init(reactor: ArtistDetailReactor) {
@@ -31,6 +32,10 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
             make.edges.equalTo(view)
         }
         rootView.copyURIButton.addTarget(self, action: #selector(copyURITapped), for: .touchUpInside)
+
+        rootView.didSelectAlbum = { [weak self] album in
+            self?.showAlbumDetail(album: album)
+        }
     }
 
     // MARK: - Configure
@@ -47,6 +52,10 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak alert] in
             alert?.dismiss(animated: true, completion: nil)
         }
+    }
+
+    private func showAlbumDetail(album: SpotifyAlbum) {
+        coordinator?.showAlbumDetail(album: album)
     }
 }
 

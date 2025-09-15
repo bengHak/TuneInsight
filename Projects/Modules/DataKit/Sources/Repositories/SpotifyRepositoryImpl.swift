@@ -109,6 +109,19 @@ public final class SpotifyRepositoryImpl: SpotifyRepository, Sendable {
             throw SpotifyRepositoryError.unknown(error)
         }
     }
+
+    public func getAlbumTracks(albumId: String, limit: Int, offset: Int) async throws -> SpotifyAlbumTracksPage {
+        do {
+            let response = try await service.getAlbumTracks(id: albumId, market: nil, limit: limit, offset: offset)
+            return SpotifyMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
     
     public func play() async throws {
         do {

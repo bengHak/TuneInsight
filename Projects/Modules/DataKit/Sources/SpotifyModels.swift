@@ -361,3 +361,55 @@ public struct ArtistAlbumsResponse: Codable, Sendable {
 public struct ArtistTopTracksResponse: Codable, Sendable {
     public let tracks: [Track]
 }
+
+// MARK: - Get Album's Tracks Response
+
+public struct AlbumTracksResponse: Codable, Sendable {
+    public let href: String?
+    public let items: [SimplifiedTrack]
+    public let limit: Int?
+    public let next: String?
+    public let offset: Int?
+    public let previous: String?
+    public let total: Int?
+}
+
+public struct SimplifiedTrack: Codable, Sendable {
+    public let artists: [Artist]
+    public let availableMarkets: [String]?
+    public let discNumber: Int
+    public let durationMs: Int
+    public let explicit: Bool
+    public let externalUrls: ExternalUrls
+    public let href: String
+    public let id: String
+    public let isLocal: Bool
+    public let isPlayable: Bool?
+    public let linkedFrom: LinkedTrack?
+    public let name: String
+    public let previewUrl: String?
+    public let trackNumber: Int
+    public let type: String
+    public let uri: String
+    public let restrictions: TrackRestriction?
+
+    enum CodingKeys: String, CodingKey {
+        case artists
+        case availableMarkets = "available_markets"
+        case discNumber = "disc_number"
+        case durationMs = "duration_ms"
+        case explicit
+        case externalUrls = "external_urls"
+        case href
+        case id
+        case isLocal = "is_local"
+        case isPlayable = "is_playable"
+        case linkedFrom = "linked_from"
+        case name
+        case previewUrl = "preview_url"
+        case trackNumber = "track_number"
+        case type
+        case uri
+        case restrictions
+    }
+}
