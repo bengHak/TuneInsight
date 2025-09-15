@@ -3,6 +3,10 @@ import SnapKit
 import DomainKit
 import Kingfisher
 
+public protocol HomeTopPlayedArtistViewDelegate: AnyObject {
+    func homeTopPlayedArtistView(_ view: HomeTopPlayedArtistView, didSelect artist: SpotifyArtist)
+}
+
 public final class HomeTopPlayedArtistView: UIView {
     
     // MARK: - UI
@@ -31,6 +35,7 @@ public final class HomeTopPlayedArtistView: UIView {
     // MARK: - Properties
     
     private var artists: [TopArtist] = []
+    public weak var delegate: HomeTopPlayedArtistViewDelegate?
     
     // MARK: - Init
     
@@ -139,6 +144,12 @@ extension HomeTopPlayedArtistView: UICollectionViewDelegateFlowLayout {
         let cellWidth = (UIScreen.main.bounds.width - padding) / 2
         let textHeight: CGFloat = 60
         return CGSize(width: cellWidth, height: cellWidth + textHeight)
+    }
+
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard indexPath.item < artists.count else { return }
+        let topArtist = artists[indexPath.item]
+        delegate?.homeTopPlayedArtistView(self, didSelect: topArtist.artist)
     }
 }
 
