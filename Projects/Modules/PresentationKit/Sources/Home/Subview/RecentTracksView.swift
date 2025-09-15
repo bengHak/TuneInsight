@@ -3,6 +3,10 @@ import SnapKit
 import DomainKit
 import Kingfisher
 
+public protocol RecentTracksViewDelegate: AnyObject {
+    func recentTracksView(_ view: RecentTracksView, didSelect track: RecentTrack)
+}
+
 public final class RecentTracksView: UIView {
     
     // MARK: - UI
@@ -28,6 +32,7 @@ public final class RecentTracksView: UIView {
     // MARK: - Properties
     
     private var tracks: [RecentTrack] = []
+    public weak var delegate: RecentTracksViewDelegate?
     
     // MARK: - Init
     
@@ -47,6 +52,7 @@ public final class RecentTracksView: UIView {
         addSubview(titleLabel)
         addSubview(tableView)
         tableView.dataSource = self
+        tableView.delegate = self
         setupConstraints()
     }
     
@@ -234,5 +240,15 @@ private final class RecentTrackCell: UITableViewCell {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         playedAtLabel.text = formatter.localizedString(for: track.playedAt, relativeTo: Date())
+    }
+}
+
+// MARK: - UITableViewDelegate
+
+extension RecentTracksView: UITableViewDelegate {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard indexPath.row < tracks.count else { return }
+        let track = tracks[indexPath.row]
+        delegate?.recentTracksView(self, didSelect: track)
     }
 }

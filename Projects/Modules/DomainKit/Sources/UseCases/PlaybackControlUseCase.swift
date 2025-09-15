@@ -6,6 +6,7 @@ public protocol PlaybackControlUseCaseProtocol {
     func nextTrack() async throws
     func previousTrack() async throws
     func seek(to positionMs: Int) async throws
+    func addToQueue(uri: String) async throws
 }
 
 public final class PlaybackControlUseCase: PlaybackControlUseCaseProtocol, Sendable {
@@ -33,5 +34,9 @@ public final class PlaybackControlUseCase: PlaybackControlUseCaseProtocol, Senda
     
     public func seek(to positionMs: Int) async throws {
         try await repository.seek(to: positionMs)
+    }
+
+    public func addToQueue(uri: String) async throws {
+        try await repository.addToQueue(uri: uri)
     }
 }

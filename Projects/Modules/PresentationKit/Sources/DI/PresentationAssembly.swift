@@ -33,5 +33,16 @@ public final class PresentationAssembly: DIAssembly {
             let spotifyStateManager = resolver.resolve(SpotifyStateManagerProtocol.self)!
             return HomeReactor(spotifyStateManager: spotifyStateManager)
         }
+
+        // TrackDetailReactor factory registration
+        container.register(TrackDetailReactor.self) { (resolver: Resolver, track: SpotifyTrack) in
+            let playbackControl = resolver.resolve(PlaybackControlUseCaseProtocol.self)!
+            let stateManager = resolver.resolve(SpotifyStateManagerProtocol.self)!
+            return TrackDetailReactor(
+                track: track,
+                playbackControlUseCase: playbackControl,
+                spotifyStateManager: stateManager
+            )
+        }
     }
 }

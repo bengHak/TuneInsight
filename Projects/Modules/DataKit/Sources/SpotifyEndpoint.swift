@@ -11,6 +11,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     case next
     case previous
     case seek(positionMs: Int)
+    case addToQueue(uri: String)
     
     public var baseURL: String {
         return "https://api.spotify.com/v1"
@@ -36,6 +37,8 @@ public enum SpotifyEndpoint: APIEndpoint {
             return "/me/player/previous"
         case .seek:
             return "/me/player/seek"
+        case .addToQueue:
+            return "/me/player/queue"
         }
     }
     
@@ -45,7 +48,7 @@ public enum SpotifyEndpoint: APIEndpoint {
             return .GET
         case .play, .pause, .seek:
             return .PUT
-        case .next, .previous:
+        case .next, .previous, .addToQueue:
             return .POST
         }
     }
@@ -69,6 +72,8 @@ public enum SpotifyEndpoint: APIEndpoint {
             ]
         case .seek(let positionMs):
             return ["position_ms": positionMs]
+        case .addToQueue(let uri):
+            return ["uri": uri]
         case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous:
             return nil
         }
@@ -76,7 +81,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var bodyParameters: [String: Any]? {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .play, .pause, .next, .previous, .seek:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .play, .pause, .next, .previous, .seek, .addToQueue:
             return nil
         }
     }

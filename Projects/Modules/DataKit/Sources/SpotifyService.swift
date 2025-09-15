@@ -30,6 +30,7 @@ public protocol SpotifyServiceProtocol: Sendable {
     func nextTrack() async throws
     func previousTrack() async throws
     func seek(to positionMs: Int) async throws
+    func addToQueue(uri: String) async throws
 }
 
 public final class SpotifyService: SpotifyServiceProtocol, Sendable {
@@ -162,6 +163,20 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
         do {
             let _: String? = try await apiHandler.requestWithoutContentTypeValidation(SpotifyEndpoint.seek(positionMs: positionMs))
             // nil 반환도 정상적인 경우로 처리
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func addToQueue(uri: String) async throws {
+        do {
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(
+                SpotifyEndpoint.addToQueue(uri: uri)
+            )
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
         } catch let error as APIError {

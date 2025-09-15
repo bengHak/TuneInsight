@@ -33,4 +33,5 @@ public protocol SpotifyRepository: Sendable {
     func nextTrack() async throws
     func previousTrack() async throws
     func seek(to positionMs: Int) async throws
+    func addToQueue(uri: String) async throws
 }

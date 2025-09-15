@@ -65,6 +65,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         contentView.addSubview(playerView)
         contentView.addSubview(topPlayedArtistView)
         contentView.addSubview(recentTracksView)
+        recentTracksView.delegate = self
         
         setupConstraints()
     }
@@ -174,5 +175,13 @@ extension HomeViewController: PlayerViewDelegate {
     
     public func playerView(_ playerView: PlayerView, didSeekTo positionMs: Int) {
         reactor?.action.onNext(.seek(positionMs: positionMs))
+    }
+}
+
+// MARK: - RecentTracksViewDelegate
+
+extension HomeViewController: RecentTracksViewDelegate {
+    public func recentTracksView(_ view: RecentTracksView, didSelect track: RecentTrack) {
+        coordinator?.showTrackDetail(track.track)
     }
 }

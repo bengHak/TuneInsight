@@ -23,11 +23,20 @@ public final class HomeCoordinator {
         
         // ViewController 생성
         let homeVC = HomeViewController(reactor: homeReactor)
+        homeVC.title = "TuneInsight"
         homeVC.coordinator = self
         return homeVC
     }
     
     public func removeChild(_ child: AnyObject) {
         childCoordinators.removeAll { $0 === child }
+    }
+
+    // MARK: - Navigation
+    public func showTrackDetail(_ track: SpotifyTrack) {
+        let coordinator = TrackDetailCoordinator(navigationController: navigationController)
+        childCoordinators.append(coordinator)
+        let vc = coordinator.start(with: track)
+        navigationController.pushViewController(vc, animated: true)
     }
 }

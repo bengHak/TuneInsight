@@ -116,4 +116,16 @@ public final class SpotifyRepositoryImpl: SpotifyRepository, Sendable {
             throw SpotifyRepositoryError.unknown(error)
         }
     }
+
+    public func addToQueue(uri: String) async throws {
+        do {
+            try await service.addToQueue(uri: uri)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
 }

@@ -231,3 +231,4 @@ node_modules
 *~
 BuildConfigurations/Release.xcconfig
 BuildConfigurations/Debug.xcconfig
+AGENTS.md
