@@ -24,6 +24,10 @@ public protocol SpotifyServiceProtocol: Sendable {
     func getCurrentlyPlaying() async throws -> CurrentlyPlayingResponse
     func getRecentlyPlayed(limit: Int) async throws -> RecentlyPlayedResponse
     func getTopArtists(timeRange: String, limit: Int, offset: Int) async throws -> TopArtistsResponse
+    func getArtist(id: String) async throws -> Artist
+    func getArtists(ids: [String]) async throws -> ArtistsResponse
+    func getArtistAlbums(id: String, includeGroups: String?, market: String?, limit: Int?, offset: Int?) async throws -> ArtistAlbumsResponse
+    func getArtistTopTracks(id: String, market: String) async throws -> ArtistTopTracksResponse
     func getUserProfile() async throws -> UserProfile
     func play() async throws
     func pause() async throws
@@ -78,6 +82,70 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
         do {
             guard let response: TopArtistsResponse = try await apiHandler.request(
                 SpotifyEndpoint.topArtists(timeRange: timeRange, limit: limit, offset: offset)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func getArtist(id: String) async throws -> Artist {
+        do {
+            guard let response: Artist = try await apiHandler.request(SpotifyEndpoint.artist(id: id)) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func getArtists(ids: [String]) async throws -> ArtistsResponse {
+        do {
+            guard let response: ArtistsResponse = try await apiHandler.request(SpotifyEndpoint.artists(ids: ids)) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func getArtistAlbums(id: String, includeGroups: String? = nil, market: String? = nil, limit: Int? = nil, offset: Int? = nil) async throws -> ArtistAlbumsResponse {
+        do {
+            guard let response: ArtistAlbumsResponse = try await apiHandler.request(
+                SpotifyEndpoint.artistAlbums(id: id, includeGroups: includeGroups, market: market, limit: limit, offset: offset)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func getArtistTopTracks(id: String, market: String) async throws -> ArtistTopTracksResponse {
+        do {
+            guard let response: ArtistTopTracksResponse = try await apiHandler.request(
+                SpotifyEndpoint.artistTopTracks(id: id, market: market)
             ) else {
                 throw SpotifyServiceError.networkError(APIError.noData)
             }

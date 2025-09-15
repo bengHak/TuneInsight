@@ -42,6 +42,23 @@ public enum SpotifyMapper {
             )
         }
     }
+
+    // MARK: - Artist Detail mappings
+    public static func toDomainArtist(_ artist: Artist) -> SpotifyArtist {
+        return artist.toDomain()
+    }
+
+    public static func toDomain(_ response: ArtistsResponse) -> [SpotifyArtist] {
+        return response.artists.map { $0.toDomain() }
+    }
+
+    public static func toDomain(_ response: ArtistAlbumsResponse) -> [SpotifyAlbum] {
+        return response.items.map { $0.toDomain() }
+    }
+
+    public static func toDomain(_ response: ArtistTopTracksResponse) -> [SpotifyTrack] {
+        return response.tracks.map { $0.toDomain() }
+    }
 }
 
 // MARK: - Track Extensions

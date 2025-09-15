@@ -337,3 +337,27 @@ public struct TopArtistsResponse: Codable, Sendable {
     public let previous: String?
     public let next: String?
 }
+
+// MARK: - Get Several Artists Response
+
+public struct ArtistsResponse: Codable, Sendable {
+    public let artists: [Artist]
+}
+
+// MARK: - Get Artist's Albums Response
+
+public struct ArtistAlbumsResponse: Codable, Sendable {
+    public let items: [Album]
+    public let href: String?
+    public let limit: Int?
+    public let next: String?
+    public let offset: Int?
+    public let previous: String?
+    public let total: Int?
+}
+
+// MARK: - Get Artist's Top Tracks Response
+
+public struct ArtistTopTracksResponse: Codable, Sendable {
+    public let tracks: [Track]
+}

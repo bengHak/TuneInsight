@@ -5,6 +5,10 @@ public enum SpotifyEndpoint: APIEndpoint {
     case currentlyPlaying
     case recentlyPlayed(limit: Int? = nil)
     case topArtists(timeRange: String, limit: Int, offset: Int)
+    case artist(id: String)
+    case artists(ids: [String])
+    case artistAlbums(id: String, includeGroups: String?, market: String?, limit: Int?, offset: Int?)
+    case artistTopTracks(id: String, market: String)
     case userProfile
     case play
     case pause
@@ -25,6 +29,14 @@ public enum SpotifyEndpoint: APIEndpoint {
             return "/me/player/recently-played"
         case .topArtists:
             return "/me/top/artists"
+        case .artist(let id):
+            return "/artists/\(id)"
+        case .artists:
+            return "/artists"
+        case .artistAlbums(let id, _, _, _, _):
+            return "/artists/\(id)/albums"
+        case .artistTopTracks(let id, _):
+            return "/artists/\(id)/top-tracks"
         case .userProfile:
             return "/me"
         case .play:
@@ -44,7 +56,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var method: HTTPMethod {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks:
             return .GET
         case .play, .pause, .seek:
             return .PUT
@@ -70,18 +82,29 @@ public enum SpotifyEndpoint: APIEndpoint {
                 "limit": limit,
                 "offset": offset
             ]
+        case .artists(let ids):
+            return ["ids": ids.joined(separator: ",")]
+        case .artistAlbums(_, let includeGroups, let market, let limit, let offset):
+            var params: [String: Any] = [:]
+            if let includeGroups { params["include_groups"] = includeGroups }
+            if let market { params["market"] = market }
+            if let limit { params["limit"] = limit }
+            if let offset { params["offset"] = offset }
+            return params.isEmpty ? nil : params
+        case .artistTopTracks(_, let market):
+            return ["market": market]
         case .seek(let positionMs):
             return ["position_ms": positionMs]
         case .addToQueue(let uri):
             return ["uri": uri]
-        case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous:
+        case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous, .artist:
             return nil
         }
     }
     
     public var bodyParameters: [String: Any]? {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .play, .pause, .next, .previous, .seek, .addToQueue:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .play, .pause, .next, .previous, .seek, .addToQueue:
             return nil
         }
     }

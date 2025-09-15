@@ -56,6 +56,59 @@ public final class SpotifyRepositoryImpl: SpotifyRepository, Sendable {
             throw SpotifyRepositoryError.unknown(error)
         }
     }
+
+    // MARK: - Artist Detail
+    public func getArtist(id: String) async throws -> SpotifyArtist {
+        do {
+            let artist = try await service.getArtist(id: id)
+            return SpotifyMapper.toDomainArtist(artist)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func getArtists(ids: [String]) async throws -> [SpotifyArtist] {
+        do {
+            let response = try await service.getArtists(ids: ids)
+            return SpotifyMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func getArtistAlbums(artistId: String, limit: Int, offset: Int) async throws -> [SpotifyAlbum] {
+        do {
+            let response = try await service.getArtistAlbums(id: artistId, includeGroups: nil, market: nil, limit: limit, offset: offset)
+            return SpotifyMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func getArtistTopTracks(artistId: String, market: String) async throws -> [SpotifyTrack] {
+        do {
+            let response = try await service.getArtistTopTracks(id: artistId, market: market)
+            return SpotifyMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
     
     public func play() async throws {
         do {

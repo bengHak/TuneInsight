@@ -1,6 +1,7 @@
 import UIKit
 import DomainKit
 import DIKit
+// ArtistDetailCoordinator, TrackDetailCoordinator 등 화면 이동
 
 public protocol HomeCoordinatorDelegate: AnyObject {
     func homeCoordinatorDidFinish(_ coordinator: HomeCoordinator)
@@ -37,6 +38,13 @@ public final class HomeCoordinator {
         let coordinator = TrackDetailCoordinator(navigationController: navigationController)
         childCoordinators.append(coordinator)
         let vc = coordinator.start(with: track)
+        navigationController.pushViewController(vc, animated: true)
+    }
+
+    public func showArtistDetail(_ artist: SpotifyArtist) {
+        let coordinator = ArtistDetailCoordinator(navigationController: navigationController)
+        childCoordinators.append(coordinator)
+        let vc = coordinator.start(with: artist)
         navigationController.pushViewController(vc, animated: true)
     }
 }

@@ -28,6 +28,11 @@ public protocol SpotifyRepository: Sendable {
         limit: Int,
         offset: Int
     ) async throws -> [TopArtist]
+    // Artist Detail
+    func getArtist(id: String) async throws -> SpotifyArtist
+    func getArtists(ids: [String]) async throws -> [SpotifyArtist]
+    func getArtistAlbums(artistId: String, limit: Int, offset: Int) async throws -> [SpotifyAlbum]
+    func getArtistTopTracks(artistId: String, market: String) async throws -> [SpotifyTrack]
     func play() async throws
     func pause() async throws
     func nextTrack() async throws
