@@ -325,12 +325,12 @@ extension ArtistDetailView: UICollectionViewDataSource, UICollectionViewDelegate
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView === albumsCollectionView {
-            return CGSize(width: 120, height: 160)
+            return CGSize(width: 220, height: 96)
         }
         let layout = collectionViewLayout as? UICollectionViewFlowLayout
         let horizontalInset = (layout?.sectionInset.left ?? 0) + (layout?.sectionInset.right ?? 0)
         let width = collectionView.bounds.width - horizontalInset
-        return CGSize(width: width, height: 72)
+        return CGSize(width: width, height: 88)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -348,31 +348,59 @@ extension ArtistDetailView: UICollectionViewDataSource, UICollectionViewDelegate
 private final class AlbumCell: UICollectionViewCell {
     static let identifier = String(describing: AlbumCell.self)
     
+    private let containerView = UIView().then {
+        $0.backgroundColor = .secondarySystemBackground
+        $0.layer.cornerRadius = 12
+        $0.clipsToBounds = true
+    }
+
     private let imageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 8
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = .tertiarySystemFill
     }
-    
+
     private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textAlignment = .center
+        $0.font = .systemFont(ofSize: 13, weight: .semibold)
         $0.textColor = .label
         $0.numberOfLines = 2
+    }
+
+    private let artistLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 11, weight: .regular)
+        $0.textColor = .secondaryLabel
+        $0.numberOfLines = 1
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.addSubview(imageView)
-        contentView.addSubview(titleLabel)
-        imageView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(120)
+        contentView.addSubview(containerView)
+        containerView.addSubview(imageView)
+        containerView.addSubview(titleLabel)
+        containerView.addSubview(artistLabel)
+
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
+
+        imageView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(12)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(64)
+        }
+
         titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(imageView.snp.bottom).offset(4)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalToSuperview().inset(14)
+            make.leading.equalTo(imageView.snp.trailing).offset(12)
+            make.trailing.equalToSuperview().inset(12)
+        }
+
+        artistLabel.snp.makeConstraints { make in
+            make.leading.equalTo(titleLabel)
+            make.trailing.equalTo(titleLabel)
+            make.top.equalTo(titleLabel.snp.bottom).offset(6)
+            make.bottom.lessThanOrEqualToSuperview().inset(14)
         }
     }
     
@@ -385,14 +413,17 @@ private final class AlbumCell: UICollectionViewCell {
         imageView.kf.cancelDownloadTask()
         imageView.image = nil
         titleLabel.text = nil
+        artistLabel.text = nil
     }
     
     func configure(with album: SpotifyAlbum) {
         titleLabel.text = album.name
+        artistLabel.text = album.artists.map { $0.name }.joined(separator: ", ")
         if let urlString = album.images.first?.url, let url = URL(string: urlString) {
             imageView.kf.setImage(with: url)
         } else {
-            imageView.image = nil
+            imageView.image = UIImage(systemName: "opticaldisc")
+            imageView.tintColor = .systemGray3
         }
     }
 }
@@ -403,6 +434,14 @@ private final class TopTrackCell: UICollectionViewCell {
     private let containerView = UIView().then {
         $0.backgroundColor = .secondarySystemBackground
         $0.layer.cornerRadius = 12
+        $0.clipsToBounds = true
+    }
+
+    private let albumImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 8
+        $0.backgroundColor = .tertiarySystemFill
     }
 
     private let indexLabel = UILabel().then {
@@ -433,6 +472,7 @@ private final class TopTrackCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(containerView)
+        containerView.addSubview(albumImageView)
         containerView.addSubview(indexLabel)
         containerView.addSubview(titleLabel)
         containerView.addSubview(artistLabel)
@@ -442,9 +482,15 @@ private final class TopTrackCell: UICollectionViewCell {
             make.edges.equalToSuperview()
         }
 
-        indexLabel.snp.makeConstraints { make in
+        albumImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(12)
             make.centerY.equalToSuperview()
+            make.width.height.equalTo(56)
+        }
+
+        indexLabel.snp.makeConstraints { make in
+            make.leading.equalTo(albumImageView.snp.trailing).offset(12)
+            make.top.equalTo(albumImageView.snp.top)
         }
 
         durationLabel.snp.makeConstraints { make in
@@ -453,15 +499,15 @@ private final class TopTrackCell: UICollectionViewCell {
         }
 
         titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(12)
-            make.leading.equalTo(indexLabel.snp.trailing).offset(12)
+            make.top.equalTo(albumImageView.snp.top)
+            make.leading.equalTo(indexLabel.snp.trailing).offset(8)
             make.trailing.lessThanOrEqualTo(durationLabel.snp.leading).offset(-8)
         }
 
         artistLabel.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel)
             make.trailing.lessThanOrEqualTo(durationLabel.snp.leading).offset(-8)
-            make.bottom.equalToSuperview().inset(12)
+            make.bottom.lessThanOrEqualToSuperview().inset(12)
             make.top.equalTo(titleLabel.snp.bottom).offset(4)
         }
     }
@@ -476,6 +522,8 @@ private final class TopTrackCell: UICollectionViewCell {
         titleLabel.text = nil
         artistLabel.text = nil
         durationLabel.text = nil
+        albumImageView.kf.cancelDownloadTask()
+        albumImageView.image = nil
     }
 
     func configure(with track: SpotifyTrack, index: Int) {
@@ -483,5 +531,11 @@ private final class TopTrackCell: UICollectionViewCell {
         titleLabel.text = track.name
         artistLabel.text = track.artistNames
         durationLabel.text = track.durationFormatted
+        if let urlString = track.album.images.first?.url, let url = URL(string: urlString) {
+            albumImageView.kf.setImage(with: url)
+        } else {
+            albumImageView.image = UIImage(systemName: "music.note")
+            albumImageView.tintColor = .systemGray3
+        }
     }
 }
