@@ -332,6 +332,8 @@ private final class AlbumTrackCell: UITableViewCell {
     private let indexLabel = UILabel().then {
         $0.font = .monospacedDigitSystemFont(ofSize: 14, weight: .semibold)
         $0.textColor = .secondaryLabel
+        $0.setContentHuggingPriority(.required, for: .horizontal)
+        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
 
     private let titleLabel = UILabel().then {
