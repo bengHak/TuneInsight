@@ -32,6 +32,7 @@ final class AlbumDetailView: UIView {
     // MARK: - Data
     private var album: SpotifyAlbum?
     private var tracks: [SpotifyAlbumTrack] = []
+    var didSelectTrack: ((SpotifyAlbumTrack) -> Void)?
 
     // MARK: - Init
     override init(frame: CGRect) {
@@ -139,7 +140,7 @@ extension AlbumDetailView: UITableViewDataSource {
                 let track = tracks[indexPath.row]
                 trackCell.configure(with: track, index: indexPath.row + 1)
             }
-            cell.selectionStyle = .none
+            cell.selectionStyle = .default
             return cell
         }
     }
@@ -169,6 +170,13 @@ extension AlbumDetailView: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return .leastNormalMagnitude
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        guard let section = Section(rawValue: indexPath.section), section == .tracks else { return }
+        guard tracks.indices.contains(indexPath.row) else { return }
+        didSelectTrack?(tracks[indexPath.row])
     }
 }
 
@@ -411,7 +419,8 @@ private final class AlbumTrackCell: UITableViewCell {
     }
 
     private func setupLayout() {
-        selectionStyle = .none
+        selectionStyle = .default
+        accessoryType = .disclosureIndicator
         contentView.backgroundColor = .systemBackground
 
         contentView.addSubview(indexLabel)
