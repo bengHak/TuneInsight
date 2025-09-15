@@ -42,10 +42,24 @@ public final class ArtistDetailCoordinator {
         let vc = coordinator.start(with: album)
         navigationController.pushViewController(vc, animated: true)
     }
+
+    public func showTrackDetail(track: SpotifyTrack) {
+        let coordinator = TrackDetailCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
+        childCoordinators.append(coordinator)
+        let viewController = coordinator.start(with: track)
+        navigationController.pushViewController(viewController, animated: true)
+    }
 }
 
 extension ArtistDetailCoordinator: AlbumDetailCoordinatorDelegate {
     public func albumDetailCoordinatorDidFinish(_ coordinator: AlbumDetailCoordinator) {
+        removeChild(coordinator)
+    }
+}
+
+extension ArtistDetailCoordinator: TrackDetailCoordinatorDelegate {
+    public func trackDetailCoordinatorDidFinish(_ coordinator: TrackDetailCoordinator) {
         removeChild(coordinator)
     }
 }

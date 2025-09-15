@@ -36,6 +36,13 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
+    public override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if isMovingFromParent, let coordinator {
+            coordinator.delegate?.trackDetailCoordinatorDidFinish(coordinator)
+        }
+    }
+
     private func setupUI() {
         title = "트랙 상세"
         playerView.delegate = self

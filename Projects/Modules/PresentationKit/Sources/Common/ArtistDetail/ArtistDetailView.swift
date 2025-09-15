@@ -104,6 +104,8 @@ final class ArtistDetailView: UIView {
     
     private var albumItems: [SpotifyAlbum] = []
     var didSelectAlbum: ((SpotifyAlbum) -> Void)?
+    private var topTrackItems: [SpotifyTrack] = []
+    var didSelectTrack: ((SpotifyTrack) -> Void)?
     
     let topTracksTitleLabel = UILabel().then {
         $0.text = "인기 트랙"
@@ -112,10 +114,22 @@ final class ArtistDetailView: UIView {
         $0.isHidden = true
     }
     
-    let topTracksStack = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 8
-    }
+    private lazy var topTracksCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.backgroundColor = .clear
+        cv.isHidden = true
+        cv.isScrollEnabled = false
+        cv.dataSource = self
+        cv.delegate = self
+        cv.register(TopTrackCell.self, forCellWithReuseIdentifier: TopTrackCell.identifier)
+        return cv
+    }()
+    
+    private var topTracksCollectionHeightConstraint: Constraint?
     
     // MARK: - Init
     override init(frame: CGRect) {
@@ -148,7 +162,7 @@ final class ArtistDetailView: UIView {
         contentView.addSubview(albumsTitleLabel)
         contentView.addSubview(albumsCollectionView)
         contentView.addSubview(topTracksTitleLabel)
-        contentView.addSubview(topTracksStack)
+        contentView.addSubview(topTracksCollectionView)
         
         setupConstraints()
     }
@@ -229,9 +243,10 @@ final class ArtistDetailView: UIView {
             make.leading.trailing.equalTo(nameLabel)
         }
         
-        topTracksStack.snp.makeConstraints { make in
-            make.top.equalTo(topTracksTitleLabel.snp.bottom).offset(8)
-            make.leading.trailing.equalTo(nameLabel)
+        topTracksCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(topTracksTitleLabel.snp.bottom).offset(12)
+            make.leading.trailing.equalToSuperview()
+            topTracksCollectionHeightConstraint = make.height.equalTo(0).constraint
             make.bottom.equalToSuperview().inset(24)
         }
     }
@@ -266,27 +281,19 @@ final class ArtistDetailView: UIView {
     }
     
     func updateTopTracks(_ tracks: [SpotifyTrack]) {
-        topTracksStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        guard !tracks.isEmpty else { topTracksTitleLabel.isHidden = true; return }
-        topTracksTitleLabel.isHidden = false
-        tracks.prefix(10).forEach { track in
-            let row = UIStackView()
-            row.axis = .horizontal
-            row.alignment = .center
-            row.distribution = .fill
-            row.spacing = 8
-            let name = UILabel()
-            name.font = .systemFont(ofSize: 14, weight: .regular)
-            name.textColor = .label
-            name.text = track.name
-            let duration = UILabel()
-            duration.font = .systemFont(ofSize: 12, weight: .regular)
-            duration.textColor = .secondaryLabel
-            duration.text = track.durationFormatted
-            row.addArrangedSubview(name)
-            row.addArrangedSubview(UIView())
-            row.addArrangedSubview(duration)
-            topTracksStack.addArrangedSubview(row)
+        topTrackItems = Array(tracks.prefix(20))
+        let isEmpty = topTrackItems.isEmpty
+        topTracksTitleLabel.isHidden = isEmpty
+        topTracksCollectionView.isHidden = isEmpty
+        topTracksCollectionView.reloadData()
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.topTracksCollectionView.collectionViewLayout.invalidateLayout()
+            self.topTracksCollectionView.layoutIfNeeded()
+            let contentHeight = isEmpty ? 0 : self.topTracksCollectionView.collectionViewLayout.collectionViewContentSize.height
+            self.topTracksCollectionHeightConstraint?.update(offset: contentHeight)
+            self.layoutIfNeeded()
         }
     }
 }
@@ -294,25 +301,46 @@ final class ArtistDetailView: UIView {
 // MARK: - UICollectionViewDataSource & Delegate
 extension ArtistDetailView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return albumItems.count
+        if collectionView === albumsCollectionView {
+            return albumItems.count
+        }
+        return topTrackItems.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AlbumCell.identifier, for: indexPath) as? AlbumCell else {
+        if collectionView === albumsCollectionView {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AlbumCell.identifier, for: indexPath) as? AlbumCell else {
+                return UICollectionViewCell()
+            }
+            let album = albumItems[indexPath.item]
+            cell.configure(with: album)
+            return cell
+        }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TopTrackCell.identifier, for: indexPath) as? TopTrackCell else {
             return UICollectionViewCell()
         }
-        let album = albumItems[indexPath.item]
-        cell.configure(with: album)
+        cell.configure(with: topTrackItems[indexPath.item], index: indexPath.item + 1)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 120, height: 160)
+        if collectionView === albumsCollectionView {
+            return CGSize(width: 120, height: 160)
+        }
+        let layout = collectionViewLayout as? UICollectionViewFlowLayout
+        let horizontalInset = (layout?.sectionInset.left ?? 0) + (layout?.sectionInset.right ?? 0)
+        let width = collectionView.bounds.width - horizontalInset
+        return CGSize(width: width, height: 72)
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard albumItems.indices.contains(indexPath.item) else { return }
-        didSelectAlbum?(albumItems[indexPath.item])
+        if collectionView === albumsCollectionView {
+            guard albumItems.indices.contains(indexPath.item) else { return }
+            didSelectAlbum?(albumItems[indexPath.item])
+        } else {
+            guard topTrackItems.indices.contains(indexPath.item) else { return }
+            didSelectTrack?(topTrackItems[indexPath.item])
+        }
     }
 }
 
@@ -366,5 +394,94 @@ private final class AlbumCell: UICollectionViewCell {
         } else {
             imageView.image = nil
         }
+    }
+}
+
+private final class TopTrackCell: UICollectionViewCell {
+    static let identifier = "TopTrackCell"
+
+    private let containerView = UIView().then {
+        $0.backgroundColor = .secondarySystemBackground
+        $0.layer.cornerRadius = 12
+    }
+
+    private let indexLabel = UILabel().then {
+        $0.font = .monospacedDigitSystemFont(ofSize: 14, weight: .semibold)
+        $0.textColor = .secondaryLabel
+        $0.setContentHuggingPriority(.required, for: .horizontal)
+        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+    }
+
+    private let titleLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.textColor = .label
+        $0.numberOfLines = 2
+    }
+
+    private let artistLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 12, weight: .regular)
+        $0.textColor = .secondaryLabel
+        $0.numberOfLines = 1
+    }
+
+    private let durationLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 12, weight: .regular)
+        $0.textColor = .tertiaryLabel
+        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(containerView)
+        containerView.addSubview(indexLabel)
+        containerView.addSubview(titleLabel)
+        containerView.addSubview(artistLabel)
+        containerView.addSubview(durationLabel)
+
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        indexLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(12)
+            make.centerY.equalToSuperview()
+        }
+
+        durationLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(12)
+            make.centerY.equalToSuperview()
+        }
+
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(12)
+            make.leading.equalTo(indexLabel.snp.trailing).offset(12)
+            make.trailing.lessThanOrEqualTo(durationLabel.snp.leading).offset(-8)
+        }
+
+        artistLabel.snp.makeConstraints { make in
+            make.leading.equalTo(titleLabel)
+            make.trailing.lessThanOrEqualTo(durationLabel.snp.leading).offset(-8)
+            make.bottom.equalToSuperview().inset(12)
+            make.top.equalTo(titleLabel.snp.bottom).offset(4)
+        }
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        indexLabel.text = nil
+        titleLabel.text = nil
+        artistLabel.text = nil
+        durationLabel.text = nil
+    }
+
+    func configure(with track: SpotifyTrack, index: Int) {
+        indexLabel.text = String(format: "%02d", index)
+        titleLabel.text = track.name
+        artistLabel.text = track.artistNames
+        durationLabel.text = track.durationFormatted
     }
 }

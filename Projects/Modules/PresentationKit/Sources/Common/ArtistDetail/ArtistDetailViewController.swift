@@ -36,6 +36,10 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
         rootView.didSelectAlbum = { [weak self] album in
             self?.showAlbumDetail(album: album)
         }
+
+        rootView.didSelectTrack = { [weak self] track in
+            self?.showTrackDetail(track: track)
+        }
     }
 
     // MARK: - Configure
@@ -56,6 +60,10 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
 
     private func showAlbumDetail(album: SpotifyAlbum) {
         coordinator?.showAlbumDetail(album: album)
+    }
+
+    private func showTrackDetail(track: SpotifyTrack) {
+        coordinator?.showTrackDetail(track: track)
     }
 }
 
