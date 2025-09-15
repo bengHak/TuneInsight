@@ -51,7 +51,6 @@ public final class HomeTopPlayedArtistView: UIView {
     // MARK: - Setup
     
     private func setupUI() {
-        backgroundColor = .systemBackground
         addSubview(titleLabel)
         addSubview(collectionView)
         

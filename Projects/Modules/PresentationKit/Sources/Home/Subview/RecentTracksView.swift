@@ -48,7 +48,6 @@ public final class RecentTracksView: UIView {
     // MARK: - Setup
     
     private func setupUI() {
-        backgroundColor = .systemBackground
         addSubview(titleLabel)
         addSubview(tableView)
         tableView.dataSource = self

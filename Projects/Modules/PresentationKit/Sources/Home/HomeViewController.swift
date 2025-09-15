@@ -28,6 +28,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     }
     
     private let contentView = UIView()
+    private let gradientLayer = CAGradientLayer()
     
     // MARK: - Initializer
     
@@ -58,8 +59,9 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     // MARK: - Setup
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
-        
+        view.backgroundColor = .white
+
+        configureBackgroundGradient()
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(playerView)
@@ -67,8 +69,28 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         contentView.addSubview(recentTracksView)
         recentTracksView.delegate = self
         topPlayedArtistView.delegate = self
+        scrollView.backgroundColor = .clear
+        contentView.backgroundColor = .clear
         
         setupConstraints()
+    }
+    
+    private func configureBackgroundGradient() {
+        gradientLayer.colors = [
+            UIColor.systemGreen.cgColor,
+            UIColor.white.cgColor
+        ]
+        gradientLayer.locations = [0.0, 1.0]
+        gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
+        gradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
+        if gradientLayer.superlayer == nil {
+            view.layer.insertSublayer(gradientLayer, at: 0)
+        }
+    }
+    
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        gradientLayer.frame = view.bounds
     }
     
     private func setupConstraints() {
