@@ -37,7 +37,7 @@ public enum TokenStorageError: Error {
     }
 }
 
-public protocol TokenStorageProtocol {
+public protocol TokenStorageProtocol: Sendable {
     func saveToken(_ token: SpotifyToken) throws
     func loadToken() throws -> SpotifyToken
     func deleteToken() throws
