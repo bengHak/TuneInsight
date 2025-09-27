@@ -8,6 +8,7 @@ public final class StatisticsReactor: Reactor {
     public enum Action {
         case viewDidLoad
         case selectTimeRange(SpotifyTimeRange)
+        case selectCategory(Category)
         case refresh
     }
 
@@ -15,6 +16,8 @@ public final class StatisticsReactor: Reactor {
     public enum Mutation {
         case setTimeRange(SpotifyTimeRange)
         case setTopArtists([TopArtist])
+        case setTopTracks([TopTrack])
+        case setCategory(Category)
         case setLoading(Bool)
         case setError(String?)
     }
@@ -23,6 +26,8 @@ public final class StatisticsReactor: Reactor {
     public struct State {
         public var timeRange: SpotifyTimeRange = .mediumTerm
         public var topArtists: [TopArtist] = []
+        public var topTracks: [TopTrack] = []
+        public var category: Category = .artists
         public var isLoading: Bool = false
         public var errorMessage: String?
 
@@ -45,7 +50,7 @@ public final class StatisticsReactor: Reactor {
             // 초기 로드: 현재 타임레인지로 Top Artists 갱신
             return .concat([
                 .just(.setLoading(true)),
-                refreshTopArtists(currentState.timeRange),
+                refresh(currentState.category, timeRange: currentState.timeRange),
                 .just(.setLoading(false))
             ])
 
@@ -53,14 +58,22 @@ public final class StatisticsReactor: Reactor {
             return .concat([
                 .just(.setTimeRange(timeRange)),
                 .just(.setLoading(true)),
-                refreshTopArtists(timeRange),
+                refresh(currentState.category, timeRange: timeRange),
+                .just(.setLoading(false))
+            ])
+
+        case .selectCategory(let category):
+            return .concat([
+                .just(.setCategory(category)),
+                .just(.setLoading(true)),
+                refresh(category, timeRange: currentState.timeRange),
                 .just(.setLoading(false))
             ])
 
         case .refresh:
             return .concat([
                 .just(.setLoading(true)),
-                refreshTopArtists(currentState.timeRange),
+                refresh(currentState.category, timeRange: currentState.timeRange),
                 .just(.setLoading(false))
             ])
         }
@@ -71,6 +84,8 @@ public final class StatisticsReactor: Reactor {
         let managerMutations = Observable.merge([
             spotifyStateManager.topArtists
                 .map { Mutation.setTopArtists($0) },
+            spotifyStateManager.topTracks
+                .map { Mutation.setTopTracks($0) },
 
             spotifyStateManager.isLoading
                 .map { Mutation.setLoading($0) },
@@ -99,6 +114,15 @@ public final class StatisticsReactor: Reactor {
             }
             newState.topArtists = ranked
 
+        case .setTopTracks(let tracks):
+            let ranked = tracks.enumerated().map { index, item in
+                TopTrack(track: item.track, rank: index + 1)
+            }
+            newState.topTracks = ranked
+
+        case .setCategory(let category):
+            newState.category = category
+
         case .setLoading(let isLoading):
             newState.isLoading = isLoading
 
@@ -110,8 +134,21 @@ public final class StatisticsReactor: Reactor {
     }
 
     // MARK: - Private
-    private func refreshTopArtists(_ timeRange: SpotifyTimeRange) -> Observable<Mutation> {
-        spotifyStateManager.refreshTopArtists(timeRange: timeRange, limit: 20)
+    private func refresh(_ category: Category, timeRange: SpotifyTimeRange) -> Observable<Mutation> {
+        switch category {
+        case .artists:
+            spotifyStateManager.refreshTopArtists(timeRange: timeRange, limit: 20)
+        case .tracks:
+            spotifyStateManager.refreshTopTracks(timeRange: timeRange, limit: 20)
+        }
         return .empty()
+    }
+}
+
+// MARK: - Category
+public extension StatisticsReactor {
+    enum Category: Equatable {
+        case artists
+        case tracks
     }
 }

@@ -30,6 +30,11 @@ public final class DomainAssembly: DIAssembly {
             let repository = resolver.resolve(SpotifyRepository.self)!
             return GetTopArtistsUseCase(repository: repository)
         }
+        
+        container.register(GetTopTracksUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return GetTopTracksUseCase(repository: repository)
+        }
 
         // Artist Detail Related UseCases
         container.register(GetArtistUseCaseProtocol.self) { resolver in

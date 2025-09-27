@@ -35,4 +35,11 @@ public final class StatisticsCoordinator {
         let vc = coordinator.start(with: artist)
         navigationController.pushViewController(vc, animated: true)
     }
+
+    public func showTrackDetail(_ track: SpotifyTrack) {
+        let coordinator = TrackDetailCoordinator(navigationController: navigationController)
+        childCoordinators.append(coordinator)
+        let vc = coordinator.start(with: track)
+        navigationController.pushViewController(vc, animated: true)
+    }
 }

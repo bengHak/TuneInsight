@@ -5,6 +5,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     case currentlyPlaying
     case recentlyPlayed(limit: Int? = nil)
     case topArtists(timeRange: String, limit: Int, offset: Int)
+    case topTracks(timeRange: String, limit: Int, offset: Int)
     case artist(id: String)
     case artists(ids: [String])
     case artistAlbums(id: String, includeGroups: String?, market: String?, limit: Int?, offset: Int?)
@@ -30,6 +31,8 @@ public enum SpotifyEndpoint: APIEndpoint {
             return "/me/player/recently-played"
         case .topArtists:
             return "/me/top/artists"
+        case .topTracks:
+            return "/me/top/tracks"
         case .artist(let id):
             return "/artists/\(id)"
         case .artists:
@@ -59,7 +62,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var method: HTTPMethod {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .topTracks, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks:
             return .GET
         case .play, .pause, .seek:
             return .PUT
@@ -80,6 +83,12 @@ public enum SpotifyEndpoint: APIEndpoint {
             }
             return nil
         case .topArtists(let timeRange, let limit, let offset):
+            return [
+                "time_range": timeRange,
+                "limit": limit,
+                "offset": offset
+            ]
+        case .topTracks(let timeRange, let limit, let offset):
             return [
                 "time_range": timeRange,
                 "limit": limit,
@@ -113,7 +122,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var bodyParameters: [String: Any]? {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks, .play, .pause, .next, .previous, .seek, .addToQueue:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .topTracks, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks, .play, .pause, .next, .previous, .seek, .addToQueue:
             return nil
         }
     }

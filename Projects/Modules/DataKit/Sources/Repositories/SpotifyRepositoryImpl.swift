@@ -57,6 +57,27 @@ public final class SpotifyRepositoryImpl: SpotifyRepository, Sendable {
         }
     }
 
+    public func getTopTracks(
+        timeRange: SpotifyTimeRange,
+        limit: Int,
+        offset: Int
+    ) async throws -> [TopTrack] {
+        do {
+            let response = try await service.getTopTracks(
+                timeRange: timeRange.rawValue,
+                limit: limit,
+                offset: offset
+            )
+            return SpotifyMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
     // MARK: - Artist Detail
     public func getArtist(id: String) async throws -> SpotifyArtist {
         do {

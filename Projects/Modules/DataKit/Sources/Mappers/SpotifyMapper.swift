@@ -43,6 +43,15 @@ public enum SpotifyMapper {
         }
     }
 
+    public static func toDomain(_ response: TopTracksResponse) -> [TopTrack] {
+        return response.items.enumerated().map { index, track in
+            return TopTrack(
+                track: track.toDomain(),
+                rank: response.offset + index + 1
+            )
+        }
+    }
+
     // MARK: - Artist Detail mappings
     public static func toDomainArtist(_ artist: Artist) -> SpotifyArtist {
         return artist.toDomain()

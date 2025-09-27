@@ -24,6 +24,7 @@ public protocol SpotifyServiceProtocol: Sendable {
     func getCurrentlyPlaying() async throws -> CurrentlyPlayingResponse
     func getRecentlyPlayed(limit: Int) async throws -> RecentlyPlayedResponse
     func getTopArtists(timeRange: String, limit: Int, offset: Int) async throws -> TopArtistsResponse
+    func getTopTracks(timeRange: String, limit: Int, offset: Int) async throws -> TopTracksResponse
     func getArtist(id: String) async throws -> Artist
     func getArtists(ids: [String]) async throws -> ArtistsResponse
     func getArtistAlbums(id: String, includeGroups: String?, market: String?, limit: Int?, offset: Int?) async throws -> ArtistAlbumsResponse
@@ -83,6 +84,23 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
         do {
             guard let response: TopArtistsResponse = try await apiHandler.request(
                 SpotifyEndpoint.topArtists(timeRange: timeRange, limit: limit, offset: offset)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func getTopTracks(timeRange: String, limit: Int, offset: Int) async throws -> TopTracksResponse {
+        do {
+            guard let response: TopTracksResponse = try await apiHandler.request(
+                SpotifyEndpoint.topTracks(timeRange: timeRange, limit: limit, offset: offset)
             ) else {
                 throw SpotifyServiceError.networkError(APIError.noData)
             }
