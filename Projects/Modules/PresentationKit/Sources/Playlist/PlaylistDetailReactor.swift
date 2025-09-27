@@ -13,6 +13,7 @@ public final class PlaylistDetailReactor: Reactor {
         case editPlaylist
         case deleteTrack(PlaylistTrack)
         case updatePlaylist(name: String, description: String?, isPublic: Bool)
+        case queuePlaylistNext
     }
 
     public enum Mutation {
@@ -26,6 +27,7 @@ public final class PlaylistDetailReactor: Reactor {
         case setShowEditPlaylist(Bool)
         case removeTrack(String)
         case updatePlaylistInfo(Playlist)
+        case setInfo(String?)
     }
 
     public struct State {
@@ -35,6 +37,7 @@ public final class PlaylistDetailReactor: Reactor {
         public var isRefreshing: Bool = false
         public var isLoadingMore: Bool = false
         public var errorMessage: String?
+        public var infoMessage: String?
         public var shouldShowEditPlaylist: Bool = false
         public var hasMorePages: Bool = true
         public var currentOffset: Int = 0
@@ -48,6 +51,7 @@ public final class PlaylistDetailReactor: Reactor {
     private let getPlaylistDetailUseCase: GetPlaylistDetailUseCaseProtocol
     private let updatePlaylistUseCase: UpdatePlaylistUseCaseProtocol
     private let removeTracksFromPlaylistUseCase: RemoveTracksFromPlaylistUseCaseProtocol
+    private let playbackControlUseCase: PlaybackControlUseCaseProtocol
     public weak var coordinator: PlaylistDetailCoordinator?
 
     // MARK: - Init
@@ -56,12 +60,14 @@ public final class PlaylistDetailReactor: Reactor {
         playlist: Playlist,
         getPlaylistDetailUseCase: GetPlaylistDetailUseCaseProtocol,
         updatePlaylistUseCase: UpdatePlaylistUseCaseProtocol,
-        removeTracksFromPlaylistUseCase: RemoveTracksFromPlaylistUseCaseProtocol
+        removeTracksFromPlaylistUseCase: RemoveTracksFromPlaylistUseCaseProtocol,
+        playbackControlUseCase: PlaybackControlUseCaseProtocol
     ) {
         self.playlist = playlist
         self.getPlaylistDetailUseCase = getPlaylistDetailUseCase
         self.updatePlaylistUseCase = updatePlaylistUseCase
         self.removeTracksFromPlaylistUseCase = removeTracksFromPlaylistUseCase
+        self.playbackControlUseCase = playbackControlUseCase
     }
 
     // MARK: - Mutate
@@ -95,6 +101,9 @@ public final class PlaylistDetailReactor: Reactor {
 
         case let .updatePlaylist(name, description, isPublic):
             return updatePlaylist(name: name, description: description, isPublic: isPublic)
+
+        case .queuePlaylistNext:
+            return queuePlaylistNext()
         }
     }
 
@@ -137,6 +146,9 @@ public final class PlaylistDetailReactor: Reactor {
 
         case let .updatePlaylistInfo(playlist):
             state.playlist = playlist
+
+        case let .setInfo(message):
+            state.infoMessage = message
         }
 
         return state
@@ -276,6 +288,39 @@ public final class PlaylistDetailReactor: Reactor {
                         // Fetch updated playlist info
                         let updatedPlaylist = try await self.getPlaylistDetailUseCase.execute(playlistId: self.playlist.id)
                         observer.onNext(.updatePlaylistInfo(updatedPlaylist))
+                        observer.onCompleted()
+                    } catch {
+                        observer.onNext(.setError(error.localizedDescription))
+                        observer.onCompleted()
+                    }
+                }
+
+                return Disposables.create()
+            }
+        ])
+    }
+
+    private func queuePlaylistNext() -> Observable<Mutation> {
+        // Spotify API 제약: /me/player/queue는 트랙/에피소드 단건만 추가 가능
+        // 현재 로딩된 트랙들을 순차적으로 큐에 추가한다.
+        return Observable.concat([
+            .just(.setError(nil)),
+            .just(.setInfo(nil)),
+            Observable<Mutation>.create { [weak self] observer in
+                guard let self = self else { return Disposables.create() }
+                let tracks = self.currentState.tracks
+                guard !tracks.isEmpty else {
+                    observer.onNext(.setError("플레이리스트에 트랙이 없습니다."))
+                    observer.onCompleted()
+                    return Disposables.create()
+                }
+
+                Task {
+                    do {
+                        for track in tracks {
+                            try await self.playbackControlUseCase.addToQueue(uri: track.uri)
+                        }
+                        observer.onNext(.setInfo("\(tracks.count)개 트랙을 대기열에 추가했습니다."))
                         observer.onCompleted()
                     } catch {
                         observer.onNext(.setError(error.localizedDescription))

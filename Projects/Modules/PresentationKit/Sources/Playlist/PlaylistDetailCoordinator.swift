@@ -31,11 +31,13 @@ public final class PlaylistDetailCoordinator {
     }
 
     public func start() -> UIViewController {
+        let playbackControlUseCase = DIContainer.shared.resolve(PlaybackControlUseCaseProtocol.self)!
         let reactor = PlaylistDetailReactor(
             playlist: playlist,
             getPlaylistDetailUseCase: getPlaylistDetailUseCase,
             updatePlaylistUseCase: updatePlaylistUseCase,
-            removeTracksFromPlaylistUseCase: removeTracksFromPlaylistUseCase
+            removeTracksFromPlaylistUseCase: removeTracksFromPlaylistUseCase,
+            playbackControlUseCase: playbackControlUseCase
         )
         reactor.coordinator = self
 

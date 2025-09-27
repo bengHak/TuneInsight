@@ -55,6 +55,15 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
         $0.distribution = .fillEqually
     }
 
+    private let playNextButton = UIButton(type: .system).then {
+        $0.setTitle("다음에 재생", for: .normal)
+        $0.setTitleColor(.systemBlue, for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        $0.backgroundColor = .systemBlue.withAlphaComponent(0.1)
+        $0.layer.cornerRadius = 8
+        $0.accessibilityIdentifier = "playlist_play_next_button"
+    }
+
     private let addTracksButton = UIButton(type: .system).then {
         $0.setTitle("트랙 추가", for: .normal)
         $0.setTitleColor(.systemBlue, for: .normal)
@@ -157,6 +166,7 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
         headerView.addSubview(playlistInfoLabel)
         headerView.addSubview(actionsStackView)
 
+        actionsStackView.addArrangedSubview(playNextButton)
         actionsStackView.addArrangedSubview(addTracksButton)
         actionsStackView.addArrangedSubview(editPlaylistButton)
 
@@ -275,6 +285,11 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
+        playNextButton.rx.tap
+            .map { Reactor.Action.queuePlaylistNext }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
         // Output
         reactor.state.map { $0.playlist }
             .distinctUntilChanged { $0?.id == $1?.id }
@@ -327,6 +342,15 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
             })
             .disposed(by: disposeBag)
 
+        reactor.state.map { $0.infoMessage }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
+            .compactMap { $0 }
+            .subscribe(onNext: { [weak self] message in
+                self?.showInfoAlert(message: message)
+            })
+            .disposed(by: disposeBag)
+
         reactor.state.map { $0.shouldShowEditPlaylist }
             .distinctUntilChanged()
             .observe(on: MainScheduler.asyncInstance)
@@ -369,6 +393,16 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
             title: "오류",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func showInfoAlert(message: String) {
+        let alert = UIAlertController(
+            title: "완료",
             message: message,
             preferredStyle: .alert
         )
