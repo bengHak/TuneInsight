@@ -21,16 +21,16 @@ public final class MainTabBarCoordinator {
         tabBarController.coordinator = self
         
         let homeNav = UINavigationController()
-        homeNav.navigationItem.largeTitleDisplayMode = .inline
         let homeCoordinator = HomeCoordinator(navigationController: homeNav)
         let homeVC = homeCoordinator.start()
+        homeVC.navigationItem.largeTitleDisplayMode = .inline
         homeNav.setViewControllers([homeVC], animated: false)
         childCoordinators.append(homeCoordinator)
         
         let statisticsNav = UINavigationController()
-        statisticsNav.navigationBar.isHidden = true
         let statisticsCoordinator = StatisticsCoordinator(navigationController: statisticsNav)
         let statisticsVC = statisticsCoordinator.start()
+        statisticsVC.navigationItem.largeTitleDisplayMode = .inline
         statisticsNav.setViewControllers([statisticsVC], animated: false)
         childCoordinators.append(statisticsCoordinator)
         

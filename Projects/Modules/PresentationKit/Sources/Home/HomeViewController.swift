@@ -46,6 +46,11 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         setupUI()
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
+    
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         reactor?.action.onNext(.startAutoRefresh)
@@ -54,6 +59,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         reactor?.action.onNext(.stopAutoRefresh)
+        navigationController?.navigationBar.prefersLargeTitles = false
     }
     
     // MARK: - Setup
@@ -95,7 +101,10 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     private func setupConstraints() {
         scrollView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.leading.equalTo(view.safeAreaLayoutGuide.snp.leading)
+            make.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing)
+            make.bottom.equalToSuperview()
         }
         
         contentView.snp.makeConstraints { make in

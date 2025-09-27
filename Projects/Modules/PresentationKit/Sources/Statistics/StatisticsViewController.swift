@@ -68,6 +68,16 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
         super.viewDidLoad()
         setupUI()
     }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
+    
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = false
+    }
 
     private func setupUI() {
         title = "통계"
@@ -96,7 +106,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
         tableView.snp.makeConstraints { make in
             make.top.equalTo(segmentedControl.snp.bottom).offset(8)
-            make.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.leading.trailing.bottom.equalToSuperview()
         }
 
         emptyLabel.snp.makeConstraints { make in
