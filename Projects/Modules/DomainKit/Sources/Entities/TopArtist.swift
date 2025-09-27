@@ -1,6 +1,6 @@
 import Foundation
 
-public enum TopArtistTimeRange: String, CaseIterable, Sendable {
+public enum SpotifyTimeRange: String, CaseIterable, Sendable {
     case shortTerm = "short_term"
     case mediumTerm = "medium_term"
     case longTerm = "long_term"

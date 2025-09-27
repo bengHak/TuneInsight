@@ -47,7 +47,7 @@ public protocol SpotifyStateManagerProtocol {
     func loadInitialData()
     func refreshPlayback()
     func refreshRecentTracks()
-    func refreshTopArtists(timeRange: TopArtistTimeRange, limit: Int)
+    func refreshTopArtists(timeRange: SpotifyTimeRange, limit: Int)
     func playPause()
     func nextTrack()
     func previousTrack()
@@ -166,7 +166,7 @@ public final class SpotifyStateManager: SpotifyStateManagerProtocol {
             .disposed(by: disposeBag)
     }
 
-    public func refreshTopArtists(timeRange: TopArtistTimeRange = .mediumTerm, limit: Int = 10) {
+    public func refreshTopArtists(timeRange: SpotifyTimeRange = .mediumTerm, limit: Int = 10) {
         refreshTopArtistsInternal(timeRange: timeRange, limit: limit)
             .subscribe()
             .disposed(by: disposeBag)
@@ -303,7 +303,7 @@ private extension SpotifyStateManager {
         }
     }
 
-    func refreshTopArtistsInternal(timeRange: TopArtistTimeRange, limit: Int) -> Observable<Void> {
+    func refreshTopArtistsInternal(timeRange: SpotifyTimeRange, limit: Int) -> Observable<Void> {
         guard let getTopArtistsUseCase = getTopArtistsUseCase else {
             return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "UseCase가 설정되지 않았습니다."]))
         }

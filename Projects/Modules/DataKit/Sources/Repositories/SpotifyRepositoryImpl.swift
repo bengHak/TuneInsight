@@ -37,7 +37,7 @@ public final class SpotifyRepositoryImpl: SpotifyRepository, Sendable {
     }
 
     public func getTopArtists(
-        timeRange: TopArtistTimeRange,
+        timeRange: SpotifyTimeRange,
         limit: Int,
         offset: Int
     ) async throws -> [TopArtist] {

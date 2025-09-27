@@ -2,7 +2,7 @@ import Foundation
 
 public protocol GetTopArtistsUseCaseProtocol {
     func execute(
-        timeRange: TopArtistTimeRange,
+        timeRange: SpotifyTimeRange,
         limit: Int,
         offset: Int
     ) async throws -> [TopArtist]
@@ -16,7 +16,7 @@ public final class GetTopArtistsUseCase: GetTopArtistsUseCaseProtocol, Sendable 
     }
 
     public func execute(
-        timeRange: TopArtistTimeRange = .mediumTerm,
+        timeRange: SpotifyTimeRange = .mediumTerm,
         limit: Int = 10,
         offset: Int = 0
     ) async throws -> [TopArtist] {
