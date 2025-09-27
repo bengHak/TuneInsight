@@ -7,6 +7,7 @@ public final class TrackDetailReactor: Reactor {
     // MARK: - Action
     public enum Action {
         case viewDidLoad
+        case refresh
         case addToQueue
         case skipToNext
         case playNow // 대기열 추가 후 즉시 재생
@@ -18,12 +19,14 @@ public final class TrackDetailReactor: Reactor {
     public enum Mutation {
         case setError(String?)
         case setIsProcessing(Bool)
+        case setIsRefreshing(Bool)
     }
 
     // MARK: - State
     public struct State {
         public let track: SpotifyTrack
         public var isProcessing: Bool = false
+        public var isRefreshing: Bool = false
         public var errorMessage: String?
 
         public init(track: SpotifyTrack) {
@@ -55,6 +58,14 @@ public final class TrackDetailReactor: Reactor {
         switch action {
         case .viewDidLoad:
             return .empty()
+
+        case .refresh:
+            return Observable.concat([
+                .just(.setIsRefreshing(true)),
+                refreshPlaybackState()
+                    .andThen(Observable<Mutation>.just(.setIsRefreshing(false)))
+                    .catch { .just(.setError($0.localizedDescription)) }
+            ])
 
         case .addToQueue:
             return Observable.concat([
@@ -104,6 +115,8 @@ public final class TrackDetailReactor: Reactor {
             newState.errorMessage = message
         case .setIsProcessing(let processing):
             newState.isProcessing = processing
+        case .setIsRefreshing(let refreshing):
+            newState.isRefreshing = refreshing
         }
         return newState
     }
@@ -111,6 +124,21 @@ public final class TrackDetailReactor: Reactor {
 
 // MARK: - Side Effects
 private extension TrackDetailReactor {
+    func refreshPlaybackState() -> Completable {
+        return Completable.create { [weak self] observer in
+            guard let self else { observer(.completed); return Disposables.create() }
+
+            // 재생 상태를 새로고침
+            self.spotifyStateManager.refreshPlayback()
+
+            // 약간의 지연을 두어 사용자에게 새로고침 피드백 제공
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                observer(.completed)
+            }
+
+            return Disposables.create()
+        }
+    }
     func addToQueue(trackURI: String) -> Completable {
         return Completable.create { [weak self] observer in
             guard let self else { observer(.completed); return Disposables.create() }

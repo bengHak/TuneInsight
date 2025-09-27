@@ -18,7 +18,17 @@ public enum SpotifyEndpoint: APIEndpoint {
     case previous
     case seek(positionMs: Int)
     case addToQueue(uri: String)
-    
+    // Playlist endpoints
+    case getUserPlaylists(limit: Int?, offset: Int?)
+    case getPlaylist(id: String)
+    case getPlaylistTracks(id: String, limit: Int?, offset: Int?, market: String?)
+    case createPlaylist(userId: String, name: String, description: String?, public: Bool?)
+    case updatePlaylist(id: String, name: String?, description: String?, public: Bool?)
+    case unfollowPlaylist(id: String)
+    case addTracksToPlaylist(id: String, uris: [String], position: Int?)
+    case removeTracksFromPlaylist(id: String, tracks: [String], snapshotId: String?)
+    case searchTracks(query: String, limit: Int?, offset: Int?, market: String?)
+
     public var baseURL: String {
         return "https://api.spotify.com/v1"
     }
@@ -57,17 +67,37 @@ public enum SpotifyEndpoint: APIEndpoint {
             return "/me/player/seek"
         case .addToQueue:
             return "/me/player/queue"
+        case .getUserPlaylists:
+            return "/me/playlists"
+        case .getPlaylist(let id):
+            return "/playlists/\(id)"
+        case .getPlaylistTracks(let id, _, _, _):
+            return "/playlists/\(id)/tracks"
+        case .createPlaylist(let userId, _, _, _):
+            return "/users/\(userId)/playlists"
+        case .updatePlaylist(let id, _, _, _):
+            return "/playlists/\(id)"
+        case .unfollowPlaylist(let id):
+            return "/playlists/\(id)/followers"
+        case .addTracksToPlaylist(let id, _, _):
+            return "/playlists/\(id)/tracks"
+        case .removeTracksFromPlaylist(let id, _, _):
+            return "/playlists/\(id)/tracks"
+        case .searchTracks:
+            return "/search"
         }
     }
     
     public var method: HTTPMethod {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .topTracks, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks:
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .topTracks, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks, .getUserPlaylists, .getPlaylist, .getPlaylistTracks, .searchTracks:
             return .GET
-        case .play, .pause, .seek:
+        case .play, .pause, .seek, .updatePlaylist:
             return .PUT
-        case .next, .previous, .addToQueue:
+        case .next, .previous, .addToQueue, .createPlaylist, .addTracksToPlaylist:
             return .POST
+        case .unfollowPlaylist, .removeTracksFromPlaylist:
+            return .DELETE
         }
     }
     
@@ -115,14 +145,50 @@ public enum SpotifyEndpoint: APIEndpoint {
             return ["position_ms": positionMs]
         case .addToQueue(let uri):
             return ["uri": uri]
-        case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous, .artist:
+        case .getUserPlaylists(let limit, let offset):
+            var params: [String: Any] = [:]
+            if let limit { params["limit"] = limit }
+            if let offset { params["offset"] = offset }
+            return params.isEmpty ? nil : params
+        case .getPlaylistTracks(_, let limit, let offset, let market):
+            var params: [String: Any] = [:]
+            if let limit { params["limit"] = limit }
+            if let offset { params["offset"] = offset }
+            if let market { params["market"] = market }
+            return params.isEmpty ? nil : params
+        case .addTracksToPlaylist(_, let uris, let position):
+            var params: [String: Any] = ["uris": uris.joined(separator: ",")]
+            if let position { params["position"] = position }
+            return params
+        case .searchTracks(let query, let limit, let offset, let market):
+            var params: [String: Any] = ["q": query, "type": "track"]
+            if let limit { params["limit"] = limit }
+            if let offset { params["offset"] = offset }
+            if let market { params["market"] = market }
+            return params
+        case .currentlyPlaying, .userProfile, .play, .pause, .next, .previous, .artist, .getPlaylist, .createPlaylist, .updatePlaylist, .unfollowPlaylist, .removeTracksFromPlaylist:
             return nil
         }
     }
     
     public var bodyParameters: [String: Any]? {
         switch self {
-        case .currentlyPlaying, .recentlyPlayed, .topArtists, .topTracks, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks, .play, .pause, .next, .previous, .seek, .addToQueue:
+        case .createPlaylist(_, let name, let description, let isPublic):
+            var params: [String: Any] = ["name": name]
+            if let description { params["description"] = description }
+            if let isPublic { params["public"] = isPublic }
+            return params
+        case .updatePlaylist(_, let name, let description, let isPublic):
+            var params: [String: Any] = [:]
+            if let name { params["name"] = name }
+            if let description { params["description"] = description }
+            if let isPublic { params["public"] = isPublic }
+            return params.isEmpty ? nil : params
+        case .removeTracksFromPlaylist(_, let tracks, let snapshotId):
+            var params: [String: Any] = ["tracks": tracks.map { ["uri": $0] }]
+            if let snapshotId { params["snapshot_id"] = snapshotId }
+            return params
+        case .currentlyPlaying, .recentlyPlayed, .topArtists, .topTracks, .userProfile, .artist, .artists, .artistAlbums, .artistTopTracks, .albumTracks, .play, .pause, .next, .previous, .seek, .addToQueue, .getUserPlaylists, .getPlaylist, .getPlaylistTracks, .unfollowPlaylist, .addTracksToPlaylist, .searchTracks:
             return nil
         }
     }

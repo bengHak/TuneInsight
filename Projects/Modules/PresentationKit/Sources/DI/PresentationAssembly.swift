@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import DIKit
 import DomainKit
 import Swinject
@@ -41,6 +42,26 @@ public final class PresentationAssembly: DIAssembly {
             return StatisticsReactor(spotifyStateManager: stateManager)
         }
 
+        // Playlist Coordinator factory registration
+        container.register(PlaylistCoordinator.self) { (resolver: Resolver, navigationController: UINavigationController) in
+            let getUserPlaylistsUseCase = resolver.resolve(GetUserPlaylistsUseCaseProtocol.self)!
+            let createPlaylistUseCase = resolver.resolve(CreatePlaylistUseCaseProtocol.self)!
+            let deletePlaylistUseCase = resolver.resolve(DeletePlaylistUseCaseProtocol.self)!
+            let getPlaylistDetailUseCase = resolver.resolve(GetPlaylistDetailUseCaseProtocol.self)!
+            let updatePlaylistUseCase = resolver.resolve(UpdatePlaylistUseCaseProtocol.self)!
+            let removeTracksFromPlaylistUseCase = resolver.resolve(RemoveTracksFromPlaylistUseCaseProtocol.self)!
+
+            return PlaylistCoordinator(
+                navigationController: navigationController,
+                getUserPlaylistsUseCase: getUserPlaylistsUseCase,
+                createPlaylistUseCase: createPlaylistUseCase,
+                deletePlaylistUseCase: deletePlaylistUseCase,
+                getPlaylistDetailUseCase: getPlaylistDetailUseCase,
+                updatePlaylistUseCase: updatePlaylistUseCase,
+                removeTracksFromPlaylistUseCase: removeTracksFromPlaylistUseCase
+            )
+        }
+
         // TrackDetailReactor factory registration
         container.register(TrackDetailReactor.self) { (resolver: Resolver, track: SpotifyTrack) in
             let playbackControl = resolver.resolve(PlaybackControlUseCaseProtocol.self)!
@@ -69,6 +90,19 @@ public final class PresentationAssembly: DIAssembly {
             return AlbumDetailReactor(
                 album: album,
                 getAlbumTracksUseCase: albumTracks
+            )
+        }
+
+        // TrackSearchCoordinator factory registration
+        container.register(TrackSearchCoordinator.self) { (resolver: Resolver, navigationController: UINavigationController, playlist: Playlist) in
+            let searchTracksUseCase = resolver.resolve(SearchTracksUseCaseProtocol.self)!
+            let addTracksToPlaylistUseCase = resolver.resolve(AddTracksToPlaylistUseCaseProtocol.self)!
+
+            return TrackSearchCoordinator(
+                navigationController: navigationController,
+                playlist: playlist,
+                searchTracksUseCase: searchTracksUseCase,
+                addTracksToPlaylistUseCase: addTracksToPlaylistUseCase
             )
         }
     }

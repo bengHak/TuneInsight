@@ -61,5 +61,46 @@ public final class DomainAssembly: DIAssembly {
             let repository = resolver.resolve(SpotifyRepository.self)!
             return GetAlbumTracksUseCase(repository: repository)
         }
+
+        // Playlist Related UseCases
+        container.register(GetUserPlaylistsUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return GetUserPlaylistsUseCase(repository: repository)
+        }
+
+        container.register(GetPlaylistDetailUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return GetPlaylistDetailUseCase(repository: repository)
+        }
+
+        container.register(CreatePlaylistUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return CreatePlaylistUseCase(repository: repository)
+        }
+
+        container.register(UpdatePlaylistUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return UpdatePlaylistUseCase(repository: repository)
+        }
+
+        container.register(DeletePlaylistUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return DeletePlaylistUseCase(repository: repository)
+        }
+
+        container.register(AddTracksToPlaylistUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return AddTracksToPlaylistUseCase(repository: repository)
+        }
+
+        container.register(RemoveTracksFromPlaylistUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return RemoveTracksFromPlaylistUseCase(repository: repository)
+        }
+
+        container.register(SearchTracksUseCaseProtocol.self) { resolver in
+            let repository = resolver.resolve(SpotifyRepository.self)!
+            return SearchTracksUseCase(repository: repository)
+        }
     }
 }

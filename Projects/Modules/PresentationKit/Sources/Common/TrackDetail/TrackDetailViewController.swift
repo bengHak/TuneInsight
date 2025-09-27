@@ -83,6 +83,12 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
 
+        // Pull-to-refresh binding
+        rootView.refreshControl?.rx.controlEvent(.valueChanged)
+            .map { TrackDetailReactor.Action.refresh }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
         // State bindings
         reactor.state.map { $0.errorMessage }
             .distinctUntilChanged { ($0 ?? "") == ($1 ?? "") }
@@ -98,6 +104,16 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
             .observe(on: MainScheduler.instance)
             .bind { [weak self] processing in
                 self?.setButtonsEnabled(!processing)
+            }
+            .disposed(by: disposeBag)
+
+        reactor.state.map { $0.isRefreshing }
+            .distinctUntilChanged()
+            .observe(on: MainScheduler.instance)
+            .bind { [weak self] refreshing in
+                if !refreshing {
+                    self?.rootView.refreshControl?.endRefreshing()
+                }
             }
             .disposed(by: disposeBag)
 

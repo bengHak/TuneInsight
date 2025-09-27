@@ -37,6 +37,16 @@ public protocol SpotifyServiceProtocol: Sendable {
     func previousTrack() async throws
     func seek(to positionMs: Int) async throws
     func addToQueue(uri: String) async throws
+    // Playlist methods
+    func getUserPlaylists(limit: Int?, offset: Int?) async throws -> PlaylistsResponse
+    func getPlaylist(id: String) async throws -> PlaylistDTO
+    func getPlaylistTracks(id: String, limit: Int?, offset: Int?, market: String?) async throws -> PlaylistTracksResponse
+    func createPlaylist(userId: String, name: String, description: String?, isPublic: Bool?) async throws -> CreatePlaylistResponse
+    func updatePlaylist(id: String, name: String?, description: String?, isPublic: Bool?) async throws
+    func unfollowPlaylist(id: String) async throws
+    func addTracksToPlaylist(id: String, uris: [String], position: Int?) async throws -> SnapshotResponse
+    func removeTracksFromPlaylist(id: String, tracks: [String], snapshotId: String?) async throws -> SnapshotResponse
+    func searchTracks(query: String, limit: Int?, offset: Int?, market: String?) async throws -> SearchTracksResponse
 }
 
 public final class SpotifyService: SpotifyServiceProtocol, Sendable {
@@ -281,6 +291,155 @@ public final class SpotifyService: SpotifyServiceProtocol, Sendable {
             let _: String? = try await apiHandler.requestWithoutContentTypeValidation(
                 SpotifyEndpoint.addToQueue(uri: uri)
             )
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    // MARK: - Playlist Methods
+
+    public func getUserPlaylists(limit: Int? = nil, offset: Int? = nil) async throws -> PlaylistsResponse {
+        do {
+            guard let response: PlaylistsResponse = try await apiHandler.request(
+                SpotifyEndpoint.getUserPlaylists(limit: limit, offset: offset)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func getPlaylist(id: String) async throws -> PlaylistDTO {
+        do {
+            guard let response: PlaylistDTO = try await apiHandler.request(
+                SpotifyEndpoint.getPlaylist(id: id)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func getPlaylistTracks(id: String, limit: Int? = 50, offset: Int? = 0, market: String? = nil) async throws -> PlaylistTracksResponse {
+        do {
+            guard let response: PlaylistTracksResponse = try await apiHandler.request(
+                SpotifyEndpoint.getPlaylistTracks(id: id, limit: limit, offset: offset, market: market)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func createPlaylist(userId: String, name: String, description: String? = nil, isPublic: Bool? = nil) async throws -> CreatePlaylistResponse {
+        do {
+            guard let response: CreatePlaylistResponse = try await apiHandler.request(
+                SpotifyEndpoint.createPlaylist(userId: userId, name: name, description: description, public: isPublic)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func updatePlaylist(id: String, name: String? = nil, description: String? = nil, isPublic: Bool? = nil) async throws {
+        do {
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(
+                SpotifyEndpoint.updatePlaylist(id: id, name: name, description: description, public: isPublic)
+            )
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func unfollowPlaylist(id: String) async throws {
+        do {
+            let _: String? = try await apiHandler.requestWithoutContentTypeValidation(
+                SpotifyEndpoint.unfollowPlaylist(id: id)
+            )
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func addTracksToPlaylist(id: String, uris: [String], position: Int? = nil) async throws -> SnapshotResponse {
+        do {
+            guard let response: SnapshotResponse = try await apiHandler.request(
+                SpotifyEndpoint.addTracksToPlaylist(id: id, uris: uris, position: position)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func removeTracksFromPlaylist(id: String, tracks: [String], snapshotId: String? = nil) async throws -> SnapshotResponse {
+        do {
+            guard let response: SnapshotResponse = try await apiHandler.request(
+                SpotifyEndpoint.removeTracksFromPlaylist(id: id, tracks: tracks, snapshotId: snapshotId)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
+        } catch APIError.unauthorized {
+            throw SpotifyServiceError.unauthorized
+        } catch let error as APIError {
+            throw SpotifyServiceError.apiError(error)
+        } catch {
+            throw SpotifyServiceError.networkError(error)
+        }
+    }
+
+    public func searchTracks(query: String, limit: Int? = nil, offset: Int? = nil, market: String? = nil) async throws -> SearchTracksResponse {
+        do {
+            guard let response: SearchTracksResponse = try await apiHandler.request(
+                SpotifyEndpoint.searchTracks(query: query, limit: limit, offset: offset, market: market)
+            ) else {
+                throw SpotifyServiceError.networkError(APIError.noData)
+            }
+            return response
         } catch APIError.unauthorized {
             throw SpotifyServiceError.unauthorized
         } catch let error as APIError {

@@ -215,4 +215,162 @@ public final class SpotifyRepositoryImpl: SpotifyRepository, Sendable {
             throw SpotifyRepositoryError.unknown(error)
         }
     }
+
+    // MARK: - Playlist Methods
+
+    public func getUserPlaylists(limit: Int?, offset: Int?) async throws -> PlaylistsPage {
+        do {
+            let response = try await service.getUserPlaylists(limit: limit, offset: offset)
+            return SpotifyPlaylistMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func getPlaylistDetail(id: String) async throws -> Playlist {
+        do {
+            let response = try await service.getPlaylist(id: id)
+            return SpotifyPlaylistMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func getPlaylistTracks(playlistId: String, limit: Int?, offset: Int?) async throws -> PlaylistTracksPage {
+        do {
+            let response = try await service.getPlaylistTracks(
+                id: playlistId,
+                limit: limit,
+                offset: offset,
+                market: nil
+            )
+            return SpotifyPlaylistMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func getUserId() async throws -> String {
+        do {
+            let profile = try await service.getUserProfile()
+            return profile.id
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func createPlaylist(userId: String, name: String, description: String?, isPublic: Bool?) async throws -> Playlist {
+        do {
+            let response = try await service.createPlaylist(
+                userId: userId,
+                name: name,
+                description: description,
+                isPublic: isPublic
+            )
+            return SpotifyPlaylistMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func updatePlaylist(id: String, name: String?, description: String?, isPublic: Bool?) async throws {
+        do {
+            try await service.updatePlaylist(
+                id: id,
+                name: name,
+                description: description,
+                isPublic: isPublic
+            )
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func deletePlaylist(id: String) async throws {
+        do {
+            try await service.unfollowPlaylist(id: id)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func addTracksToPlaylist(id: String, uris: [String], position: Int?) async throws -> String {
+        do {
+            let response = try await service.addTracksToPlaylist(
+                id: id,
+                uris: uris,
+                position: position
+            )
+            return response.snapshotId
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func removeTracksFromPlaylist(id: String, tracks: [String], snapshotId: String?) async throws -> String {
+        do {
+            let response = try await service.removeTracksFromPlaylist(
+                id: id,
+                tracks: tracks,
+                snapshotId: snapshotId
+            )
+            return response.snapshotId
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
+
+    public func searchTracks(query: String, limit: Int?, offset: Int?, market: String?) async throws -> SearchTracksPage {
+        do {
+            let response = try await service.searchTracks(
+                query: query,
+                limit: limit,
+                offset: offset,
+                market: market
+            )
+            return SpotifyPlaylistMapper.toDomain(response)
+        } catch SpotifyServiceError.unauthorized {
+            throw SpotifyRepositoryError.unauthorized
+        } catch SpotifyServiceError.networkError(let error) {
+            throw SpotifyRepositoryError.networkError(error)
+        } catch {
+            throw SpotifyRepositoryError.unknown(error)
+        }
+    }
 }

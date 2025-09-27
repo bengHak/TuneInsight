@@ -9,6 +9,7 @@ final class TrackDetailView: UIView {
     private let scrollView = UIScrollView().then {
         $0.alwaysBounceVertical = true
         $0.showsVerticalScrollIndicator = false
+        $0.refreshControl = UIRefreshControl()
     }
 
     private let contentView = UIView()
@@ -104,6 +105,11 @@ final class TrackDetailView: UIView {
     let playerContainerView = UIView().then {
         $0.backgroundColor = .clear
         $0.accessibilityIdentifier = "trackdetail_player_container"
+    }
+
+    // MARK: - Public Properties
+    var refreshControl: UIRefreshControl? {
+        return scrollView.refreshControl
     }
 
     // MARK: - Callbacks

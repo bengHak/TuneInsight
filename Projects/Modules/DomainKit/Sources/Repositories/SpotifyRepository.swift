@@ -45,4 +45,15 @@ public protocol SpotifyRepository: Sendable {
     func previousTrack() async throws
     func seek(to positionMs: Int) async throws
     func addToQueue(uri: String) async throws
+    // Playlist methods
+    func getUserPlaylists(limit: Int?, offset: Int?) async throws -> PlaylistsPage
+    func getPlaylistDetail(id: String) async throws -> Playlist
+    func getPlaylistTracks(playlistId: String, limit: Int?, offset: Int?) async throws -> PlaylistTracksPage
+    func getUserId() async throws -> String
+    func createPlaylist(userId: String, name: String, description: String?, isPublic: Bool?) async throws -> Playlist
+    func updatePlaylist(id: String, name: String?, description: String?, isPublic: Bool?) async throws
+    func deletePlaylist(id: String) async throws
+    func addTracksToPlaylist(id: String, uris: [String], position: Int?) async throws -> String
+    func removeTracksFromPlaylist(id: String, tracks: [String], snapshotId: String?) async throws -> String
+    func searchTracks(query: String, limit: Int?, offset: Int?, market: String?) async throws -> SearchTracksPage
 }

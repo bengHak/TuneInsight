@@ -1,4 +1,6 @@
 import UIKit
+import DIKit
+import DomainKit
 
 public protocol MainTabBarCoordinatorDelegate: AnyObject {
     func mainTabBarCoordinatorDidFinish(_ coordinator: MainTabBarCoordinator)
@@ -9,9 +11,9 @@ public final class MainTabBarCoordinator {
     public var childCoordinators: [AnyObject] = []
     public let navigationController: UINavigationController
     public weak var delegate: MainTabBarCoordinatorDelegate?
-    
+
     private var tabBarController: MainTabBarController?
-    
+
     public init(navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
@@ -35,9 +37,18 @@ public final class MainTabBarCoordinator {
         childCoordinators.append(statisticsCoordinator)
         
         let playlistNav = UINavigationController()
-        playlistNav.navigationBar.isHidden = true
-        let playlistCoordinator = PlaylistCoordinator(navigationController: playlistNav)
+        // For now, create PlaylistCoordinator manually - will add proper DI later
+        let playlistCoordinator = PlaylistCoordinator(
+            navigationController: playlistNav,
+            getUserPlaylistsUseCase: DIContainer.shared.resolve(GetUserPlaylistsUseCaseProtocol.self)!,
+            createPlaylistUseCase: DIContainer.shared.resolve(CreatePlaylistUseCaseProtocol.self)!,
+            deletePlaylistUseCase: DIContainer.shared.resolve(DeletePlaylistUseCaseProtocol.self)!,
+            getPlaylistDetailUseCase: DIContainer.shared.resolve(GetPlaylistDetailUseCaseProtocol.self)!,
+            updatePlaylistUseCase: DIContainer.shared.resolve(UpdatePlaylistUseCaseProtocol.self)!,
+            removeTracksFromPlaylistUseCase: DIContainer.shared.resolve(RemoveTracksFromPlaylistUseCaseProtocol.self)!
+        )
         let playlistVC = playlistCoordinator.start()
+        playlistVC.navigationItem.largeTitleDisplayMode = .inline
         playlistNav.setViewControllers([playlistVC], animated: false)
         childCoordinators.append(playlistCoordinator)
         
