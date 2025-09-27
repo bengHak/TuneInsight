@@ -51,6 +51,8 @@ public final class HomeTopPlayedArtistView: UIView {
     // MARK: - Setup
     
     private func setupUI() {
+        backgroundColor = .white.withAlphaComponent(0.4)
+        
         addSubview(titleLabel)
         addSubview(collectionView)
         
@@ -159,7 +161,15 @@ private final class TopArtistCell: UICollectionViewCell {
     static let identifier = String(describing: TopArtistCell.self)
     
     // MARK: - UI
-    
+
+    private let containerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        view.layer.cornerRadius = 12
+        view.layer.masksToBounds = true
+        return view
+    }()
+
     private let artistImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -173,7 +183,7 @@ private final class TopArtistCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .bold)
         label.textColor = .white
-        label.backgroundColor = .systemBlue
+        label.backgroundColor = .systemGreen
         label.textAlignment = .center
         label.layer.cornerRadius = 12
         label.layer.masksToBounds = true
@@ -205,22 +215,27 @@ private final class TopArtistCell: UICollectionViewCell {
     private func setupUI() {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
-        
-        contentView.addSubview(artistImageView)
-        contentView.addSubview(rankLabel)
-        contentView.addSubview(artistNameLabel)
-        
+        contentView.addSubview(containerView)
+
+        containerView.addSubview(artistImageView)
+        containerView.addSubview(rankLabel)
+        containerView.addSubview(artistNameLabel)
+
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
         artistImageView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview().inset(4)
             make.width.equalTo(artistImageView.snp.height)
         }
-        
+
         rankLabel.snp.makeConstraints { make in
             make.top.equalTo(artistImageView.snp.top).offset(8)
             make.trailing.equalTo(artistImageView.snp.trailing).offset(-8)
             make.width.height.equalTo(24)
         }
-        
+
         artistNameLabel.snp.makeConstraints { make in
             make.top.equalTo(artistImageView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(4)

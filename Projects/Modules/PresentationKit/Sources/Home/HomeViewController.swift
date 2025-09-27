@@ -108,16 +108,15 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
         }
         
         recentTracksView.snp.makeConstraints { make in
-            make.top.equalTo(playerView.snp.bottom).offset(20)
+            make.top.equalTo(playerView.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview()
         }
 
         topPlayedArtistView.snp.makeConstraints { make in
-            make.top.equalTo(recentTracksView.snp.bottom).offset(20)
+            make.top.equalTo(recentTracksView.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview()
         }
         
-        // contentView의 bottom constraint 업데이트
         contentView.snp.makeConstraints { make in
             make.bottom.equalTo(topPlayedArtistView.snp.bottom)
         }

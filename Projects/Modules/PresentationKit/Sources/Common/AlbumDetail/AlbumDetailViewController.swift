@@ -46,6 +46,10 @@ public final class AlbumDetailViewController: UIViewController, ReactorKit.View 
         rootView.snp.makeConstraints { make in
             make.edges.equalTo(view)
         }
+
+        rootView.didSelectTrack = { [weak self] track in
+            self?.showTrackDetail(track: track)
+        }
     }
 
     private func registerCopyButton() {
@@ -122,5 +126,20 @@ private extension AlbumDetailViewController {
         let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
+    }
+
+    func showTrackDetail(track: SpotifyAlbumTrack) {
+        guard let album = reactor?.currentState.album else { return }
+        let converted = SpotifyTrack(
+            id: track.id,
+            name: track.name,
+            artists: track.artists,
+            album: album,
+            durationMs: track.durationMs,
+            popularity: 0,
+            previewUrl: track.previewUrl,
+            uri: track.uri
+        )
+        coordinator?.showTrackDetail(track: converted)
     }
 }

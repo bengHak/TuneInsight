@@ -49,8 +49,12 @@ public final class ArtistDetailReactor: Reactor {
         switch action {
         case .viewDidLoad:
             let artistId = currentState.artist.id
-            let loadAlbums = Observable<Mutation>.create { observer in
-                Task {
+            let loadAlbums = Observable<Mutation>.create { [weak self] observer in
+                Task { [weak self] in
+                    guard let self else {
+                        observer.onCompleted()
+                        return
+                    }
                     do {
                         let albums = try await self.getArtistAlbumsUseCase.execute(artistId: artistId, limit: 20, offset: 0)
                         observer.onNext(.setAlbums(albums))
@@ -62,8 +66,12 @@ public final class ArtistDetailReactor: Reactor {
                 return Disposables.create()
             }
 
-            let loadTopTracks = Observable<Mutation>.create { observer in
-                Task {
+            let loadTopTracks = Observable<Mutation>.create { [weak self] observer in
+                Task { [weak self] in
+                    guard let self else {
+                        observer.onCompleted()
+                        return
+                    }
                     do {
                         let tracks = try await self.getArtistTopTracksUseCase.execute(artistId: artistId, market: "US")
                         observer.onNext(.setTopTracks(tracks))
@@ -99,4 +107,3 @@ public final class ArtistDetailReactor: Reactor {
         return newState
     }
 }
-

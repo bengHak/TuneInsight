@@ -22,7 +22,7 @@ public final class RecentTracksView: UIView {
     private let tableView: UITableView = {
         let tv = UITableView()
         tv.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
-        tv.rowHeight = 64
+        tv.rowHeight = RecentTrackCell.cellHeight
         tv.separatorStyle = .none
         tv.backgroundColor = .clear
         tv.isScrollEnabled = false
@@ -48,6 +48,8 @@ public final class RecentTracksView: UIView {
     // MARK: - Setup
     
     private func setupUI() {
+        backgroundColor = .white.withAlphaComponent(0.4)
+        
         addSubview(titleLabel)
         addSubview(tableView)
         tableView.dataSource = self
@@ -90,8 +92,7 @@ public final class RecentTracksView: UIView {
 
     public func getHeight() -> CGFloat {
         let titleHeight: CGFloat = 60 // 타이틀 + 패딩
-        let rowHeight: CGFloat = 64
-        let tableHeight = CGFloat(tracks.count) * rowHeight
+        let tableHeight = CGFloat(tracks.count) * RecentTrackCell.cellHeight
 
         return titleHeight + tableHeight
     }
@@ -129,8 +130,17 @@ extension RecentTracksView: UITableViewDataSource {
 private final class RecentTrackCell: UITableViewCell {
     
     static let identifier = String(describing: RecentTrackCell.self)
+    static let cellHeight: CGFloat = 80
     
     // MARK: - UI
+    
+    private let containerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        view.layer.cornerRadius = 12
+        view.layer.masksToBounds = true
+        return view
+    }()
     
     private let trackImageView: UIImageView = {
         let imageView = UIImageView()
@@ -181,14 +191,20 @@ private final class RecentTrackCell: UITableViewCell {
     private func setupUI() {
         backgroundColor = .clear
         selectionStyle = .none
+        contentView.backgroundColor = .clear
+        contentView.addSubview(containerView)
         
-        contentView.addSubview(trackImageView)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(artistLabel)
-        contentView.addSubview(playedAtLabel)
+        containerView.addSubview(trackImageView)
+        containerView.addSubview(titleLabel)
+        containerView.addSubview(artistLabel)
+        containerView.addSubview(playedAtLabel)
+        
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12))
+        }
         
         trackImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
+            make.leading.equalToSuperview().offset(6)
             make.centerY.equalToSuperview()
             make.width.height.equalTo(60)
         }

@@ -47,8 +47,12 @@ public final class AlbumDetailReactor: Reactor {
         switch action {
         case .viewDidLoad:
             let clearError = Observable.just(Mutation.setError(nil))
-            let loadTracks = Observable<Mutation>.create { observer in
-                Task {
+            let loadTracks = Observable<Mutation>.create { [weak self] observer in
+                Task { [weak self] in
+                    guard let self else {
+                        observer.onCompleted()
+                        return
+                    }
                     do {
                         let tracks = try await self.fetchAllTracks(albumId: self.currentState.album.id)
                         observer.onNext(.setTracks(tracks))
