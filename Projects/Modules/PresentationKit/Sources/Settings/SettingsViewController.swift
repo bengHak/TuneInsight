@@ -11,7 +11,6 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
     
     private enum SettingsItem: String, CaseIterable {
         case logout = "로그아웃"
-        case withdraw = "탈퇴하기"
         case subscription = "구독관리"
         case privacy = "개인정보처리방침"
     }
@@ -131,7 +130,7 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         switch item {
         case .logout:
             reactor?.action.onNext(.logout)
-        case .withdraw, .subscription:
+        case .subscription:
             print("cell is clicked")
         case .privacy:
             showPrivacyPolicy()
