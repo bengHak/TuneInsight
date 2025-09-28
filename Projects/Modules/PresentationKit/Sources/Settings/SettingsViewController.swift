@@ -131,7 +131,7 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         case .logout:
             reactor?.action.onNext(.logout)
         case .subscription:
-            print("cell is clicked")
+            coordinator?.showSubscription()
         case .privacy:
             showPrivacyPolicy()
         }

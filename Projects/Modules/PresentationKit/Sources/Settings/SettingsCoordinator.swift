@@ -28,4 +28,11 @@ public final class SettingsCoordinator {
     public func didLogout() {
         delegate?.settingsCoordinatorDidLogout(self)
     }
+
+    public func showSubscription() {
+        let coordinator = SubscriptionCoordinator(navigationController: navigationController)
+        let vc = coordinator.start()
+        childCoordinators.append(coordinator)
+        navigationController.pushViewController(vc, animated: true)
+    }
 }

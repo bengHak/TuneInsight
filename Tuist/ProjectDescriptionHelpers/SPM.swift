@@ -23,6 +23,7 @@ public extension TargetDependency.SPM {
     static let SpotifyiOS = Self.external("SpotifyiOS")
     static let Kingfisher = Self.external("Kingfisher")
     static let RxDataSources = Self.external("RxDataSources")
+    static let RevenueCat = Self.external("RevenueCat")
     
     private static func external(_ name: String) -> TargetDependency {
         return TargetDependency.external(name: name)

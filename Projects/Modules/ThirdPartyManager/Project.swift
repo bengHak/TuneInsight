@@ -17,6 +17,7 @@ let frameworkTargets: [Target] = FrameworkFactory(
             .SPM.SpotifyiOS,
             .SPM.Kingfisher,
             .SPM.RxDataSources,
+            .SPM.RevenueCat,
         ],
         unitTestsDependencies: []
     )

@@ -19,6 +19,7 @@ import PackageDescription
             "RxCocoaRuntime": .framework,
             "RxDataSources": .framework,
             "ReactorKit": .framework,
+            "RevenueCat": .framework,
         ]
     )
 
@@ -37,5 +38,6 @@ let package = Package(
         .package(url: "https://github.com/spotify/ios-sdk", from: "5.0.1"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.10.0"),
         .package(url: "https://github.com/RxSwiftCommunity/RxDataSources", from: "5.0.0"),
+        .package(url: "https://github.com/RevenueCat/purchases-ios", from: "5.40.0"),
     ]
 )
