@@ -37,7 +37,7 @@ public final class MainTabBarCoordinator {
         childCoordinators.append(statisticsCoordinator)
         
         let playlistNav = UINavigationController()
-        // For now, create PlaylistCoordinator manually - will add proper DI later
+        
         let playlistCoordinator = PlaylistCoordinator(
             navigationController: playlistNav,
             getUserPlaylistsUseCase: DIContainer.shared.resolve(GetUserPlaylistsUseCaseProtocol.self)!,
@@ -53,7 +53,6 @@ public final class MainTabBarCoordinator {
         childCoordinators.append(playlistCoordinator)
         
         let settingsNav = UINavigationController()
-        settingsNav.navigationBar.isHidden = true
         let settingsCoordinator = SettingsCoordinator(navigationController: settingsNav)
         settingsCoordinator.delegate = self
         let settingsVC = settingsCoordinator.start()

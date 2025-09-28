@@ -1,4 +1,3 @@
-import SwiftUI
 import UIKit
 import Then
 import SnapKit
@@ -8,23 +7,16 @@ import RxSwift
 public final class SettingsViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
     public weak var coordinator: SettingsCoordinator?
-
-    private let titleLabel = UILabel().then {
-        $0.text = "설정"
-        $0.font = .preferredFont(forTextStyle: .largeTitle)
-        $0.textAlignment = .center
-        $0.textColor = .label
-        $0.numberOfLines = 0
-        $0.accessibilityIdentifier = "settings_title_label"
-    }
     
-    private let logoutButton = UIButton(type: .system).then {
-        $0.setTitle("로그아웃", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .systemRed
-        $0.layer.cornerRadius = 12
-        $0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
-        $0.accessibilityIdentifier = "logout_button"
+    private enum SettingsItem: String, CaseIterable {
+        case logout = "로그아웃"
+        case subscription = "구독관리"
+        case privacy = "개인정보처리방침"
+    }
+
+    private let tableView = UITableView(frame: .zero, style: .insetGrouped).then {
+        $0.register(UITableViewCell.self, forCellReuseIdentifier: "SettingsCell")
+        $0.accessibilityIdentifier = "settings_table_view"
     }
 
     public init(reactor: SettingsReactor = SettingsReactor()) {
@@ -38,37 +30,22 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupUI()
+        title = "설정"
+        reactor?.action.onNext(.viewDidLoad)
     }
     
     private func setupUI() {
-        view.addSubview(titleLabel)
-        view.addSubview(logoutButton)
-        
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(40)
-            make.centerX.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(view.safeAreaLayoutGuide.snp.leading).offset(24)
-            make.trailing.lessThanOrEqualTo(view.safeAreaLayoutGuide.snp.trailing).inset(24)
-        }
-        
-        logoutButton.snp.makeConstraints { make in
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(40)
-            make.leading.trailing.equalToSuperview().inset(24)
-            make.height.equalTo(50)
+        view.addSubview(tableView)
+        tableView.dataSource = self
+        tableView.delegate = self
+
+        tableView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
     }
 
     public func bind(reactor: SettingsReactor) {
-        bindActions(reactor)
         bindState(reactor)
-    }
-    
-    private func bindActions(_ reactor: SettingsReactor) {
-        // 로그아웃 버튼 탭
-        logoutButton.rx.tap
-            .map { Reactor.Action.logout }
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
     }
     
     private func bindState(_ reactor: SettingsReactor) {
@@ -129,5 +106,31 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         alert.addAction(okAction)
         
         present(alert, animated: true)
+    }
+}
+
+extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return SettingsItem.allCases.count
+    }
+
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
+        let item = SettingsItem.allCases[indexPath.row]
+        cell.textLabel?.text = item.rawValue
+        cell.selectionStyle = .default
+        cell.accessoryType = .none
+        return cell
+    }
+
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let item = SettingsItem.allCases[indexPath.row]
+        switch item {
+        case .logout:
+            reactor?.action.onNext(.logout)
+        case .subscription, .privacy:
+            print("cell is clicked")
+        }
     }
 }
