@@ -1,4 +1,5 @@
 import UIKit
+import SafariServices
 import Then
 import SnapKit
 import ReactorKit
@@ -10,6 +11,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
     
     private enum SettingsItem: String, CaseIterable {
         case logout = "로그아웃"
+        case withdraw = "탈퇴하기"
         case subscription = "구독관리"
         case privacy = "개인정보처리방침"
     }
@@ -129,8 +131,22 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         switch item {
         case .logout:
             reactor?.action.onNext(.logout)
-        case .subscription, .privacy:
+        case .withdraw, .subscription:
             print("cell is clicked")
+        case .privacy:
+            showPrivacyPolicy()
         }
+    }
+}
+
+private extension SettingsViewController {
+    func showPrivacyPolicy() {
+        guard let url = URL(string: "https://pie-cement-fe8.notion.site/27c311327dce80eea0bbd71310c0cd09") else {
+            print("Invalid privacy policy URL")
+            return
+        }
+        let vc = SFSafariViewController(url: url)
+        vc.modalPresentationStyle = .automatic
+        present(vc, animated: true)
     }
 }
