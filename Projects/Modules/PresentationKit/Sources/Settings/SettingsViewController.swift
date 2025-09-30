@@ -143,7 +143,8 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
 
 private extension SettingsViewController {
     func showPrivacyPolicy() {
-        guard let url = URL(string: "https://pie-cement-fe8.notion.site/27c311327dce80eea0bbd71310c0cd09") else {
+        guard let urlString = Bundle.main.infoDictionary?["PRIVACY_POLICY_URL"] as? String,
+              let url = URL(string: urlString) else {
             print("Invalid privacy policy URL")
             return
         }

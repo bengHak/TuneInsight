@@ -26,6 +26,7 @@ let infoPlist: [String: Plist.Value] = [
         ]
     ],
     "SPOTIFY_CLIENT_ID": "$(SPOTIFY_CLIENT_ID)",
+    "PRIVACY_POLICY_URL": "$(PRIVACY_POLICY_URL)",
     "CFBundleURLTypes": [
         [
             "CFBundleURLName": "spotify-stats",
