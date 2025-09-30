@@ -81,14 +81,21 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     }
 
     private let tableView = UITableView(frame: .zero, style: .plain).then {
-        $0.separatorStyle = .singleLine
+        $0.separatorStyle = .none
         $0.tableFooterView = UIView()
-        $0.rowHeight = 72
-        $0.register(PlaylistTrackCell.self, forCellReuseIdentifier: PlaylistTrackCell.identifier)
+        $0.rowHeight = RecentTrackCell.cellHeight
+        $0.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
         $0.refreshControl = UIRefreshControl()
         $0.isScrollEnabled = false
         $0.accessibilityIdentifier = "playlist_tracks_table"
     }
+
+    private let addedDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .none
+        return formatter
+    }()
 
     private let emptyView = UIView().then {
         $0.isHidden = true
@@ -467,13 +474,15 @@ extension PlaylistDetailViewController: UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: PlaylistTrackCell.identifier,
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: RecentTrackCell.identifier,
             for: indexPath
-        ) as! PlaylistTrackCell
+        ) as? RecentTrackCell else {
+            return UITableViewCell()
+        }
 
         let track = tracks[indexPath.row]
-        cell.configure(with: track)
+        cell.configure(with: makeTrackViewModel(from: track))
 
         return cell
     }
@@ -519,5 +528,22 @@ extension PlaylistDetailViewController: UITableViewDelegate {
                 reactor?.action.onNext(.loadMore)
             }
         }
+    }
+}
+
+private extension PlaylistDetailViewController {
+    func makeTrackViewModel(from track: PlaylistTrack) -> RecentTrackCell.ViewModel {
+        let artworkURL = track.albumImageUrl.flatMap(URL.init)
+        let addedDate = track.addedAt.map { addedDateFormatter.string(from: $0) }
+
+        return RecentTrackCell.ViewModel(
+            titleText: track.name,
+            artistText: track.artistsText,
+            albumText: track.album,
+            playedAtText: addedDate,
+            durationText: track.formattedDuration,
+            rankText: nil,
+            artworkURL: artworkURL
+        )
     }
 }
