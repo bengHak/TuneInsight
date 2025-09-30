@@ -7,7 +7,6 @@ import PackageDescription
     let packageSettings = PackageSettings(
         productTypes: [
             "Alamofire": .framework,
-            "ComposableArchitecture": .framework,
             "Swinject": .framework,
             "Then": .framework,
             "SnapKit": .framework,
@@ -29,7 +28,6 @@ let package = Package(
     name: "SpotifyStats",
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.8.0"),
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.5.0"),
         .package(url: "https://github.com/Swinject/Swinject", from: "2.8.0"),
         .package(url: "https://github.com/devxoul/Then", from: "3.0.0"),
         .package(url: "https://github.com/SnapKit/SnapKit", from: "5.7.0"),

@@ -6,7 +6,6 @@ let frameworkName: String = "ThirdPartyManager"
 let frameworkTargets: [Target] = FrameworkFactory(
     dependency: .init(
         frameworkDependencies: [
-            .SPM.ComposableArchitecture,
             .SPM.Alamofire,
             .SPM.Swinject,
             .SPM.Then,
