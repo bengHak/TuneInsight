@@ -7,8 +7,7 @@ import DomainKit
 final class AlbumDetailView: UIView {
     // MARK: - UI
     private let tableView = UITableView(frame: .zero, style: .grouped).then {
-        $0.separatorStyle = .singleLine
-        $0.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        $0.separatorStyle = .none
         $0.showsVerticalScrollIndicator = false
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 120
@@ -67,7 +66,7 @@ final class AlbumDetailView: UIView {
         }
 
         tableView.register(AlbumInfoCell.self, forCellReuseIdentifier: AlbumInfoCell.identifier)
-        tableView.register(AlbumTrackCell.self, forCellReuseIdentifier: AlbumTrackCell.identifier)
+        tableView.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.tableFooterView = UIView(frame: .zero)
@@ -135,11 +134,15 @@ extension AlbumDetailView: UITableViewDataSource {
             cell.selectionStyle = .none
             return cell
         case .tracks:
-            let cell = tableView.dequeueReusableCell(withIdentifier: AlbumTrackCell.identifier, for: indexPath)
-            if let trackCell = cell as? AlbumTrackCell {
-                let track = tracks[indexPath.row]
-                trackCell.configure(with: track, index: indexPath.row + 1)
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: RecentTrackCell.identifier,
+                for: indexPath
+            ) as? RecentTrackCell else {
+                return UITableViewCell()
             }
+            let track = tracks[indexPath.row]
+            cell.configure(with: makeTrackViewModel(from: track, index: indexPath.row + 1))
+            cell.accessoryType = .disclosureIndicator
             cell.selectionStyle = .default
             return cell
         }
@@ -172,11 +175,39 @@ extension AlbumDetailView: UITableViewDelegate {
         return .leastNormalMagnitude
     }
 
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard let section = Section(rawValue: indexPath.section) else { return UITableView.automaticDimension }
+        switch section {
+        case .info:
+            return UITableView.automaticDimension
+        case .tracks:
+            return RecentTrackCell.cellHeight
+        }
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         guard let section = Section(rawValue: indexPath.section), section == .tracks else { return }
         guard tracks.indices.contains(indexPath.row) else { return }
         didSelectTrack?(tracks[indexPath.row])
+    }
+}
+
+private extension AlbumDetailView {
+    func makeTrackViewModel(from track: SpotifyAlbumTrack, index: Int) -> RecentTrackCell.ViewModel {
+        let albumArtworkURL = album?.images.first.flatMap { URL(string: $0.url) }
+        let rankText = String(format: "%02d", index)
+
+        return RecentTrackCell.ViewModel(
+            titleText: track.name,
+            artistText: track.artistNames,
+            albumText: nil,
+            playedAtText: nil,
+            durationText: track.durationFormatted,
+            rankText: rankText,
+            artworkURL: albumArtworkURL,
+            placeholderSystemName: "opticaldisc"
+        )
     }
 }
 
@@ -330,154 +361,5 @@ private final class AlbumInfoCell: UITableViewCell {
         stack.axis = .vertical
         stack.spacing = 4
         return stack
-    }
-}
-
-// MARK: - AlbumTrackCell
-private final class AlbumTrackCell: UITableViewCell {
-    static let identifier = String(describing: AlbumTrackCell.self)
-
-    private let indexLabel = UILabel().then {
-        $0.font = .monospacedDigitSystemFont(ofSize: 14, weight: .semibold)
-        $0.textColor = .secondaryLabel
-        $0.setContentHuggingPriority(.required, for: .horizontal)
-        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
-    }
-
-    private let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .label
-        $0.numberOfLines = 0
-    }
-
-    private let artistsLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .secondaryLabel
-        $0.numberOfLines = 0
-    }
-
-    private let metaLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .tertiaryLabel
-        $0.numberOfLines = 0
-    }
-
-    private let availabilityLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .tertiaryLabel
-        $0.numberOfLines = 0
-    }
-
-    private let previewTitleLabel = UILabel().then {
-        $0.text = "미리듣기"
-        $0.font = .systemFont(ofSize: 12, weight: .semibold)
-        $0.textColor = .secondaryLabel
-    }
-
-    private let previewValueLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .label
-        $0.numberOfLines = 0
-    }
-
-    private let uriTitleLabel = UILabel().then {
-        $0.text = "URI"
-        $0.font = .systemFont(ofSize: 12, weight: .semibold)
-        $0.textColor = .secondaryLabel
-    }
-
-    private let uriValueLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .label
-        $0.numberOfLines = 0
-        $0.lineBreakMode = .byTruncatingMiddle
-    }
-
-    private let stackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = 6
-    }
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupLayout()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupLayout()
-    }
-
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        titleLabel.text = nil
-        artistsLabel.text = nil
-        metaLabel.text = nil
-        availabilityLabel.text = nil
-        previewValueLabel.text = nil
-        uriValueLabel.text = nil
-    }
-
-    private func setupLayout() {
-        selectionStyle = .default
-        accessoryType = .disclosureIndicator
-        contentView.backgroundColor = .systemBackground
-
-        contentView.addSubview(indexLabel)
-        contentView.addSubview(stackView)
-
-        stackView.addArrangedSubview(titleLabel)
-        stackView.addArrangedSubview(artistsLabel)
-        stackView.addArrangedSubview(metaLabel)
-        stackView.addArrangedSubview(availabilityLabel)
-
-        let previewStack = UIStackView(arrangedSubviews: [previewTitleLabel, previewValueLabel])
-        previewStack.axis = .vertical
-        previewStack.spacing = 2
-        stackView.addArrangedSubview(previewStack)
-
-        let uriStack = UIStackView(arrangedSubviews: [uriTitleLabel, uriValueLabel])
-        uriStack.axis = .vertical
-        uriStack.spacing = 2
-        stackView.addArrangedSubview(uriStack)
-
-        indexLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.leading.equalToSuperview().offset(16)
-        }
-
-        stackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(12)
-            make.leading.equalTo(indexLabel.snp.trailing).offset(12)
-            make.trailing.equalToSuperview().inset(16)
-            make.bottom.equalToSuperview().inset(12)
-        }
-    }
-
-    func configure(with track: SpotifyAlbumTrack, index: Int) {
-        indexLabel.text = String(format: "%02d", index)
-        titleLabel.text = track.name
-        artistsLabel.text = track.artistNames
-
-        let explicitText = track.explicit ? "익스플리싯" : "클린"
-        metaLabel.text = "디스크 \(track.discNumber) • 트랙 \(track.trackNumber) • \(track.durationFormatted) • \(explicitText)"
-
-        var availabilityComponents: [String] = []
-        if let isPlayable = track.isPlayable {
-            availabilityComponents.append(isPlayable ? "재생 가능" : "재생 불가")
-        }
-        availabilityComponents.append(track.isLocal ? "로컬 트랙" : "스트리밍")
-        availabilityComponents.append("서비스 지역: \(track.availableMarketsDescription)")
-        if let restriction = track.restrictions?.reason {
-            availabilityComponents.append("제한: \(restriction)")
-        }
-        availabilityLabel.text = availabilityComponents.joined(separator: " • ")
-
-        if let preview = track.previewUrl, !preview.isEmpty {
-            previewValueLabel.text = preview
-        } else {
-            previewValueLabel.text = "제공되지 않음"
-        }
-        uriValueLabel.text = track.uri
     }
 }

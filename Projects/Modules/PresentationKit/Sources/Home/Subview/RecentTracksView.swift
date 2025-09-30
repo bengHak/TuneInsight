@@ -1,7 +1,6 @@
 import UIKit
 import SnapKit
 import DomainKit
-import Kingfisher
 
 public protocol RecentTracksViewDelegate: AnyObject {
     func recentTracksView(_ view: RecentTracksView, didSelect track: RecentTrack)
@@ -32,6 +31,11 @@ public final class RecentTracksView: UIView {
     // MARK: - Properties
     
     private var tracks: [RecentTrack] = []
+    private let relativeDateFormatter: RelativeDateTimeFormatter = {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter
+    }()
     public weak var delegate: RecentTracksViewDelegate?
     
     // MARK: - Init
@@ -120,179 +124,25 @@ extension RecentTracksView: UITableViewDataSource {
         }
         
         let track = tracks[indexPath.row]
-        cell.configure(with: track)
+        cell.configure(with: makeViewModel(from: track))
         return cell
     }
 }
 
-// MARK: - RecentTrackCell
+private extension RecentTracksView {
+    func makeViewModel(from track: RecentTrack) -> RecentTrackCell.ViewModel {
+        let artworkURL = track.track.album.images.first.flatMap { URL(string: $0.url) }
+        let playedAtText = relativeDateFormatter.localizedString(for: track.playedAt, relativeTo: Date())
 
-private final class RecentTrackCell: UITableViewCell {
-    
-    static let identifier = String(describing: RecentTrackCell.self)
-    static let cellHeight: CGFloat = 80
-    
-    // MARK: - UI
-    
-    private let containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.white.withAlphaComponent(0.8)
-        view.layer.cornerRadius = 12
-        view.layer.masksToBounds = true
-        return view
-    }()
-    
-    private let trackImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 8
-        imageView.backgroundColor = .systemGray5
-        return imageView
-    }()
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .label
-        label.numberOfLines = 1
-        return label
-    }()
-    
-    private let artistLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 1
-        return label
-    }()
-
-    private let albumLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .tertiaryLabel
-        label.numberOfLines = 1
-        return label
-    }()
-
-    private let playedAtLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .tertiaryLabel
-        label.textAlignment = .right
-        return label
-    }()
-
-    private let durationLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .tertiaryLabel
-        label.textAlignment = .right
-        return label
-    }()
-
-    private let infoStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.alignment = .trailing
-        stack.spacing = 2
-        return stack
-    }()
-    
-    // MARK: - Init
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: - Setup
-    
-    private func setupUI() {
-        backgroundColor = .clear
-        selectionStyle = .none
-        contentView.backgroundColor = .clear
-        contentView.addSubview(containerView)
-        
-        containerView.addSubview(trackImageView)
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(artistLabel)
-        containerView.addSubview(albumLabel)
-        containerView.addSubview(infoStackView)
-        
-        containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12))
-        }
-        
-        trackImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(6)
-            make.centerY.equalToSuperview()
-            make.width.height.equalTo(60)
-        }
-        
-        infoStackView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().offset(-16)
-            make.centerY.equalToSuperview()
-        }
-
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(trackImageView.snp.top)
-            make.leading.equalTo(trackImageView.snp.trailing).offset(12)
-            make.trailing.equalTo(infoStackView.snp.leading).offset(-8)
-        }
-
-        artistLabel.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(4)
-            make.leading.equalTo(titleLabel)
-            make.trailing.equalTo(titleLabel)
-        }
-
-        albumLabel.snp.makeConstraints { make in
-            make.top.equalTo(artistLabel.snp.bottom).offset(2)
-            make.leading.equalTo(titleLabel)
-            make.trailing.equalTo(titleLabel)
-            make.bottom.lessThanOrEqualToSuperview().inset(12)
-        }
-
-        infoStackView.addArrangedSubview(playedAtLabel)
-        infoStackView.addArrangedSubview(durationLabel)
-    }
-    
-    // MARK: - Reuse
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        trackImageView.kf.cancelDownloadTask()
-        trackImageView.image = nil
-        titleLabel.text = nil
-        artistLabel.text = nil
-        albumLabel.text = nil
-        playedAtLabel.text = nil
-        durationLabel.text = nil
-    }
-    
-    // MARK: - Configure
-    
-    func configure(with track: RecentTrack) {
-        titleLabel.text = track.track.name
-        artistLabel.text = track.track.artists.map { $0.name }.joined(separator: ", ")
-        albumLabel.text = track.track.album.name
-
-        if let urlString = track.track.album.images.first?.url,
-           let url = URL(string: urlString) {
-            trackImageView.kf.setImage(with: url)
-        } else {
-            trackImageView.image = nil
-        }
-        
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        playedAtLabel.text = formatter.localizedString(for: track.playedAt, relativeTo: Date())
-        durationLabel.text = track.track.durationFormatted
+        return RecentTrackCell.ViewModel(
+            titleText: track.track.name,
+            artistText: track.track.artists.map { $0.name }.joined(separator: ", "),
+            albumText: track.track.album.name,
+            playedAtText: playedAtText,
+            durationText: track.track.durationFormatted,
+            rankText: nil,
+            artworkURL: artworkURL
+        )
     }
 }
 
