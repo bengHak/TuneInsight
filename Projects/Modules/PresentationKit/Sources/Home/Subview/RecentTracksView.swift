@@ -166,13 +166,37 @@ private final class RecentTrackCell: UITableViewCell {
         label.numberOfLines = 1
         return label
     }()
-    
+
+    private let albumLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .tertiaryLabel
+        label.numberOfLines = 1
+        return label
+    }()
+
     private let playedAtLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = .tertiaryLabel
         label.textAlignment = .right
         return label
+    }()
+
+    private let durationLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.textColor = .tertiaryLabel
+        label.textAlignment = .right
+        return label
+    }()
+
+    private let infoStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.alignment = .trailing
+        stack.spacing = 2
+        return stack
     }()
     
     // MARK: - Init
@@ -197,7 +221,8 @@ private final class RecentTrackCell: UITableViewCell {
         containerView.addSubview(trackImageView)
         containerView.addSubview(titleLabel)
         containerView.addSubview(artistLabel)
-        containerView.addSubview(playedAtLabel)
+        containerView.addSubview(albumLabel)
+        containerView.addSubview(infoStackView)
         
         containerView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12))
@@ -209,23 +234,32 @@ private final class RecentTrackCell: UITableViewCell {
             make.width.height.equalTo(60)
         }
         
-        playedAtLabel.snp.makeConstraints { make in
+        infoStackView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-16)
             make.centerY.equalToSuperview()
-            make.width.equalTo(80)
         }
-        
+
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(trackImageView.snp.top)
             make.leading.equalTo(trackImageView.snp.trailing).offset(12)
-            make.trailing.equalTo(playedAtLabel.snp.leading).offset(-8)
+            make.trailing.equalTo(infoStackView.snp.leading).offset(-8)
         }
-        
+
         artistLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(4)
             make.leading.equalTo(titleLabel)
             make.trailing.equalTo(titleLabel)
         }
+
+        albumLabel.snp.makeConstraints { make in
+            make.top.equalTo(artistLabel.snp.bottom).offset(2)
+            make.leading.equalTo(titleLabel)
+            make.trailing.equalTo(titleLabel)
+            make.bottom.lessThanOrEqualToSuperview().inset(12)
+        }
+
+        infoStackView.addArrangedSubview(playedAtLabel)
+        infoStackView.addArrangedSubview(durationLabel)
     }
     
     // MARK: - Reuse
@@ -236,7 +270,9 @@ private final class RecentTrackCell: UITableViewCell {
         trackImageView.image = nil
         titleLabel.text = nil
         artistLabel.text = nil
+        albumLabel.text = nil
         playedAtLabel.text = nil
+        durationLabel.text = nil
     }
     
     // MARK: - Configure
@@ -244,7 +280,8 @@ private final class RecentTrackCell: UITableViewCell {
     func configure(with track: RecentTrack) {
         titleLabel.text = track.track.name
         artistLabel.text = track.track.artists.map { $0.name }.joined(separator: ", ")
-        
+        albumLabel.text = track.track.album.name
+
         if let urlString = track.track.album.images.first?.url,
            let url = URL(string: urlString) {
             trackImageView.kf.setImage(with: url)
@@ -255,6 +292,7 @@ private final class RecentTrackCell: UITableViewCell {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         playedAtLabel.text = formatter.localizedString(for: track.playedAt, relativeTo: Date())
+        durationLabel.text = track.track.durationFormatted
     }
 }
 
