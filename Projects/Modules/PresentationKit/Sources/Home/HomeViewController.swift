@@ -149,19 +149,21 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     private func bindState(_ reactor: HomeReactor) {
         reactor.state.map { $0.playbackDisplay }
             .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] playbackDisplay in
                 self?.updatePlayerView(with: playbackDisplay)
             }.disposed(by: disposeBag)
         
         reactor.state.map { $0.recentTracks }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] recentTracks in
                 self?.recentTracksView.updateTracks(recentTracks)
             }.disposed(by: disposeBag)
         
         reactor.state.map { $0.topArtists }
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] topArtists in
                 self?.topPlayedArtistView.updateArtists(topArtists)
             }.disposed(by: disposeBag)

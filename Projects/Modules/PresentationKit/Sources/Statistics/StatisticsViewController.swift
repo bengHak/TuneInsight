@@ -143,7 +143,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
         // State
         reactor.state.map { $0.topArtists }
             .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] artists in
                 self?.artistItems = artists
                 self?.reloadList()
@@ -152,7 +152,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
         reactor.state.map { $0.topTracks }
             .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] tracks in
                 self?.trackItems = tracks
                 self?.reloadList()
@@ -161,7 +161,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
         reactor.state.map { $0.category }
             .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] category in
                 self?.categoryControl.selectedSegmentIndex = (category == .artists) ? 0 : 1
                 self?.reloadList()
@@ -170,7 +170,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
         reactor.state.map { $0.isLoading }
             .distinctUntilChanged()
-            .observe(on: MainScheduler.instance)
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] isLoading in
                 if isLoading { self?.loadingIndicator.startAnimating() }
                 else { self?.loadingIndicator.stopAnimating() }
@@ -179,7 +179,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
         reactor.state.map { $0.errorMessage }
             .compactMap { $0 }
-            .observe(on: MainScheduler.instance)
+            .observe(on: MainScheduler.asyncInstance)
             .bind { [weak self] message in
                 self?.showError(message: message)
             }

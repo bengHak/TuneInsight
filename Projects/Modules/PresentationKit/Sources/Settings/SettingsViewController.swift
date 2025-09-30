@@ -54,6 +54,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         reactor.state.map { $0.showLogoutAlert }
             .distinctUntilChanged()
             .filter { $0 }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] _ in
                 self?.showLogoutAlert()
             })
@@ -63,6 +64,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         reactor.state.map { $0.isLogoutCompleted }
             .distinctUntilChanged()
             .filter { $0 }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] _ in
                 self?.coordinator?.didLogout()
             })
@@ -72,6 +74,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         reactor.state.map { $0.errorMessage }
             .distinctUntilChanged()
             .compactMap { $0 }
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [weak self] error in
                 self?.showErrorAlert(message: error)
             })
