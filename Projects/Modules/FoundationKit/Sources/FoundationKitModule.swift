@@ -31,13 +31,22 @@ public enum AppConstants {
 
     public enum Keys: String {
         case spotifyClientID = "SPOTIFY_CLIENT_ID"
+        case spotifyAPIBaseURL = "SPOTIFY_API_BASE_URL"
     }
 
     public static var spotifyClientID: String {
-        guard let v = infoValue(Keys.spotifyClientID.rawValue) else {
+        guard let value = infoValue(Keys.spotifyClientID.rawValue) else {
             assertionFailure("Missing Info.plist key: \(Keys.spotifyClientID.rawValue)")
             return ""
         }
-        return v
+        return value
+    }
+
+    public static var spotifyAPIBaseURL: String {
+        guard let value = infoValue(Keys.spotifyAPIBaseURL.rawValue) else {
+            assertionFailure("Missing Info.plist key: \(Keys.spotifyAPIBaseURL.rawValue)")
+            return ""
+        }
+        return value
     }
 }

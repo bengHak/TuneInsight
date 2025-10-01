@@ -30,7 +30,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     case searchTracks(query: String, limit: Int?, offset: Int?, market: String?)
 
     public var baseURL: String {
-        return "https://api.spotify.com/v1"
+        return "https://" + AppConstants.spotifyAPIBaseURL
     }
     
     public var path: String {
