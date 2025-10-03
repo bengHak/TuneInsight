@@ -28,6 +28,8 @@ final class AlbumDetailView: UIView {
     }
 
     private weak var albumInfoCellReference: AlbumInfoCell?
+    var didTapOpenInSpotify: ((String) -> Void)?
+    private var spotifyURI: String?
 
     // MARK: - Data
     private var album: SpotifyAlbum?
@@ -75,13 +77,10 @@ final class AlbumDetailView: UIView {
     }
 
     // MARK: - Exposed UI
-    var copyURIButton: UIButton? {
-        albumInfoCellReference?.copyURIButton
-    }
-
     // MARK: - Update
     func configure(with album: SpotifyAlbum) {
         self.album = album
+        spotifyURI = album.uri
         tableView.reloadSections(IndexSet(integer: Section.info.rawValue), with: .none)
     }
 
@@ -131,6 +130,9 @@ extension AlbumDetailView: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: AlbumInfoCell.identifier, for: indexPath)
             if let infoCell = cell as? AlbumInfoCell {
                 infoCell.configure(with: album)
+                infoCell.didTapOpenInSpotify = { [weak self] in
+                    self?.handleOpenInSpotifyTapped()
+                }
                 albumInfoCellReference = infoCell
             }
             cell.selectionStyle = .none
@@ -194,6 +196,11 @@ extension AlbumDetailView: UITableViewDelegate {
 }
 
 private extension AlbumDetailView {
+    func handleOpenInSpotifyTapped() {
+        guard let uri = spotifyURI?.trimmingCharacters(in: .whitespacesAndNewlines), !uri.isEmpty else { return }
+        didTapOpenInSpotify?(uri)
+    }
+
     func makeTrackViewModel(from track: SpotifyAlbumTrack, index: Int) -> RecentTrackCell.ViewModel {
         let albumArtworkURL = album?.images.first.flatMap { URL(string: $0.url) }
         let rankText = String(format: "%02d", index)
@@ -241,27 +248,22 @@ private final class AlbumInfoCell: UITableViewCell {
     private let releaseDateValueLabel = AlbumInfoCell.makeValueLabel(identifier: "albumdetail_release_date")
     private let totalTracksTitleLabel = AlbumInfoCell.makeTitleLabel(text: "총 트랙 수")
     private let totalTracksValueLabel = AlbumInfoCell.makeValueLabel(identifier: "albumdetail_total_tracks")
-    private let idTitleLabel = AlbumInfoCell.makeTitleLabel(text: "앨범 ID")
-    private let idValueLabel = AlbumInfoCell.makeValueLabel(identifier: "albumdetail_id")
-    private let uriTitleLabel = AlbumInfoCell.makeTitleLabel(text: "Spotify URI")
-    private let uriValueLabel = AlbumInfoCell.makeValueLabel(identifier: "albumdetail_uri")
-
-    let copyURIButton = UIButton(type: .system).then {
-        $0.setTitle("복사", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        $0.setTitleColor(CustomColor.accent, for: .normal)
-        $0.accessibilityIdentifier = "albumdetail_copy_uri"
+    private let openInSpotifyButton = UIButton(type: .system).then {
+        $0.setTitle("Spotify에서 열기", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.setTitleColor(CustomColor.background, for: .normal)
+        $0.backgroundColor = CustomColor.accent
+        $0.layer.cornerRadius = 12
+        $0.layer.masksToBounds = true
+        $0.accessibilityIdentifier = "albumdetail_open_spotify"
     }
+
+    var didTapOpenInSpotify: (() -> Void)?
+    private var openButtonHeightConstraint: Constraint?
 
     private let infoStack = UIStackView().then {
         $0.axis = .vertical
         $0.spacing = 12
-    }
-
-    private let uriRow = UIStackView().then {
-        $0.axis = .horizontal
-        $0.alignment = .center
-        $0.spacing = 8
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -278,6 +280,9 @@ private final class AlbumInfoCell: UITableViewCell {
         super.prepareForReuse()
         coverImageView.kf.cancelDownloadTask()
         coverImageView.image = nil
+        openInSpotifyButton.isHidden = false
+        openInSpotifyButton.isEnabled = true
+        openButtonHeightConstraint?.update(offset: 48)
     }
 
     private func setupLayout() {
@@ -292,15 +297,16 @@ private final class AlbumInfoCell: UITableViewCell {
         contentView.addSubview(artistsLabel)
         contentView.addSubview(infoStack)
 
-        infoStack.addArrangedSubview(makeInfoRow(titleLabel: releaseDateTitleLabel, valueLabel: releaseDateValueLabel))
-        infoStack.addArrangedSubview(makeInfoRow(titleLabel: totalTracksTitleLabel, valueLabel: totalTracksValueLabel))
-        infoStack.addArrangedSubview(makeInfoRow(titleLabel: idTitleLabel, valueLabel: idValueLabel))
-
-        uriRow.addArrangedSubview(uriTitleLabel)
-        uriRow.addArrangedSubview(UIView())
-        uriRow.addArrangedSubview(copyURIButton)
-        infoStack.addArrangedSubview(uriRow)
-        infoStack.addArrangedSubview(uriValueLabel)
+        let releaseRow = makeInfoRow(titleLabel: releaseDateTitleLabel, valueLabel: releaseDateValueLabel)
+        let totalRow = makeInfoRow(titleLabel: totalTracksTitleLabel, valueLabel: totalTracksValueLabel)
+        infoStack.addArrangedSubview(releaseRow)
+        infoStack.addArrangedSubview(totalRow)
+        infoStack.setCustomSpacing(16, after: totalRow)
+        infoStack.addArrangedSubview(openInSpotifyButton)
+        openInSpotifyButton.snp.makeConstraints { make in
+            openButtonHeightConstraint = make.height.equalTo(48).constraint
+        }
+        openInSpotifyButton.addTarget(self, action: #selector(openInSpotifyTapped), for: .touchUpInside)
 
         coverImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
@@ -332,8 +338,11 @@ private final class AlbumInfoCell: UITableViewCell {
         artistsLabel.text = album.artists.map { $0.name }.joined(separator: ", ")
         releaseDateValueLabel.text = album.releaseDate
         totalTracksValueLabel.text = "\(album.totalTracks)곡"
-        idValueLabel.text = album.id
-        uriValueLabel.text = album.uri
+        let trimmedURI = album.uri.trimmingCharacters(in: .whitespacesAndNewlines)
+        let shouldHideButton = trimmedURI.isEmpty
+        openInSpotifyButton.isHidden = shouldHideButton
+        openInSpotifyButton.isEnabled = !shouldHideButton
+        openButtonHeightConstraint?.update(offset: shouldHideButton ? 0 : 48)
 
         if let urlString = album.images.first?.url, let url = URL(string: urlString) {
             coverImageView.kf.setImage(with: url)
@@ -341,6 +350,10 @@ private final class AlbumInfoCell: UITableViewCell {
             coverImageView.image = UIImage(systemName: "opticaldisc")
             coverImageView.tintColor = CustomColor.secondaryText
         }
+    }
+
+    @objc private func openInSpotifyTapped() {
+        didTapOpenInSpotify?()
     }
 
     private static func makeTitleLabel(text: String) -> UILabel {

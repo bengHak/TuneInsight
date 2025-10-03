@@ -32,14 +32,16 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
         rootView.snp.makeConstraints { make in
             make.edges.equalTo(view)
         }
-        rootView.copyURIButton.addTarget(self, action: #selector(copyURITapped), for: .touchUpInside)
-
         rootView.didSelectAlbum = { [weak self] album in
             self?.showAlbumDetail(album: album)
         }
 
         rootView.didSelectTrack = { [weak self] track in
             self?.showTrackDetail(track: track)
+        }
+
+        rootView.didTapOpenInSpotify = { [weak self] uri in
+            self?.openInSpotify(uri: uri)
         }
     }
 
@@ -49,22 +51,57 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
     }
 
     // MARK: - Actions
-    @objc private func copyURITapped() {
-        guard let artist = reactor?.currentState.artist else { return }
-        UIPasteboard.general.string = artist.uri
-        let alert = UIAlertController(title: nil, message: "URI가 복사되었습니다.", preferredStyle: .alert)
-        present(alert, animated: true)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak alert] in
-            alert?.dismiss(animated: true, completion: nil)
-        }
-    }
-
     private func showAlbumDetail(album: SpotifyAlbum) {
         coordinator?.showAlbumDetail(album: album)
     }
 
     private func showTrackDetail(track: SpotifyTrack) {
         coordinator?.showTrackDetail(track: track)
+    }
+
+    private func openInSpotify(uri: String) {
+        let potentialURLs = resolveSpotifyURLs(from: uri)
+        let application = UIApplication.shared
+
+        for url in potentialURLs {
+            if application.canOpenURL(url) {
+                application.open(url, options: [:], completionHandler: nil)
+                return
+            }
+        }
+
+        showUnableToOpenAlert()
+    }
+
+    private func resolveSpotifyURLs(from uri: String) -> [URL] {
+        var urls: [URL] = []
+        if let directURL = URL(string: uri) {
+            urls.append(directURL)
+        }
+
+        if uri.hasPrefix("spotify:") {
+            let components = uri.split(separator: ":")
+            if components.count >= 3 {
+                let type = components[1]
+                let identifier = components[2]
+                let webURLString = "https://open.spotify.com/\(type)/\(identifier)"
+                if let webURL = URL(string: webURLString) {
+                    urls.append(webURL)
+                }
+            }
+        }
+
+        return urls
+    }
+
+    private func showUnableToOpenAlert() {
+        let alert = UIAlertController(
+            title: "Spotify 열기 실패",
+            message: "Spotify 링크를 열 수 없습니다. 앱이나 브라우저 설정을 확인해주세요.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
 

@@ -47,38 +47,14 @@ final class ArtistDetailView: UIView {
         $0.accessibilityIdentifier = "artistdetail_genres"
     }
 
-    let idTitleLabel = UILabel().then {
-        $0.text = "아티스트 ID"
-        $0.font = .systemFont(ofSize: 14, weight: .semibold)
-        $0.textColor = CustomColor.secondaryText
-    }
-
-    let idValueLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = CustomColor.tertiaryText
-        $0.numberOfLines = 1
-        $0.accessibilityIdentifier = "artistdetail_id"
-    }
-
-    let uriTitleLabel = UILabel().then {
-        $0.text = "Spotify URI"
-        $0.font = .systemFont(ofSize: 14, weight: .semibold)
-        $0.textColor = CustomColor.secondaryText
-    }
-
-    let uriValueLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = CustomColor.tertiaryText
-        $0.numberOfLines = 1
-        $0.lineBreakMode = .byTruncatingMiddle
-        $0.accessibilityIdentifier = "artistdetail_uri"
-    }
-
-    let copyURIButton = UIButton(type: .system).then {
-        $0.setTitle("복사", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        $0.setTitleColor(CustomColor.accent, for: .normal)
-        $0.accessibilityIdentifier = "artistdetail_copy_uri"
+    private let openInSpotifyButton = UIButton(type: .system).then {
+        $0.setTitle("Spotify에서 열기", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        $0.setTitleColor(CustomColor.background, for: .normal)
+        $0.backgroundColor = CustomColor.accent
+        $0.layer.cornerRadius = 12
+        $0.layer.masksToBounds = true
+        $0.accessibilityIdentifier = "artistdetail_open_spotify"
     }
     
     let albumsTitleLabel = UILabel().then {
@@ -108,6 +84,9 @@ final class ArtistDetailView: UIView {
     var didSelectAlbum: ((SpotifyAlbum) -> Void)?
     private var topTrackItems: [SpotifyTrack] = []
     var didSelectTrack: ((SpotifyTrack) -> Void)?
+    public var didTapOpenInSpotify: ((String) -> Void)?
+    private var spotifyURI: String?
+    private var openInSpotifyButtonHeightConstraint: Constraint?
     
     let topTracksTitleLabel = UILabel().then {
         $0.text = "인기 트랙"
@@ -153,15 +132,13 @@ final class ArtistDetailView: UIView {
         contentView.addSubview(popularityLabel)
         contentView.addSubview(genresTitleLabel)
         contentView.addSubview(genresLabel)
-        contentView.addSubview(idTitleLabel)
-        contentView.addSubview(idValueLabel)
-        contentView.addSubview(uriTitleLabel)
-        contentView.addSubview(uriValueLabel)
-        contentView.addSubview(copyURIButton)
+        contentView.addSubview(openInSpotifyButton)
         contentView.addSubview(albumsTitleLabel)
         contentView.addSubview(albumsCollectionView)
         contentView.addSubview(topTracksTitleLabel)
         contentView.addSubview(topTracksTableView)
+
+        openInSpotifyButton.addTarget(self, action: #selector(openInSpotifyButtonTapped), for: .touchUpInside)
 
         topTracksTableView.dataSource = self
         topTracksTableView.delegate = self
@@ -207,33 +184,14 @@ final class ArtistDetailView: UIView {
             make.leading.trailing.equalTo(nameLabel)
         }
         
-        idTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(genresLabel.snp.bottom).offset(16)
+        openInSpotifyButton.snp.makeConstraints { make in
+            make.top.equalTo(genresLabel.snp.bottom).offset(20)
             make.leading.trailing.equalTo(nameLabel)
+            openInSpotifyButtonHeightConstraint = make.height.equalTo(48).constraint
         }
-        
-        idValueLabel.snp.makeConstraints { make in
-            make.top.equalTo(idTitleLabel.snp.bottom).offset(4)
-            make.leading.trailing.equalTo(nameLabel)
-        }
-        
-        uriTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(idValueLabel.snp.bottom).offset(12)
-            make.leading.equalTo(nameLabel)
-        }
-        
-        copyURIButton.snp.makeConstraints { make in
-            make.centerY.equalTo(uriTitleLabel.snp.centerY)
-            make.trailing.equalTo(nameLabel.snp.trailing)
-        }
-        
-        uriValueLabel.snp.makeConstraints { make in
-            make.top.equalTo(uriTitleLabel.snp.bottom).offset(4)
-            make.leading.trailing.equalTo(nameLabel)
-        }
-        
+
         albumsTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(uriValueLabel.snp.bottom).offset(16)
+            make.top.equalTo(openInSpotifyButton.snp.bottom).offset(24)
             make.leading.trailing.equalTo(nameLabel)
         }
         
@@ -266,9 +224,12 @@ final class ArtistDetailView: UIView {
         }
         
         genresLabel.text = artist.genres.isEmpty ? "-" : artist.genres.joined(separator: ", ")
-        idValueLabel.text = artist.id
-        uriValueLabel.text = artist.uri
-        
+        spotifyURI = artist.uri
+        let shouldHideOpenButton = artist.uri.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        openInSpotifyButton.isHidden = shouldHideOpenButton
+        openInSpotifyButton.isEnabled = !shouldHideOpenButton
+        openInSpotifyButtonHeightConstraint?.update(offset: shouldHideOpenButton ? 0 : 48)
+
         if let urlString = artist.images.first?.url, let url = URL(string: urlString) {
             artistImageView.kf.setImage(with: url)
         } else {
@@ -363,6 +324,11 @@ private extension ArtistDetailView {
             rankText: rankText,
             artworkURL: artworkURL
         )
+    }
+
+    @objc func openInSpotifyButtonTapped() {
+        guard let uri = spotifyURI else { return }
+        didTapOpenInSpotify?(uri)
     }
 }
 
