@@ -21,6 +21,7 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
     // MARK: - Lifecycle
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         setupUI()
     }
 

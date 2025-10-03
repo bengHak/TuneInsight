@@ -70,6 +70,7 @@ public final class PlaylistViewController: UIViewController, ReactorKit.View {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         setupUI()
         setupNavigationBar()
     }

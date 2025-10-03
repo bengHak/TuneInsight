@@ -43,6 +43,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         setupUI()
     }
     
@@ -101,10 +102,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     private func setupConstraints() {
         scrollView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.leading.equalTo(view.safeAreaLayoutGuide.snp.leading)
-            make.trailing.equalTo(view.safeAreaLayoutGuide.snp.trailing)
-            make.bottom.equalToSuperview()
+            make.edges.equalToSuperview()
         }
         
         contentView.snp.makeConstraints { make in

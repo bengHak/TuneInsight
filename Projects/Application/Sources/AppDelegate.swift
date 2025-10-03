@@ -12,6 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         setupDependencyInjection()
+        UINavigationBar.appearance().tintColor = .black
         return true
     }
     

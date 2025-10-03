@@ -28,6 +28,7 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         setupUI()
     }
     

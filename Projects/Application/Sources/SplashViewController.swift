@@ -26,6 +26,7 @@ final class SplashViewController: UIViewController, View {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         view.backgroundColor = .systemBackground
 
         view.addSubview(titleLabel)

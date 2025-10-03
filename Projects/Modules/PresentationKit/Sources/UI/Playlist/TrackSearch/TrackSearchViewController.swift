@@ -119,6 +119,7 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         setupUI()
         setupNavigationBar()
     }

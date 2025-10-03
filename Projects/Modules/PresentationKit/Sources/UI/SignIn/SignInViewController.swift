@@ -48,6 +48,7 @@ public final class SignInViewController: UIViewController {
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
+		navigationItem.backButtonDisplayMode = .minimal
 		view.backgroundColor = .systemBackground
 		layout()
 		bind()

@@ -29,6 +29,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         view.backgroundColor = .systemBackground
         setupUI()
         title = "설정"

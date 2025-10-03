@@ -30,6 +30,7 @@ public final class SubscriptionViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         view.backgroundColor = .systemBackground
         title = "구독관리"
         setupUI()

@@ -36,6 +36,7 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.backButtonDisplayMode = .minimal
         configureSubviews()
     }
     

@@ -71,6 +71,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationItem.backButtonDisplayMode = .minimal
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
