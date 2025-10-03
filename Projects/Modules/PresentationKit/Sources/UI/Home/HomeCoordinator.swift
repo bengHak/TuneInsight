@@ -1,6 +1,7 @@
 import UIKit
 import DomainKit
 import DIKit
+import FoundationKit
 // ArtistDetailCoordinator, TrackDetailCoordinator 등 화면 이동
 
 public protocol HomeCoordinatorDelegate: AnyObject {
@@ -19,12 +20,12 @@ public final class HomeCoordinator {
     public func start() -> UIViewController {
         // DIContainer에서 HomeReactor resolve
         guard let homeReactor = resolve(HomeReactor.self) else {
-            fatalError("HomeReactor를 resolve할 수 없습니다. DI 설정을 확인해주세요.")
+            fatalError("error.di.homeReactorResolution".localized())
         }
         
         // ViewController 생성
         let homeVC = HomeViewController(reactor: homeReactor)
-        homeVC.title = "TuneInsight"
+        homeVC.title = "app.name".localized()
         homeVC.coordinator = self
         return homeVC
     }

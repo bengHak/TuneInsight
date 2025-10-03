@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 public enum SpotifyRepositoryError: Error {
     case noCurrentlyPlaying
@@ -9,13 +10,13 @@ public enum SpotifyRepositoryError: Error {
     public var localizedDescription: String {
         switch self {
         case .noCurrentlyPlaying:
-            return "현재 재생 중인 곡이 없습니다."
+            return "player.noCurrentTrack".localized()
         case .unauthorized:
-            return "Spotify 인증이 필요합니다."
+            return "auth.spotifyRequired".localized()
         case .networkError(let error):
-            return "네트워크 오류: \(error.localizedDescription)"
+            return "error.networkWithDetail".localizedFormat(error.localizedDescription)
         case .unknown(let error):
-            return "알 수 없는 오류: \(error.localizedDescription)"
+            return "error.unknownWithDetail".localizedFormat(error.localizedDescription)
         }
     }
 }

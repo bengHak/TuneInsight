@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 public struct SpotifyTrack: Sendable, Equatable {
     public let id: String
@@ -33,7 +34,7 @@ public struct SpotifyTrack: Sendable, Equatable {
 
 public extension SpotifyTrack {
     var primaryArtist: String {
-        return artists.first?.name ?? "알 수 없는 아티스트"
+        return artists.first?.name ?? "artist.unknownName".localized()
     }
     
     var albumImageUrl: String? {

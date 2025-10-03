@@ -3,6 +3,7 @@ import Then
 import SnapKit
 import Kingfisher
 import DomainKit
+import FoundationKit
 
 final class TrackDetailView: UIView {
     // MARK: - UI
@@ -62,7 +63,7 @@ final class TrackDetailView: UIView {
     }
 
     private let albumSectionTitleLabel = UILabel().then {
-        $0.text = "앨범"
+        $0.text = "common.album".localized()
         $0.font = .systemFont(ofSize: 18, weight: .semibold)
         $0.textColor = CustomColor.primaryText
         $0.isHidden = true
@@ -82,7 +83,7 @@ final class TrackDetailView: UIView {
     }()
 
     let addToQueueButton = UIButton(type: .system).then {
-        $0.setTitle("대기열에 추가", for: .normal)
+        $0.setTitle("playlist.addToQueueButton".localized(), for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.tintColor = CustomColor.background
         $0.backgroundColor = CustomColor.accent
@@ -92,7 +93,7 @@ final class TrackDetailView: UIView {
     }
 
     let skipNextButton = UIButton(type: .system).then {
-        $0.setTitle("바로 재생", for: .normal)
+        $0.setTitle("player.playNowButton".localized(), for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.tintColor = CustomColor.accent
         $0.backgroundColor = CustomColor.surface
@@ -232,8 +233,8 @@ final class TrackDetailView: UIView {
         titleLabel.text = track.name
         artistLabel.text = track.artistNames
         albumLabel.text = track.album.name
-        durationLabel.text = "길이: \(track.durationFormatted)"
-        popularityLabel.text = "인기도: \(track.popularity)"
+        durationLabel.text = "track.durationFormat".localizedFormat(track.durationFormatted)
+        popularityLabel.text = "track.popularityFormat".localizedFormat(track.popularity)
 
         if let urlString = track.albumImageUrl, let url = URL(string: urlString) {
             albumImageView.kf.setImage(with: url)

@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 public struct CurrentPlayback: Sendable, Equatable {
     public let track: SpotifyTrack?
@@ -62,15 +63,15 @@ public extension CurrentPlayback {
     }
     
     var trackName: String {
-        return track?.name ?? "알 수 없는 곡"
+        return track?.name ?? "track.unknownTitle".localized()
     }
     
     var artistName: String {
-        return track?.primaryArtist ?? "알 수 없는 아티스트"
+        return track?.primaryArtist ?? "artist.unknownName".localized()
     }
     
     var albumName: String {
-        return track?.album.name ?? "알 수 없는 앨범"
+        return track?.album.name ?? "album.unknownTitle".localized()
     }
     
     var albumImageUrl: String? {

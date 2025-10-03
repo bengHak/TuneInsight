@@ -2,6 +2,7 @@ import UIKit
 import DomainKit
 import ReactorKit
 import RxSwift
+import FoundationKit
 
 public final class ArtistDetailViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
@@ -27,7 +28,7 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
 
     // MARK: - Setup
     private func setupUI() {
-        title = "아티스트 상세"
+        title = "artist.detailTitle".localized()
         view.addSubview(rootView)
         rootView.snp.makeConstraints { make in
             make.edges.equalTo(view)
@@ -96,11 +97,11 @@ public final class ArtistDetailViewController: UIViewController, ReactorKit.View
 
     private func showUnableToOpenAlert() {
         let alert = UIAlertController(
-            title: "Spotify 열기 실패",
-            message: "Spotify 링크를 열 수 없습니다. 앱이나 브라우저 설정을 확인해주세요.",
+            title: "spotify.openFailureTitle".localized(),
+            message: "spotify.openLinkFailureMessage".localized(),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 }
@@ -156,8 +157,8 @@ private extension ArtistDetailViewController {
     // UI 업데이트는 ArtistDetailView로 이동
 
     func showError(message: String) {
-        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        let alert = UIAlertController(title: "common.error".localized(), message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 }

@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 public struct SpotifyAlbumTrack: Sendable, Equatable {
     public let id: String
@@ -60,6 +61,6 @@ public extension SpotifyAlbumTrack {
 
     var availableMarketsDescription: String {
         guard !availableMarkets.isEmpty else { return "-" }
-        return "\(availableMarkets.count)개 지역"
+        return "album.availableMarketsCount".localizedFormat(availableMarkets.count)
     }
 }

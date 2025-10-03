@@ -2,10 +2,11 @@ import UIKit
 import Then
 import SnapKit
 import RevenueCat
+import FoundationKit
 
 public final class SubscriptionViewController: UIViewController {
     private let statusTitleLabel = UILabel().then {
-        $0.text = "구독 상태"
+        $0.text = "subscription.statusTitle".localized()
         $0.font = .preferredFont(forTextStyle: .largeTitle)
         $0.textAlignment = .left
         $0.textColor = CustomColor.primaryText
@@ -14,7 +15,7 @@ public final class SubscriptionViewController: UIViewController {
     }
 
     private let statusLabel = UILabel().then {
-        $0.text = "구독 상태 확인 중..."
+        $0.text = "subscription.statusLoading".localized()
         $0.font = .preferredFont(forTextStyle: .body)
         $0.textAlignment = .left
         $0.textColor = CustomColor.secondaryText
@@ -23,7 +24,7 @@ public final class SubscriptionViewController: UIViewController {
     }
 
     private let refreshButton = UIButton(type: .system).then {
-        $0.setTitle("새로고침", for: .normal)
+        $0.setTitle("common.refresh".localized(), for: .normal)
         $0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
         $0.backgroundColor = CustomColor.accent
         $0.setTitleColor(CustomColor.background, for: .normal)
@@ -35,7 +36,7 @@ public final class SubscriptionViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.backButtonDisplayMode = .minimal
         view.backgroundColor = CustomColor.background
-        title = "구독관리"
+        title = "settings.subscription".localized()
         setupUI()
         bind()
         fetchCustomerInfo()
@@ -72,39 +73,39 @@ public final class SubscriptionViewController: UIViewController {
     }
 
     private func fetchCustomerInfo() {
-        statusLabel.text = "구독 상태 확인 중..."
+        statusLabel.text = "subscription.statusLoading".localized()
         Purchases.shared.getCustomerInfo { [weak self] info, error in
             guard let self = self else { return }
             if let error = error {
-                self.statusLabel.text = "오류: \(error.localizedDescription)"
+                self.statusLabel.text = "error.withDetail".localizedFormat(error.localizedDescription)
                 self.statusLabel.textColor = .systemRed
                 return
             }
 
             guard let info = info else {
-                self.statusLabel.text = "구독 정보를 불러올 수 없습니다."
+                self.statusLabel.text = "subscription.statusUnavailable".localized()
                 self.statusLabel.textColor = .systemRed
                 return
             }
 
             let active = info.entitlements.active
             if active.isEmpty {
-                self.statusLabel.text = "구독 중이 아닙니다."
+                self.statusLabel.text = "subscription.inactive".localized()
                 self.statusLabel.textColor = CustomColor.primaryText
             } else {
                 // 임의로 첫 번째 활성 엔타이틀먼트를 표시
                 if let first = active.first {
                     var details: [String] = []
-                    details.append("Entitlement: \(first.key)")
+                    details.append("subscription.entitlementNameFormat".localizedFormat(first.key))
                     if let exp = first.value.expirationDate {
                         let formatter = DateFormatter()
                         formatter.dateStyle = .medium
                         formatter.timeStyle = .short
-                        details.append("만료: \(formatter.string(from: exp))")
+                        details.append("subscription.expirationFormat".localizedFormat(formatter.string(from: exp)))
                     }
-                    self.statusLabel.text = (["구독 중"] + details).joined(separator: "\n")
+                    self.statusLabel.text = (["subscription.active".localized()] + details).joined(separator: "\n")
                 } else {
-                    self.statusLabel.text = "구독 중"
+                    self.statusLabel.text = "subscription.active".localized()
                 }
                 self.statusLabel.textColor = CustomColor.primaryText
             }

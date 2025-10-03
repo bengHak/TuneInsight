@@ -3,6 +3,7 @@ import Then
 import SnapKit
 import Kingfisher
 import DomainKit
+import FoundationKit
 
 final class AlbumDetailView: UIView {
     // MARK: - UI
@@ -20,7 +21,7 @@ final class AlbumDetailView: UIView {
     }
 
     private let emptyLabel = UILabel().then {
-        $0.text = "트랙 정보를 불러올 수 없습니다."
+        $0.text = "track.loadFailure".localized()
         $0.textAlignment = .center
         $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
@@ -159,7 +160,7 @@ extension AlbumDetailView: UITableViewDelegate {
         case .info:
             return nil
         case .tracks:
-            return tracks.isEmpty ? nil : "트랙 목록"
+            return tracks.isEmpty ? nil : "album.trackListTitle".localized()
         }
     }
 
@@ -244,12 +245,12 @@ private final class AlbumInfoCell: UITableViewCell {
         $0.accessibilityIdentifier = "albumdetail_artists"
     }
 
-    private let releaseDateTitleLabel = AlbumInfoCell.makeTitleLabel(text: "발매일")
+    private let releaseDateTitleLabel = AlbumInfoCell.makeTitleLabel(text: "album.releaseDateTitle".localized())
     private let releaseDateValueLabel = AlbumInfoCell.makeValueLabel(identifier: "albumdetail_release_date")
-    private let totalTracksTitleLabel = AlbumInfoCell.makeTitleLabel(text: "총 트랙 수")
+    private let totalTracksTitleLabel = AlbumInfoCell.makeTitleLabel(text: "album.totalTracksTitle".localized())
     private let totalTracksValueLabel = AlbumInfoCell.makeValueLabel(identifier: "albumdetail_total_tracks")
     private let openInSpotifyButton = UIButton(type: .system).then {
-        $0.setTitle("Spotify에서 열기", for: .normal)
+        $0.setTitle("spotify.openInApp".localized(), for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.setTitleColor(CustomColor.background, for: .normal)
         $0.backgroundColor = CustomColor.accent
@@ -337,7 +338,7 @@ private final class AlbumInfoCell: UITableViewCell {
         titleLabel.text = album.name
         artistsLabel.text = album.artists.map { $0.name }.joined(separator: ", ")
         releaseDateValueLabel.text = album.releaseDate
-        totalTracksValueLabel.text = "\(album.totalTracks)곡"
+        totalTracksValueLabel.text = "playlist.trackCountCompact".localizedFormat(album.totalTracks)
         let trimmedURI = album.uri.trimmingCharacters(in: .whitespacesAndNewlines)
         let shouldHideButton = trimmedURI.isEmpty
         openInSpotifyButton.isHidden = shouldHideButton

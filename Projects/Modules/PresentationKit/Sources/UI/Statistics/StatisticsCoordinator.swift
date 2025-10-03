@@ -1,6 +1,7 @@
 import UIKit
 import DIKit
 import DomainKit
+import FoundationKit
 
 public protocol StatisticsCoordinatorDelegate: AnyObject {
     func statisticsCoordinatorDidFinish(_ coordinator: StatisticsCoordinator)
@@ -17,7 +18,7 @@ public final class StatisticsCoordinator {
     
     public func start() -> UIViewController {
         guard let reactor = resolve(StatisticsReactor.self) else {
-            fatalError("StatisticsReactor를 resolve할 수 없습니다. DI 설정을 확인해주세요.")
+            fatalError("error.di.statisticsReactorResolution".localized())
         }
         let statisticsVC = StatisticsViewController(reactor: reactor)
         statisticsVC.coordinator = self

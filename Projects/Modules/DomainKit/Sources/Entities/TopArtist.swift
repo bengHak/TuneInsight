@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 public enum SpotifyTimeRange: String, CaseIterable, Sendable {
     case shortTerm = "short_term"
@@ -8,11 +9,11 @@ public enum SpotifyTimeRange: String, CaseIterable, Sendable {
     public var displayName: String {
         switch self {
         case .shortTerm:
-            return "최근 4주"
+            return "timeRange.lastFourWeeks".localized()
         case .mediumTerm:
-            return "최근 6개월"
+            return "timeRange.lastSixMonths".localized()
         case .longTerm:
-            return "최근 1년"
+            return "timeRange.lastYear".localized()
         }
     }
 }

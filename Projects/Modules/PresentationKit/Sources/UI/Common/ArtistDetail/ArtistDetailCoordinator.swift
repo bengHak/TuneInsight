@@ -1,6 +1,7 @@
 import UIKit
 import DomainKit
 import DIKit
+import FoundationKit
 
 public protocol ArtistDetailCoordinatorDelegate: AnyObject {
     func artistDetailCoordinatorDidFinish(_ coordinator: ArtistDetailCoordinator)
@@ -19,7 +20,7 @@ public final class ArtistDetailCoordinator {
         // Reactor 생성: DI에서 유스케이스 resolve 후 수동 주입
         guard let albumsUseCase = resolve(GetArtistAlbumsUseCaseProtocol.self),
               let topTracksUseCase = resolve(GetArtistTopTracksUseCaseProtocol.self) else {
-            fatalError("ArtistDetail 의존성을 resolve할 수 없습니다. DI 설정을 확인해주세요.")
+            fatalError("error.di.artistDetailResolution".localized())
         }
         let reactor = ArtistDetailReactor(
             artist: artist,

@@ -98,13 +98,13 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
                 if token.isValid {
                     // 유효한 토큰이 있으므로 인증된 상태로 간주하지만 실제 SPTSession은 없음
                     // 실제 사용 시에는 토큰을 직접 사용하거나 세션을 새로 만들어야 함
-                    print("[SpotifyAuthManager] 키체인에서 유효한 토큰을 발견했지만 SPTSession이 없습니다. 토큰 기반 인증 사용.")
+                    print("[SpotifyAuthManager] " + "auth.keychainTokenWithoutSession".localized())
                     stateSubject.onNext(.idle) // 재인증 필요
                 } else {
                     try tokenStorage.deleteToken() // 만료된 토큰 삭제
                 }
             } catch {
-                print("[SpotifyAuthManager] 키체인에서 토큰 로드 실패: \(error)")
+                print("[SpotifyAuthManager] " + "auth.keychainTokenLoadFailure".localizedFormat(String(describing: error)))
             }
         }
     }
@@ -126,9 +126,9 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
         
         do {
             try tokenStorage.saveToken(spotifyToken)
-            print("[SpotifyAuthManager] 토큰이 키체인에 저장되었습니다.")
+            print("[SpotifyAuthManager] " + "auth.keychainTokenSaved".localized())
         } catch {
-            print("[SpotifyAuthManager] 키체인 토큰 저장 실패: \(error)")
+            print("[SpotifyAuthManager] " + "auth.keychainTokenSaveFailure".localizedFormat(String(describing: error)))
         }
     }
     
@@ -142,7 +142,7 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
         do {
             return try tokenStorage.getCurrentAccessToken()
         } catch {
-            print("[SpotifyAuthManager] 액세스 토큰 조회 실패: \(error)")
+            print("[SpotifyAuthManager] " + "auth.accessTokenFetchFailure".localizedFormat(String(describing: error)))
             return nil
         }
     }
@@ -151,7 +151,7 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
         do {
             return try tokenStorage.getCurrentRefreshToken()
         } catch {
-            print("[SpotifyAuthManager] 리프레시 토큰 조회 실패: \(error)")
+            print("[SpotifyAuthManager] " + "auth.refreshTokenFetchFailure".localizedFormat(String(describing: error)))
             return nil
         }
     }
@@ -161,9 +161,9 @@ public final class SpotifyAuthManager: NSObject, ObservableObject {
             try tokenStorage.deleteToken()
             currentSession = nil
             stateSubject.onNext(.idle)
-            print("[SpotifyAuthManager] 로그아웃 완료 - 키체인에서 토큰 삭제")
+            print("[SpotifyAuthManager] " + "auth.logoutKeychainCleared".localized())
         } catch {
-            print("[SpotifyAuthManager] 로그아웃 중 키체인 오류: \(error)")
+            print("[SpotifyAuthManager] " + "auth.logoutKeychainError".localizedFormat(String(describing: error)))
         }
         
         // UserDefaults도 정리

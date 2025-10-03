@@ -5,6 +5,7 @@ import DomainKit
 import RxSwift
 import RxCocoa
 import Kingfisher
+import FoundationKit
 
 public protocol PlayerViewDelegate: AnyObject {
     func playerView(_ playerView: PlayerView, didTapPlayPause isPlaying: Bool)
@@ -58,7 +59,7 @@ public final class PlayerView: UIView {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 1
-        $0.text = "현재 재생중이지 않습니다."
+        $0.text = "player.notPlaying".localized()
         $0.accessibilityIdentifier = "player_track_name"
     }
     
@@ -81,7 +82,7 @@ public final class PlayerView: UIView {
         $0.setImage(UIImage(systemName: "backward.fill"), for: .normal)
         $0.tintColor = CustomColor.primaryText
         $0.isEnabled = false
-        $0.accessibilityLabel = "이전 곡"
+        $0.accessibilityLabel = "player.previousTrackAccessibility".localized()
         $0.accessibilityIdentifier = "player_previous_button"
     }
     
@@ -89,7 +90,7 @@ public final class PlayerView: UIView {
         $0.setImage(UIImage(systemName: "play.fill"), for: .normal)
         $0.tintColor = CustomColor.primaryText
         $0.isEnabled = false
-        $0.accessibilityLabel = "재생"
+        $0.accessibilityLabel = "player.play".localized()
         $0.accessibilityIdentifier = "player_play_pause_button"
     }
     
@@ -97,7 +98,7 @@ public final class PlayerView: UIView {
         $0.setImage(UIImage(systemName: "forward.fill"), for: .normal)
         $0.tintColor = CustomColor.primaryText
         $0.isEnabled = false
-        $0.accessibilityLabel = "다음 곡"
+        $0.accessibilityLabel = "player.nextTrackAccessibility".localized()
         $0.accessibilityIdentifier = "player_next_button"
     }
     
@@ -136,7 +137,7 @@ public final class PlayerView: UIView {
     }
     
     private let emptyStateLabel = UILabel().then {
-        $0.text = "현재 재생중이지 않습니다."
+        $0.text = "player.notPlaying".localized()
         $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.textColor = CustomColor.secondaryText
         $0.textAlignment = .center
@@ -361,13 +362,13 @@ public final class PlayerView: UIView {
 
         if playbackDisplay?.track == nil {
             playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
-            playPauseButton.accessibilityLabel = "재생"
+            playPauseButton.accessibilityLabel = "player.play".localized()
         } else if isPlaying {
             playPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-            playPauseButton.accessibilityLabel = "일시정지"
+            playPauseButton.accessibilityLabel = "player.pause".localized()
         } else {
             playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
-            playPauseButton.accessibilityLabel = "재생"
+            playPauseButton.accessibilityLabel = "player.play".localized()
         }
 
         updatePlayPauseTint()

@@ -31,7 +31,7 @@ public final class SpotifyAuthAPI: SpotifyAuthAPIProtocol, @unchecked Sendable {
         let refreshToken = current.refreshToken
         let clientID = AppConstants.spotifyClientID
         guard !clientID.isEmpty else {
-            throw NSError(domain: "SpotifyAuthAPI", code: -1, userInfo: [NSLocalizedDescriptionKey: "SPOTIFY_CLIENT_ID 미설정"])
+            throw NSError(domain: "SpotifyAuthAPI", code: -1, userInfo: [NSLocalizedDescriptionKey: "SPOTIFY_CLIENT_ID 미설정".localized()])
         }
 
         let url = URL(string: accountsBaseURL + tokenPath)!
@@ -63,4 +63,3 @@ public final class SpotifyAuthAPI: SpotifyAuthAPIProtocol, @unchecked Sendable {
         }
     }
 }
-

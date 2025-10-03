@@ -3,6 +3,7 @@ import Then
 import SnapKit
 import Kingfisher
 import DomainKit
+import FoundationKit
 
 final class ArtistDetailView: UIView {
     // MARK: - UI
@@ -35,7 +36,7 @@ final class ArtistDetailView: UIView {
     }
 
     let genresTitleLabel = UILabel().then {
-        $0.text = "장르"
+        $0.text = "common.genres".localized()
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = CustomColor.primaryText
     }
@@ -48,7 +49,7 @@ final class ArtistDetailView: UIView {
     }
 
     private let openInSpotifyButton = UIButton(type: .system).then {
-        $0.setTitle("Spotify에서 열기", for: .normal)
+        $0.setTitle("spotify.openInApp".localized(), for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.setTitleColor(CustomColor.background, for: .normal)
         $0.backgroundColor = CustomColor.accent
@@ -58,7 +59,7 @@ final class ArtistDetailView: UIView {
     }
     
     let albumsTitleLabel = UILabel().then {
-        $0.text = "대표 앨범"
+        $0.text = "artist.featuredAlbumsTitle".localized()
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = CustomColor.primaryText
         $0.isHidden = true
@@ -89,7 +90,7 @@ final class ArtistDetailView: UIView {
     private var openInSpotifyButtonHeightConstraint: Constraint?
     
     let topTracksTitleLabel = UILabel().then {
-        $0.text = "인기 트랙"
+        $0.text = "artist.topTracksTitle".localized()
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = CustomColor.primaryText
         $0.isHidden = true
@@ -218,9 +219,9 @@ final class ArtistDetailView: UIView {
     func configure(with artist: SpotifyArtist) {
         nameLabel.text = artist.name
         if let popularity = artist.popularity {
-            popularityLabel.text = "인기도: \(popularity)"
+            popularityLabel.text = "track.popularityFormat".localizedFormat(popularity)
         } else {
-            popularityLabel.text = "인기도: -"
+            popularityLabel.text = "track.popularityUnavailable".localized()
         }
         
         genresLabel.text = artist.genres.isEmpty ? "-" : artist.genres.joined(separator: ", ")

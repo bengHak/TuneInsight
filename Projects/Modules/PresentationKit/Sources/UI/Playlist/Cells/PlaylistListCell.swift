@@ -3,6 +3,7 @@ import SnapKit
 import Then
 import Kingfisher
 import DomainKit
+import FoundationKit
 
 final class PlaylistListCell: UITableViewCell {
     static let identifier = "PlaylistListCell"
@@ -36,7 +37,7 @@ final class PlaylistListCell: UITableViewCell {
     }
 
     private let publicBadge = UILabel().then {
-        $0.text = "공개"
+        $0.text = "playlist.visibilityPublic".localized()
         $0.font = .systemFont(ofSize: 11, weight: .medium)
         $0.textColor = CustomColor.background
         $0.backgroundColor = CustomColor.accent
@@ -47,7 +48,7 @@ final class PlaylistListCell: UITableViewCell {
     }
 
     private let privateBadge = UILabel().then {
-        $0.text = "비공개"
+        $0.text = "playlist.visibilityPrivate".localized()
         $0.font = .systemFont(ofSize: 11, weight: .medium)
         $0.textColor = CustomColor.secondaryText
         $0.backgroundColor = CustomColor.surface
@@ -129,8 +130,12 @@ final class PlaylistListCell: UITableViewCell {
     func configure(with playlist: Playlist) {
         nameLabel.text = playlist.name
 
-        let trackText = playlist.trackCount == 1 ? "트랙" : "트랙"
-        detailLabel.text = "\(playlist.owner.displayName) • \(playlist.trackCount)\(trackText)"
+        let trackLabel = "common.tracks".localized()
+        detailLabel.text = "playlist.list.summaryFormat".localizedFormat(
+            playlist.owner.displayName,
+            playlist.trackCount,
+            trackLabel
+        )
 
         // Set image
         if let imageUrl = playlist.imageUrl, let url = URL(string: imageUrl) {

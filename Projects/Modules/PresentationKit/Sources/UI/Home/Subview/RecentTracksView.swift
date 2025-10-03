@@ -1,6 +1,7 @@
 import UIKit
 import SnapKit
 import DomainKit
+import FoundationKit
 
 public protocol RecentTracksViewDelegate: AnyObject {
     func recentTracksView(_ view: RecentTracksView, didSelect track: RecentTrack)
@@ -12,7 +13,7 @@ public final class RecentTracksView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "최근 재생된 트랙"
+        label.text = "home.recentTracksTitle".localized()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.textColor = CustomColor.primaryText
         return label

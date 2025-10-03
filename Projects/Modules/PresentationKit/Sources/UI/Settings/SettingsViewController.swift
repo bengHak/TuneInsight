@@ -4,15 +4,30 @@ import Then
 import SnapKit
 import ReactorKit
 import RxSwift
+import FoundationKit
 
 public final class SettingsViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
     public weak var coordinator: SettingsCoordinator?
     
-    private enum SettingsItem: String, CaseIterable {
-        case logout = "로그아웃"
-        case subscription = "구독관리"
-        case privacy = "개인정보처리방침"
+    private enum SettingsItem: CaseIterable {
+        case language
+        case logout
+        case subscription
+        case privacy
+        
+        var title: String {
+            switch self {
+            case .language:
+                return "settings.language".localized()
+            case .logout:
+                return "settings.logout".localized()
+            case .subscription:
+                return "settings.subscription".localized()
+            case .privacy:
+                return "settings.privacyPolicy".localized()
+            }
+        }
     }
 
     private let tableView = UITableView(frame: .zero, style: .insetGrouped).then {
@@ -35,7 +50,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         navigationItem.backButtonDisplayMode = .minimal
         view.backgroundColor = CustomColor.background
         setupUI()
-        title = "설정"
+        title = "settings.title".localized()
         reactor?.action.onNext(.viewDidLoad)
     }
     
@@ -87,13 +102,13 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
     
     private func showLogoutAlert() {
         let alert = UIAlertController(
-            title: "로그아웃",
-            message: "정말로 로그아웃 하시겠습니까?",
+            title: "settings.logout".localized(),
+            message: "settings.logoutConfirmMessage".localized(),
             preferredStyle: .alert
         )
         
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
-        let confirmAction = UIAlertAction(title: "확인", style: .destructive) { [weak self] _ in
+        let cancelAction = UIAlertAction(title: "common.cancel".localized(), style: .cancel)
+        let confirmAction = UIAlertAction(title: "common.confirm".localized(), style: .destructive) { [weak self] _ in
             self?.reactor?.action.onNext(.confirmLogout)
         }
         
@@ -105,12 +120,12 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
     
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
-            title: "오류",
+            title: "common.error".localized(),
             message: message,
             preferredStyle: .alert
         )
         
-        let okAction = UIAlertAction(title: "확인", style: .default)
+        let okAction = UIAlertAction(title: "common.confirm".localized(), style: .default)
         alert.addAction(okAction)
         
         present(alert, animated: true)
@@ -125,7 +140,7 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
         let item = SettingsItem.allCases[indexPath.row]
-        cell.textLabel?.text = item.rawValue
+        cell.textLabel?.text = item.title
         cell.textLabel?.textColor = CustomColor.primaryText
         cell.backgroundColor = .clear
         cell.contentView.backgroundColor = CustomColor.surface
@@ -143,6 +158,8 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         let item = SettingsItem.allCases[indexPath.row]
         switch item {
+        case .language:
+            openLanguageSettings()
         case .logout:
             reactor?.action.onNext(.logout)
         case .subscription:
@@ -154,6 +171,21 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
 }
 
 private extension SettingsViewController {
+    func openLanguageSettings() {
+        let alert = UIAlertController(
+            title: "settings.language".localized(),
+            message: "settings.languageChangePrompt".localized(),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "common.cancel".localized(), style: .cancel))
+        alert.addAction(UIAlertAction(title: "settings.openButton".localized(), style: .default) { _ in
+            guard let url = URL(string: UIApplication.openSettingsURLString),
+                  UIApplication.shared.canOpenURL(url) else { return }
+            UIApplication.shared.open(url)
+        })
+        present(alert, animated: true)
+    }
+    
     func showPrivacyPolicy() {
         guard let urlString = Bundle.main.infoDictionary?["PRIVACY_POLICY_URL"] as? String,
               let url = URL(string: "https://" + urlString) else {

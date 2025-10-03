@@ -195,7 +195,7 @@ public enum SpotifyEndpoint: APIEndpoint {
     
     public var headers: [String: String]? {
         guard let accessToken = getAccessToken() else {
-            print("[SpotifyEndpoint] 액세스 토큰을 찾을 수 없습니다.")
+            print("log.spotifyEndpointPrefix".localizedFormat("auth.accessTokenMissing".localized()))
             return nil
         }
         
@@ -209,7 +209,7 @@ public enum SpotifyEndpoint: APIEndpoint {
         do {
             return try TokenStorage.shared.getCurrentAccessToken()
         } catch {
-            print("[SpotifyEndpoint] 토큰 조회 실패: \(error)")
+            print("log.spotifyEndpointPrefix".localizedFormat("auth.tokenFetchFailure".localizedFormat(String(describing: error))))
             return nil
         }
     }

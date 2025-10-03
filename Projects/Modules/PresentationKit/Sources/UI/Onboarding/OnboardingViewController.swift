@@ -4,13 +4,14 @@ import Then
 import SnapKit
 import ReactorKit
 import RxSwift
+import FoundationKit
 
 public final class OnboardingViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
     public weak var coordinator: OnboardingCoordinator?
 
     private let titleLabel = UILabel().then {
-        $0.text = "Onboarding"
+        $0.text = "onboarding.title".localized()
         $0.font = .preferredFont(forTextStyle: .largeTitle)
         $0.textAlignment = .center
         $0.textColor = CustomColor.primaryText
@@ -19,7 +20,7 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     }
     
     private let nextButton = UIButton(type: .system).then {
-        $0.setTitle("다음", for: .normal)
+        $0.setTitle("common.next".localized(), for: .normal)
         $0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
         $0.backgroundColor = CustomColor.accent
         $0.setTitleColor(CustomColor.background, for: .normal)

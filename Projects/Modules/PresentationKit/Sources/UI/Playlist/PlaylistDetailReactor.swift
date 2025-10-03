@@ -2,6 +2,7 @@ import Foundation
 import ReactorKit
 import RxSwift
 import DomainKit
+import FoundationKit
 
 public final class PlaylistDetailReactor: Reactor {
     public enum Action {
@@ -310,7 +311,7 @@ public final class PlaylistDetailReactor: Reactor {
                 guard let self = self else { return Disposables.create() }
                 let tracks = self.currentState.tracks
                 guard !tracks.isEmpty else {
-                    observer.onNext(.setError("플레이리스트에 트랙이 없습니다."))
+                    observer.onNext(.setError("playlist.emptyTracksMessage".localized()))
                     observer.onCompleted()
                     return Disposables.create()
                 }
@@ -320,7 +321,7 @@ public final class PlaylistDetailReactor: Reactor {
                         for track in tracks {
                             try await self.playbackControlUseCase.addToQueue(uri: track.uri)
                         }
-                        observer.onNext(.setInfo("\(tracks.count)개 트랙을 대기열에 추가했습니다."))
+                        observer.onNext(.setInfo("queue.addedTracksCount".localizedFormat(tracks.count)))
                         observer.onCompleted()
                     } catch {
                         observer.onNext(.setError(error.localizedDescription))

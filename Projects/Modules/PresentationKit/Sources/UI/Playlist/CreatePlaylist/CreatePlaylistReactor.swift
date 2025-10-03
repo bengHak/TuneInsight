@@ -1,6 +1,7 @@
 import ReactorKit
 import RxSwift
 import DomainKit
+import FoundationKit
 
 public final class CreatePlaylistReactor: Reactor {
     public enum Action {
@@ -114,7 +115,7 @@ public final class CreatePlaylistReactor: Reactor {
         let trimmedDescription = currentState.description.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedName.isEmpty else {
-            return .just(.setError("플레이리스트 이름을 입력해주세요."))
+            return .just(.setError("playlist.nameMissingMessage".localized()))
         }
 
         let description = trimmedDescription.isEmpty ? nil : trimmedDescription
@@ -136,14 +137,14 @@ public final class CreatePlaylistReactor: Reactor {
                         if let repositoryError = error as? SpotifyRepositoryError {
                             switch repositoryError {
                             case .unauthorized:
-                                errorMessage = "인증이 필요합니다. 다시 로그인해주세요."
+                                errorMessage = "auth.requiredMessage".localized()
                             case .networkError:
-                                errorMessage = "네트워크 연결을 확인해주세요."
+                                errorMessage = "error.checkNetwork".localized()
                             default:
-                                errorMessage = "플레이리스트 생성에 실패했습니다."
+                                errorMessage = "playlist.createFailure".localized()
                             }
                         } else {
-                            errorMessage = "플레이리스트 생성에 실패했습니다."
+                            errorMessage = "playlist.createFailure".localized()
                         }
                         observer.onNext(.setError(errorMessage))
                         observer.onCompleted()

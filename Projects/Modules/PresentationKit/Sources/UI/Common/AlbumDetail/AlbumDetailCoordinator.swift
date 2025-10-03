@@ -1,6 +1,7 @@
 import UIKit
 import DomainKit
 import DIKit
+import FoundationKit
 
 public protocol AlbumDetailCoordinatorDelegate: AnyObject {
     func albumDetailCoordinatorDidFinish(_ coordinator: AlbumDetailCoordinator)
@@ -17,7 +18,7 @@ public final class AlbumDetailCoordinator {
 
     public func start(with album: SpotifyAlbum) -> UIViewController {
         guard let albumTracksUseCase = resolve(GetAlbumTracksUseCaseProtocol.self) else {
-            fatalError("AlbumDetail 의존성을 resolve할 수 없습니다. DI 설정을 확인해주세요.")
+            fatalError("error.di.albumDetailResolution".localized())
         }
 
         let reactor = AlbumDetailReactor(

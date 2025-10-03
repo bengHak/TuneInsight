@@ -18,14 +18,14 @@ import FoundationKit
 public final class SignInViewController: UIViewController {
     
 	private let titleLabel = UILabel().then {
-		$0.text = "Sign in with Spotify"
+		$0.text = "auth.signInTitle".localized()
 		$0.font = .preferredFont(forTextStyle: .title1)
 		$0.textAlignment = .center
 		$0.numberOfLines = 0
         $0.textColor = CustomColor.primaryText
 	}
 	private let loginButton = UIButton(type: .system).then {
-		$0.setTitle("Continue with Spotify", for: .normal)
+		$0.setTitle("auth.signInContinueButton".localized(), for: .normal)
 		$0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
 		$0.backgroundColor = CustomColor.spotifyGreen
 		$0.setTitleColor(CustomColor.background, for: .normal)
@@ -104,13 +104,13 @@ public final class SignInViewController: UIViewController {
     
     private func showAlert(_ error: Error) {
         let alert = UIAlertController(
-            title: "Spotify Auth Failed",
+            title: "auth.failureTitle".localized(),
             message: error.localizedDescription,
             preferredStyle: .alert
         )
         alert.addAction(
             UIAlertAction(
-                title: "OK",
+                title: "common.ok".localized(),
                 style: .default
             )
         )
@@ -130,13 +130,13 @@ public final class SignInViewController: UIViewController {
         
         do {
             try tokenStorage.saveToken(spotifyToken)
-            print("[SignIn] 토큰이 성공적으로 저장되었습니다.")
+            print("[SignIn] " + "auth.tokenSaveSuccess".localized())
             
             DispatchQueue.main.async { [weak self] in
                 self?.coordinator?.signInDidComplete()
             }
         } catch {
-            print("[SignIn] 토큰 저장 실패: \(error.localizedDescription)")
+            print("[SignIn] " + "auth.tokenSaveFailureWithDetail".localizedFormat(error.localizedDescription))
             
             DispatchQueue.main.async { [weak self] in
                 self?.showTokenSaveErrorAlert(error)
@@ -146,13 +146,13 @@ public final class SignInViewController: UIViewController {
     
     private func showTokenSaveErrorAlert(_ error: Error) {
         let alert = UIAlertController(
-            title: "토큰 저장 실패",
-            message: "로그인은 성공했지만 토큰 저장에 실패했습니다.\n\(error.localizedDescription)",
+            title: "auth.tokenSaveFailure".localized(),
+            message: "auth.tokenSaveFailureMessage".localizedFormat(error.localizedDescription),
             preferredStyle: .alert
         )
         alert.addAction(
             UIAlertAction(
-                title: "확인",
+                title: "common.confirm".localized(),
                 style: .default
             ) { [weak self] _ in
                 self?.coordinator?.signInDidComplete()

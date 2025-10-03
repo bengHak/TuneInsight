@@ -7,6 +7,7 @@ import RxSwift
 import RxCocoa
 import DomainKit
 import Kingfisher
+import FoundationKit
 
 public final class StatisticsViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
@@ -14,7 +15,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
     // MARK: - UI
     private let categoryControl: UISegmentedControl = {
-        let items = ["아티스트", "트랙"]
+        let items = ["common.artists".localized(), "common.tracks".localized()]
         let sc = UISegmentedControl(items: items)
         sc.selectedSegmentIndex = 0
         sc.backgroundColor = CustomColor.surface
@@ -59,7 +60,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
     }
 
     private let emptyLabel = UILabel().then {
-        $0.text = "데이터가 없습니다."
+        $0.text = "common.noData".localized()
         $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 15, weight: .regular)
         $0.textAlignment = .center
@@ -100,7 +101,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
     }
 
     private func setupUI() {
-        title = "통계"
+        title = "statistics.title".localized()
         view.backgroundColor = CustomColor.background
 
         view.addSubview(categoryControl)
@@ -207,8 +208,8 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        let alert = UIAlertController(title: "common.error".localized(), message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 

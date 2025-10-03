@@ -7,6 +7,7 @@ import RxSwift
 import RxCocoa
 import DomainKit
 import Kingfisher
+import FoundationKit
 
 public final class PlaylistDetailViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
@@ -56,7 +57,7 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     }
 
     private let playNextButton = UIButton(type: .system).then {
-        $0.setTitle("다음에 재생", for: .normal)
+        $0.setTitle("playlist.playNextButton".localized(), for: .normal)
         $0.setTitleColor(CustomColor.accent, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         $0.backgroundColor = CustomColor.surface
@@ -67,7 +68,7 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     }
 
     private let addTracksButton = UIButton(type: .system).then {
-        $0.setTitle("트랙 추가", for: .normal)
+        $0.setTitle("track.addButton".localized(), for: .normal)
         $0.setTitleColor(CustomColor.background, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         $0.backgroundColor = CustomColor.accent
@@ -75,7 +76,7 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     }
 
     private let editPlaylistButton = UIButton(type: .system).then {
-        $0.setTitle("편집", for: .normal)
+        $0.setTitle("common.edit".localized(), for: .normal)
         $0.setTitleColor(CustomColor.accent, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         $0.backgroundColor = CustomColor.surface
@@ -117,14 +118,14 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     }
 
     private let emptyLabel = UILabel().then {
-        $0.text = "트랙이 없습니다"
+        $0.text = "playlist.noTracks".localized()
         $0.textColor = CustomColor.primaryText
         $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.textAlignment = .center
     }
 
     private let emptyDescriptionLabel = UILabel().then {
-        $0.text = "새로운 트랙을 추가해보세요"
+        $0.text = "playlist.emptyTracksHint".localized()
         $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 14, weight: .regular)
         $0.textAlignment = .center
@@ -387,12 +388,12 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     private func configureHeader(with playlist: Playlist) {
         title = playlist.name
         playlistNameLabel.text = playlist.name
-        playlistDescriptionLabel.text = playlist.description?.isEmpty == false ? playlist.description : "설명이 없습니다"
+        playlistDescriptionLabel.text = playlist.description?.isEmpty == false ? playlist.description : "common.noDescription".localized()
 
-        let trackCountText = "\(playlist.trackCount)개의 트랙"
+        let trackCountText = "playlist.trackCountLabel".localizedFormat(playlist.trackCount)
         let ownerText = playlist.owner.displayName
-        let visibilityText = playlist.isPublic ? "공개" : "비공개"
-        playlistInfoLabel.text = "\(trackCountText) • \(ownerText) • \(visibilityText)"
+        let visibilityText = playlist.isPublic ? "playlist.visibilityPublic".localized() : "playlist.visibilityPrivate".localized()
+        playlistInfoLabel.text = "playlist.detail.summaryFormat".localizedFormat(trackCountText, ownerText, visibilityText)
 
         if let imageUrl = playlist.imageUrl {
             playlistImageView.kf.setImage(with: URL(string: imageUrl))
@@ -412,43 +413,43 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
 
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
-            title: "오류",
+            title: "common.error".localized(),
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 
     private func showInfoAlert(message: String) {
         let alert = UIAlertController(
-            title: "완료",
+            title: "common.done".localized(),
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 
     private func showEditPlaylistAlert(playlist: Playlist) {
         let alert = UIAlertController(
-            title: "플레이리스트 편집",
-            message: "플레이리스트 정보를 수정하세요",
+            title: "playlist.editTitle".localized(),
+            message: "playlist.editPrompt".localized(),
             preferredStyle: .alert
         )
 
         alert.addTextField { textField in
-            textField.placeholder = "플레이리스트 이름"
+            textField.placeholder = "playlist.nameLabel".localized()
             textField.text = playlist.name
             textField.autocapitalizationType = .words
         }
 
         alert.addTextField { textField in
-            textField.placeholder = "설명 (선택사항)"
+            textField.placeholder = "common.descriptionOptional".localized()
             textField.text = playlist.description
         }
 
-        let saveAction = UIAlertAction(title: "저장", style: .default) { [weak self, weak alert] _ in
+        let saveAction = UIAlertAction(title: "common.save".localized(), style: .default) { [weak self, weak alert] _ in
             guard let nameField = alert?.textFields?[0],
                   let descriptionField = alert?.textFields?[1],
                   let name = nameField.text, !name.isEmpty else { return }
@@ -457,7 +458,7 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
             self?.reactor?.action.onNext(.updatePlaylist(name: name, description: description, isPublic: playlist.isPublic))
         }
 
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "common.cancel".localized(), style: .cancel))
         alert.addAction(saveAction)
 
         present(alert, animated: true)
@@ -465,13 +466,13 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
 
     private func showDeleteTrackConfirmation(for track: PlaylistTrack) {
         let alert = UIAlertController(
-            title: "트랙 삭제",
-            message: "'\(track.name)'을(를) 플레이리스트에서 제거하시겠습니까?",
+            title: "playlist.deleteTrackTitle".localized(),
+            message: "playlist.removeTrack.confirmMessage".localizedFormat(track.name),
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "common.cancel".localized(), style: .cancel))
+        alert.addAction(UIAlertAction(title: "common.delete".localized(), style: .destructive) { [weak self] _ in
             self?.reactor?.action.onNext(.deleteTrack(track))
         })
 
@@ -518,7 +519,7 @@ extension PlaylistDetailViewController: UITableViewDelegate {
 
         let deleteAction = UIContextualAction(
             style: .destructive,
-            title: "삭제"
+            title: "common.delete".localized()
         ) { [weak self] _, _, completionHandler in
             self?.showDeleteTrackConfirmation(for: track)
             completionHandler(true)

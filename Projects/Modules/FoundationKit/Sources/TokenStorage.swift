@@ -28,11 +28,11 @@ public enum TokenStorageError: Error {
     public var localizedDescription: String {
         switch self {
         case .tokenNotFound:
-            return "저장된 토큰을 찾을 수 없습니다."
+            return "auth.savedTokenMissing".localized()
         case .invalidTokenData:
-            return "토큰 데이터가 유효하지 않습니다."
+            return "auth.tokenDataInvalid".localized()
         case .keychainError(let error):
-            return "키체인 오류: \(error.localizedDescription)"
+            return "auth.keychainErrorWithDetail".localizedFormat(error.localizedDescription)
         }
     }
 }

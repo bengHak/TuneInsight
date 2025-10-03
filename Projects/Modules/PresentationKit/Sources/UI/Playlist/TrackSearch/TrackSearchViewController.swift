@@ -6,6 +6,7 @@ import ReactorKit
 import RxSwift
 import RxCocoa
 import DomainKit
+import FoundationKit
 
 public final class TrackSearchViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
@@ -14,7 +15,7 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
     // MARK: - UI Components
 
     private let searchController = UISearchController(searchResultsController: nil).then {
-        $0.searchBar.placeholder = "트랙 검색"
+        $0.searchBar.placeholder = "search.tracksTitle".localized()
         $0.searchBar.searchBarStyle = .minimal
         $0.obscuresBackgroundDuringPresentation = false
         $0.hidesNavigationBarDuringPresentation = false
@@ -23,7 +24,7 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
             textField.backgroundColor = CustomColor.surface
             textField.textColor = CustomColor.primaryText
             textField.attributedPlaceholder = NSAttributedString(
-                string: "트랙 검색",
+                string: "search.tracksTitle".localized(),
                 attributes: [.foregroundColor: CustomColor.tertiaryText]
             )
         }
@@ -54,14 +55,14 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
     }
 
     private let emptyTitleLabel = UILabel().then {
-        $0.text = "트랙 검색"
+        $0.text = "search.tracksTitle".localized()
         $0.textColor = CustomColor.primaryText
         $0.font = .systemFont(ofSize: 20, weight: .semibold)
         $0.textAlignment = .center
     }
 
     private let emptyDescriptionLabel = UILabel().then {
-        $0.text = "플레이리스트에 추가할 트랙을 검색해보세요"
+        $0.text = "playlist.searchTracksHint".localized()
         $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 16, weight: .regular)
         $0.textAlignment = .center
@@ -80,7 +81,7 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
     }
 
     private let noResultsLabel = UILabel().then {
-        $0.text = "검색 결과가 없습니다"
+        $0.text = "search.noResults".localized()
         $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 18, weight: .medium)
         $0.textAlignment = .center
@@ -92,7 +93,7 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
     }
 
     private let addButton = UIButton(type: .system).then {
-        $0.setTitle("플레이리스트에 추가", for: .normal)
+        $0.setTitle("playlist.addButton".localized(), for: .normal)
         $0.setTitleColor(CustomColor.background, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.backgroundColor = CustomColor.accent
@@ -153,7 +154,7 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
     // MARK: - Setup
 
     private func setupUI() {
-        title = "트랙 검색"
+        title = "search.tracksTitle".localized()
         view.backgroundColor = CustomColor.background
 
         view.addSubview(tableView)
@@ -335,9 +336,9 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
             .subscribe(onNext: { [weak self] isAdding in
                 self?.addButton.isEnabled = !isAdding
                 if isAdding {
-                    self?.addButton.setTitle("추가 중...", for: .normal)
+                    self?.addButton.setTitle("common.addingProgress".localized(), for: .normal)
                 } else {
-                    self?.addButton.setTitle("플레이리스트에 추가", for: .normal)
+                    self?.addButton.setTitle("playlist.addButton".localized(), for: .normal)
                 }
             })
             .disposed(by: disposeBag)
@@ -383,21 +384,21 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
 
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
-            title: "오류",
+            title: "common.error".localized(),
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 
     private func showSuccessAlert(message: String) {
         let alert = UIAlertController(
-            title: "완료",
+            title: "common.done".localized(),
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 }

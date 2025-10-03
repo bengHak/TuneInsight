@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 
 public enum SpotifyServiceError: Error {
     case noCurrentlyPlaying
@@ -9,13 +10,13 @@ public enum SpotifyServiceError: Error {
     public var localizedDescription: String {
         switch self {
         case .noCurrentlyPlaying:
-            return "현재 재생 중인 곡이 없습니다."
+            return "player.noCurrentTrack".localized()
         case .unauthorized:
-            return "Spotify 인증이 필요합니다."
+            return "auth.spotifyRequired".localized()
         case .networkError(let error):
-            return "네트워크 오류: \(error.localizedDescription)"
+            return "error.networkWithDetail".localizedFormat(error.localizedDescription)
         case .apiError(let error):
-            return "API 오류: \(error)"
+            return "error.apiWithDetail".localizedFormat(String(describing: error))
         }
     }
 }
@@ -458,15 +459,15 @@ public extension CurrentlyPlayingResponse {
     }
     
     var trackName: String {
-        return item?.name ?? "알 수 없는 곡"
+        return item?.name ?? "track.unknownTitle".localized()
     }
     
     var artistName: String {
-        return item?.artists.first?.name ?? "알 수 없는 아티스트"
+        return item?.artists.first?.name ?? "artist.unknownName".localized()
     }
     
     var albumName: String {
-        return item?.album.name ?? "알 수 없는 앨범"
+        return item?.album.name ?? "album.unknownTitle".localized()
     }
     
     var albumImageUrl: String? {
@@ -485,7 +486,7 @@ public extension CurrentlyPlayingResponse {
 
 public extension Track {
     var primaryArtist: String {
-        return artists.first?.name ?? "알 수 없는 아티스트"
+        return artists.first?.name ?? "artist.unknownName".localized()
     }
     
     var albumImageUrl: String? {

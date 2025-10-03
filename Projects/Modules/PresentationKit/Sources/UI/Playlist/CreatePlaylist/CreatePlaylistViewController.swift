@@ -4,6 +4,7 @@ import RxSwift
 import RxCocoa
 import SnapKit
 import Then
+import FoundationKit
 
 public final class CreatePlaylistViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
@@ -24,13 +25,13 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     }
 
     private let titleLabel = UILabel().then {
-        $0.text = "새 플레이리스트"
+        $0.text = "playlist.createTitle".localized()
         $0.font = .systemFont(ofSize: 28, weight: .bold)
         $0.textColor = CustomColor.primaryText
     }
 
     private let subtitleLabel = UILabel().then {
-        $0.text = "나만의 플레이리스트를 만들어보세요"
+        $0.text = "playlist.emptySubtitle".localized()
         $0.font = .systemFont(ofSize: 16, weight: .regular)
         $0.textColor = CustomColor.secondaryText
     }
@@ -44,14 +45,14 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     // Name Section
     private let nameSection = UIView()
     private let nameLabel = UILabel().then {
-        $0.text = "플레이리스트 이름 *"
+        $0.text = "playlist.nameRequiredLabel".localized()
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = CustomColor.primaryText
     }
 
     private let nameTextField = UITextField().then {
         $0.attributedPlaceholder = NSAttributedString(
-            string: "플레이리스트 이름을 입력하세요",
+            string: "playlist.namePlaceholder".localized(),
             attributes: [.foregroundColor: CustomColor.tertiaryText]
         )
         $0.font = .systemFont(ofSize: 16, weight: .regular)
@@ -79,7 +80,7 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     // Description Section
     private let descriptionSection = UIView()
     private let descriptionLabel = UILabel().then {
-        $0.text = "설명"
+        $0.text = "common.descriptionTitle".localized()
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = CustomColor.primaryText
     }
@@ -98,7 +99,7 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     }
 
     private let descriptionPlaceholderLabel = UILabel().then {
-        $0.text = "플레이리스트에 대한 설명을 작성하세요 (선택사항)"
+        $0.text = "playlist.descriptionPlaceholder".localized()
         $0.font = .systemFont(ofSize: 16, weight: .regular)
         $0.textColor = CustomColor.tertiaryText
     }
@@ -106,20 +107,20 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     // Settings Section
     private let settingsSection = UIView()
     private let settingsLabel = UILabel().then {
-        $0.text = "설정"
+        $0.text = "settings.title".localized()
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = CustomColor.primaryText
     }
 
     private let publicToggleView = UIView()
     private let publicLabel = UILabel().then {
-        $0.text = "공개 플레이리스트"
+        $0.text = "playlist.publicTitle".localized()
         $0.font = .systemFont(ofSize: 16, weight: .regular)
         $0.textColor = CustomColor.primaryText
     }
 
     private let publicDescriptionLabel = UILabel().then {
-        $0.text = "다른 사용자들이 플레이리스트를 볼 수 있습니다"
+        $0.text = "playlist.publicDescription".localized()
         $0.font = .systemFont(ofSize: 14, weight: .regular)
         $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
@@ -132,13 +133,13 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
 
     private let collaborativeToggleView = UIView()
     private let collaborativeLabel = UILabel().then {
-        $0.text = "협업 플레이리스트"
+        $0.text = "playlist.collaborativeTitle".localized()
         $0.font = .systemFont(ofSize: 16, weight: .regular)
         $0.textColor = CustomColor.primaryText
     }
 
     private let collaborativeDescriptionLabel = UILabel().then {
-        $0.text = "다른 사용자들이 플레이리스트에 트랙을 추가할 수 있습니다"
+        $0.text = "playlist.collaborativeDescription".localized()
         $0.font = .systemFont(ofSize: 14, weight: .regular)
         $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
@@ -151,7 +152,7 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
 
     // Create Button
     private let createButton = UIButton(type: .system).then {
-        $0.setTitle("플레이리스트 생성", for: .normal)
+        $0.setTitle("playlist.createButton".localized(), for: .normal)
         $0.setTitleColor(CustomColor.background, for: .normal)
         $0.setTitleColor(CustomColor.background.withAlphaComponent(0.6), for: .disabled)
         $0.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
@@ -465,7 +466,7 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
                     self?.createButton.setTitle("", for: .normal)
                 } else {
                     self?.loadingIndicator.stopAnimating()
-                    self?.createButton.setTitle("플레이리스트 생성", for: .normal)
+                    self?.createButton.setTitle("playlist.createButton".localized(), for: .normal)
                 }
             })
             .disposed(by: disposeBag)
@@ -502,21 +503,21 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
 
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
-            title: "오류",
+            title: "common.error".localized(),
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 
     private func showSuccessAlert(playlistName: String) {
         let alert = UIAlertController(
-            title: "생성 완료",
-            message: "'\(playlistName)' 플레이리스트가 성공적으로 생성되었습니다.",
+            title: "common.creationDone".localized(),
+            message: "playlist.create.successMessage".localizedFormat(playlistName),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default) { [weak self] _ in
             self?.coordinator?.didFinish()
         })
         present(alert, animated: true)

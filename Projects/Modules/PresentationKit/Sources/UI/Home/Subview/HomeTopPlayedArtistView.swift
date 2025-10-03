@@ -2,6 +2,7 @@ import UIKit
 import SnapKit
 import DomainKit
 import Kingfisher
+import FoundationKit
 
 public protocol HomeTopPlayedArtistViewDelegate: AnyObject {
     func homeTopPlayedArtistView(_ view: HomeTopPlayedArtistView, didSelect artist: SpotifyArtist)
@@ -13,7 +14,7 @@ public final class HomeTopPlayedArtistView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "가장 많이 들은 아티스트"
+        label.text = "home.topArtistsTitle".localized()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.textColor = CustomColor.primaryText
         return label

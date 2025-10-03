@@ -7,6 +7,7 @@ import RxSwift
 import RxCocoa
 import DomainKit
 import Kingfisher
+import FoundationKit
 
 public final class PlaylistViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
@@ -40,14 +41,14 @@ public final class PlaylistViewController: UIViewController, ReactorKit.View {
     }
 
     private let emptyLabel = UILabel().then {
-        $0.text = "플레이리스트가 없습니다"
+        $0.text = "playlist.emptyStateTitle".localized()
         $0.textColor = CustomColor.primaryText
         $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.textAlignment = .center
     }
 
     private let emptyDescriptionLabel = UILabel().then {
-        $0.text = "새로운 플레이리스트를 만들어보세요"
+        $0.text = "playlist.emptyTitle".localized()
         $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 14, weight: .regular)
         $0.textAlignment = .center
@@ -96,7 +97,7 @@ public final class PlaylistViewController: UIViewController, ReactorKit.View {
     // MARK: - Setup
 
     private func setupUI() {
-        title = "플레이리스트"
+        title = "playlist.title".localized()
         view.backgroundColor = CustomColor.background
 
         view.addSubview(tableView)
@@ -228,24 +229,24 @@ public final class PlaylistViewController: UIViewController, ReactorKit.View {
 
     private func showErrorAlert(message: String) {
         let alert = UIAlertController(
-            title: "오류",
+            title: "common.error".localized(),
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 
 
     private func showDeleteConfirmation(for playlist: Playlist) {
         let alert = UIAlertController(
-            title: "플레이리스트 삭제",
-            message: "'\(playlist.name)'을(를) 삭제하시겠습니까?",
+            title: "playlist.deleteTitle".localized(),
+            message: "common.confirmDeletionTitle".localizedFormat(playlist.name),
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "common.cancel".localized(), style: .cancel))
+        alert.addAction(UIAlertAction(title: "common.delete".localized(), style: .destructive) { [weak self] _ in
             self?.reactor?.action.onNext(.deletePlaylist(playlist))
         })
 
@@ -290,7 +291,7 @@ extension PlaylistViewController: UITableViewDelegate {
 
         let deleteAction = UIContextualAction(
             style: .destructive,
-            title: "삭제"
+            title: "common.delete".localized()
         ) { [weak self] _, _, completionHandler in
             self?.showDeleteConfirmation(for: playlist)
             completionHandler(true)

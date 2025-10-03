@@ -5,6 +5,7 @@ import ReactorKit
 import RxSwift
 import RxCocoa
 import DomainKit
+import FoundationKit
 
 public final class TrackDetailViewController: UIViewController, ReactorKit.View {
     public var disposeBag = DisposeBag()
@@ -45,7 +46,7 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
     }
 
     private func setupUI() {
-        title = "트랙 상세"
+        title = "track.detailTitle".localized()
         playerView.delegate = self
         rootView.playerContainerView.addSubview(playerView)
         playerView.snp.makeConstraints { make in
@@ -135,8 +136,8 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        let alert = UIAlertController(title: "common.error".localized(), message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "common.confirm".localized(), style: .default))
         present(alert, animated: true)
     }
 

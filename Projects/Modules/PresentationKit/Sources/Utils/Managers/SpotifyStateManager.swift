@@ -1,4 +1,5 @@
 import Foundation
+import FoundationKit
 import ReactorKit
 import RxSwift
 import RxRelay
@@ -191,7 +192,7 @@ public final class SpotifyStateManager: SpotifyStateManagerProtocol {
     
     public func playPause() {
         guard let currentPlayback = currentPlaybackRelay.value else {
-            errorRelay.accept("재생 중인 곡이 없습니다.")
+            errorRelay.accept("player.noSongPlaying".localized())
             return
         }
         
@@ -263,7 +264,7 @@ private extension SpotifyStateManager {
     
     func refreshPlaybackInternal() -> Observable<Void> {
         guard let getCurrentPlaybackUseCase = getCurrentPlaybackUseCase else {
-            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "UseCase가 설정되지 않았습니다."]))
+            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "error.usecaseNotConfigured".localized()]))
         }
         
         return Observable.create { [weak self] observer in
@@ -280,7 +281,7 @@ private extension SpotifyStateManager {
                         self.currentPlaybackRelay.accept(nil)
                         observer.onNext(())
                     case .unauthorized:
-                        observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "Spotify 인증이 만료되었습니다. 다시 로그인해주세요."]))
+                        observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "auth.sessionExpiredMessage".localized()]))
                     case .networkError, .unknown:
                         self.currentPlaybackRelay.accept(nil)
                         observer.onNext(())
@@ -298,7 +299,7 @@ private extension SpotifyStateManager {
     
     func refreshRecentTracksInternal() -> Observable<Void> {
         guard let getRecentlyPlayedUseCase = getRecentlyPlayedUseCase else {
-            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "UseCase가 설정되지 않았습니다."]))
+            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "error.usecaseNotConfigured".localized()]))
         }
 
         return Observable.create { [weak self] observer in
@@ -309,7 +310,7 @@ private extension SpotifyStateManager {
                     self.recentTracksRelay.accept(tracks)
                     observer.onNext(())
                 } catch SpotifyRepositoryError.unauthorized {
-                    observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "Spotify 인증이 만료되었습니다. 다시 로그인해주세요."]))
+                    observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "auth.sessionExpiredMessage".localized()]))
                 } catch {
                     observer.onError(error)
                 }
@@ -322,7 +323,7 @@ private extension SpotifyStateManager {
 
     func refreshTopArtistsInternal(timeRange: SpotifyTimeRange, limit: Int) -> Observable<Void> {
         guard let getTopArtistsUseCase = getTopArtistsUseCase else {
-            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "UseCase가 설정되지 않았습니다."]))
+            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "error.usecaseNotConfigured".localized()]))
         }
 
         return Observable.create { [weak self] observer in
@@ -337,7 +338,7 @@ private extension SpotifyStateManager {
                     self.topArtistsRelay.accept(artists)
                     observer.onNext(())
                 } catch SpotifyRepositoryError.unauthorized {
-                    observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "Spotify 인증이 만료되었습니다. 다시 로그인해주세요."]))
+                    observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "auth.sessionExpiredMessage".localized()]))
                 } catch {
                     observer.onError(error)
                 }
@@ -350,7 +351,7 @@ private extension SpotifyStateManager {
     
     func refreshTopTracksInternal(timeRange: SpotifyTimeRange, limit: Int) -> Observable<Void> {
         guard let getTopTracksUseCase = getTopTracksUseCase else {
-            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "UseCase가 설정되지 않았습니다."]))
+            return .error(NSError(domain: "SpotifyStateManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "error.usecaseNotConfigured".localized()]))
         }
 
         return Observable.create { [weak self] observer in
@@ -365,7 +366,7 @@ private extension SpotifyStateManager {
                     self.topTracksRelay.accept(tracks)
                     observer.onNext(())
                 } catch SpotifyRepositoryError.unauthorized {
-                    observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "Spotify 인증이 만료되었습니다. 다시 로그인해주세요."]))
+                    observer.onError(NSError(domain: "SpotifyStateManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "auth.sessionExpiredMessage".localized()]))
                 } catch {
                     observer.onError(error)
                 }
@@ -395,7 +396,7 @@ private extension SpotifyStateManager {
                     observer.onNext(())
                     
                 } catch SpotifyRepositoryError.unauthorized {
-                    self.errorRelay.accept("Spotify 인증이 만료되었습니다. 다시 로그인해주세요.")
+                    self.errorRelay.accept("auth.sessionExpiredMessage".localized())
                 } catch {
                     self.errorRelay.accept(error.localizedDescription)
                 }

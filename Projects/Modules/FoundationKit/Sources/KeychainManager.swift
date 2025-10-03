@@ -10,13 +10,13 @@ public enum KeychainError: Error {
     public var localizedDescription: String {
         switch self {
         case .itemNotFound:
-            return "키체인에서 항목을 찾을 수 없습니다."
+            return "auth.keychainItemNotFound".localized()
         case .duplicateItem:
-            return "키체인에 중복된 항목이 있습니다."
+            return "auth.keychainDuplicateItem".localized()
         case .unexpectedData:
-            return "키체인에서 예상치 못한 데이터가 반환되었습니다."
+            return "auth.keychainUnexpectedData".localized()
         case .unexpectedError(let status):
-            return "키체인 오류 (코드: \(status))"
+            return "auth.keychainErrorWithCode".localizedFormat(status)
         }
     }
 }

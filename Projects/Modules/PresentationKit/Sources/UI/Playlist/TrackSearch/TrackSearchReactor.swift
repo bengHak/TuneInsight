@@ -2,6 +2,7 @@ import Foundation
 import ReactorKit
 import RxSwift
 import DomainKit
+import FoundationKit
 
 public final class TrackSearchReactor: Reactor {
     public enum Action {
@@ -206,8 +207,8 @@ public final class TrackSearchReactor: Reactor {
 
                         let count = selectedTracks.count
                         let message = count == 1 ?
-                            "1개의 트랙이 플레이리스트에 추가되었습니다." :
-                            "\(count)개의 트랙이 플레이리스트에 추가되었습니다."
+                            "playlist.addSingleTrackSuccess".localized() :
+                            "playlist.addTracksSuccessCount".localizedFormat(count)
 
                         observer.onNext(.setSuccess(message))
                         observer.onNext(.setSelectedTracks([]))
