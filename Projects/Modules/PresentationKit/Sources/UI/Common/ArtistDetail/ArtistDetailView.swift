@@ -140,8 +140,6 @@ final class ArtistDetailView: UIView {
     
     // MARK: - Setup
     private func setupUI() {
-        backgroundColor = .systemBackground
-        
         addSubview(scrollView)
         scrollView.addSubview(contentView)
         
@@ -169,7 +167,7 @@ final class ArtistDetailView: UIView {
     
     private func setupConstraints() {
         scrollView.snp.makeConstraints { make in
-            make.edges.equalTo(safeAreaLayoutGuide)
+            make.edges.equalToSuperview()
         }
         
         contentView.snp.makeConstraints { make in

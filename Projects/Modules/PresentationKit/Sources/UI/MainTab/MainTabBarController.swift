@@ -10,6 +10,12 @@ public final class MainTabBarController: UITabBarController {
     
     private func setupTabBar() {
         tabBar.tintColor = .systemGreen
+        if #unavailable(iOS 26) {
+            let appearance = UITabBarAppearance()
+            appearance.backgroundColor = .systemBackground
+            tabBar.standardAppearance = appearance
+            tabBar.scrollEdgeAppearance = appearance
+        }
     }
     
     public func setupViewControllers(

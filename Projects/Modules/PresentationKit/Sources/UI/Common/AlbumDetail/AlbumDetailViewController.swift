@@ -42,7 +42,6 @@ public final class AlbumDetailViewController: UIViewController, ReactorKit.View 
     // MARK: - Setup
     private func setupUI() {
         title = "앨범 상세"
-        view.backgroundColor = .systemBackground
         view.addSubview(rootView)
         rootView.snp.makeConstraints { make in
             make.edges.equalTo(view)

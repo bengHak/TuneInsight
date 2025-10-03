@@ -11,7 +11,6 @@ final class AlbumDetailView: UIView {
         $0.showsVerticalScrollIndicator = false
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 120
-        $0.backgroundColor = .systemBackground
     }
 
     private let loadingIndicator = UIActivityIndicatorView(style: .large).then {
@@ -46,14 +45,12 @@ final class AlbumDetailView: UIView {
 
     // MARK: - Setup
     private func setupUI() {
-        backgroundColor = .systemBackground
-
         addSubview(tableView)
         addSubview(loadingIndicator)
         addSubview(emptyLabel)
 
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(safeAreaLayoutGuide)
+            make.edges.equalToSuperview()
         }
 
         loadingIndicator.snp.makeConstraints { make in
@@ -281,7 +278,7 @@ private final class AlbumInfoCell: UITableViewCell {
 
     private func setupLayout() {
         selectionStyle = .none
-        contentView.backgroundColor = .systemBackground
+        backgroundColor = .clear
 
         contentView.addSubview(coverImageView)
         contentView.addSubview(titleLabel)
