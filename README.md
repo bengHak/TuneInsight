@@ -10,7 +10,7 @@
 ## 빌드 & 테스트 가이드
 - 워크스페이스 생성: `tuist generate --no-open`
 - 빌드: `tuist build` 또는 `./Scripts/build.sh`
-- 테스트: `tuist test` 또는 `./Scripts/test.sh`
+- 테스트: `tuist test`
 - 빌드 설정: `BuildConfigurations/Debug.xcconfig`, `BuildConfigurations/Release.xcconfig`
 
 ## 프로젝트 구조
@@ -39,7 +39,7 @@ SpotifyStats/
 │       └── ThirdPartyManager/
 ├── Scripts/
 │   ├── build.sh
-│   └── test.sh
+│   └── install_template.sh
 └── README.md
 ```
 
@@ -72,7 +72,7 @@ SpotifyStats/
 
 ## 스크립트
 - `./Scripts/build.sh`: 환경 변수 세팅 후 `tuist build` 실행
-- `./Scripts/test.sh`: 동일한 설정으로 `tuist test` 실행
+- `./Scripts/install_template.sh`: Tuist 템플릿 설치를 위한 유틸리티 스크립트
 
 ## 기여 가이드
 1. 브랜치 생성: `feature/<scope>-<desc>` 또는 `fix/<scope>-<desc>`
