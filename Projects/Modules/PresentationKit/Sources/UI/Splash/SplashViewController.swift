@@ -4,30 +4,38 @@ import SnapKit
 import ReactorKit
 import RxSwift
 import RxCocoa
-import PresentationKit
 
-final class SplashViewController: UIViewController, View {
-    var disposeBag = DisposeBag()
-    weak var coordinator: SplashCoordinator?
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
+public final class SplashViewController: UIViewController, ReactorKit.View {
+    public typealias Reactor = SplashViewReactor
+
+    public var disposeBag = DisposeBag()
+    public weak var coordinator: SplashCoordinator?
+
+    private let activityIndicator = UIActivityIndicatorView(style: .large).then {
+        $0.color = CustomColor.spotifyGreen
+    }
+
     private let titleLabel = UILabel().then {
         $0.text = "SpotifyStats"
         $0.font = .preferredFont(forTextStyle: .largeTitle)
         $0.textAlignment = .center
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
-    init(reactor: SplashViewReactor = SplashViewReactor()) {
+    public init(reactor: SplashViewReactor = SplashViewReactor()) {
         super.init(nibName: nil, bundle: nil)
         self.reactor = reactor
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.backButtonDisplayMode = .minimal
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
 
         view.addSubview(titleLabel)
         view.addSubview(activityIndicator)
@@ -38,24 +46,26 @@ final class SplashViewController: UIViewController, View {
             make.leading.greaterThanOrEqualTo(view.safeAreaLayoutGuide.snp.leading).offset(24)
             make.trailing.lessThanOrEqualTo(view.safeAreaLayoutGuide.snp.trailing).inset(24)
         }
+
         activityIndicator.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(16)
             make.centerX.equalToSuperview()
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
+    public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         reactor?.action.onNext(.viewDidAppear)
     }
 
-    func bind(reactor: SplashViewReactor) {
+    public func bind(reactor: SplashViewReactor) {
         reactor.state
             .map { $0.isLoading }
             .distinctUntilChanged()
             .observe(on: MainScheduler.instance)
             .bind(onNext: { [weak self] loading in
-                loading ? self?.activityIndicator.startAnimating() : self?.activityIndicator.stopAnimating()
+                guard let self else { return }
+                loading ? self.activityIndicator.startAnimating() : self.activityIndicator.stopAnimating()
             })
             .disposed(by: disposeBag)
 

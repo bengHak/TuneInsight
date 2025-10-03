@@ -18,6 +18,9 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
     private let tableView = UITableView(frame: .zero, style: .insetGrouped).then {
         $0.register(UITableViewCell.self, forCellReuseIdentifier: "SettingsCell")
         $0.accessibilityIdentifier = "settings_table_view"
+        $0.backgroundColor = CustomColor.background
+        $0.tintColor = CustomColor.accent
+        $0.separatorColor = CustomColor.separator
     }
 
     public init(reactor: SettingsReactor = SettingsReactor()) {
@@ -30,7 +33,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
     public override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.backButtonDisplayMode = .minimal
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
         setupUI()
         title = "설정"
         reactor?.action.onNext(.viewDidLoad)
@@ -123,6 +126,14 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SettingsCell", for: indexPath)
         let item = SettingsItem.allCases[indexPath.row]
         cell.textLabel?.text = item.rawValue
+        cell.textLabel?.textColor = CustomColor.primaryText
+        cell.backgroundColor = .clear
+        cell.contentView.backgroundColor = CustomColor.surface
+        let selectedView = UIView()
+        selectedView.backgroundColor = CustomColor.accentMuted
+        selectedView.layer.cornerRadius = 12
+        selectedView.layer.masksToBounds = true
+        cell.selectedBackgroundView = selectedView
         cell.selectionStyle = .default
         cell.accessoryType = .none
         return cell

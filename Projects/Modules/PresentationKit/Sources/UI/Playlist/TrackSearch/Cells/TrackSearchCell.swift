@@ -12,7 +12,7 @@ public final class TrackSearchCell: UITableViewCell {
     private let checkboxButton = UIButton(type: .custom).then {
         $0.setImage(UIImage(systemName: "circle"), for: .normal)
         $0.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .selected)
-        $0.tintColor = .systemBlue
+        $0.tintColor = CustomColor.accent
         $0.contentMode = .scaleAspectFit
     }
 
@@ -20,36 +20,36 @@ public final class TrackSearchCell: UITableViewCell {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 4
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = CustomColor.surfaceElevated
     }
 
     private let trackNameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 1
     }
 
     private let artistNameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 1
     }
 
     private let albumNameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.tertiaryText
         $0.numberOfLines = 1
     }
 
     private let durationLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.tertiaryText
         $0.textAlignment = .right
     }
 
     private let popularityLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.tertiaryText
         $0.textAlignment = .right
     }
 
@@ -68,8 +68,8 @@ public final class TrackSearchCell: UITableViewCell {
     private let explicitBadge = UILabel().then {
         $0.text = "E"
         $0.font = .systemFont(ofSize: 10, weight: .bold)
-        $0.textColor = .white
-        $0.backgroundColor = .systemGray
+        $0.textColor = CustomColor.background
+        $0.backgroundColor = CustomColor.secondaryText
         $0.textAlignment = .center
         $0.layer.cornerRadius = 2
         $0.clipsToBounds = true
@@ -97,6 +97,8 @@ public final class TrackSearchCell: UITableViewCell {
 
     private func setupUI() {
         selectionStyle = .none
+        backgroundColor = CustomColor.background
+        contentView.backgroundColor = CustomColor.background
 
         contentView.addSubview(checkboxButton)
         contentView.addSubview(trackImageView)
@@ -203,7 +205,7 @@ public final class TrackSearchCell: UITableViewCell {
             trackImageView.kf.setImage(with: URL(string: imageUrl))
         } else {
             trackImageView.image = UIImage(systemName: "music.note")
-            trackImageView.tintColor = .secondaryLabel
+            trackImageView.tintColor = CustomColor.secondaryText
         }
     }
 
@@ -213,10 +215,10 @@ public final class TrackSearchCell: UITableViewCell {
         // Visual feedback for selection
         UIView.animate(withDuration: 0.2) {
             self.contentView.backgroundColor = isSelected ?
-                CustomColor.systemBlue10 :
-                CustomColor.clear
+                CustomColor.accentMuted :
+                CustomColor.background
 
-            self.trackNameLabel.textColor = isSelected ? CustomColor.systemBlue : CustomColor.label
+            self.trackNameLabel.textColor = CustomColor.primaryText
         }
     }
 
@@ -226,8 +228,8 @@ public final class TrackSearchCell: UITableViewCell {
         trackImageView.kf.cancelDownloadTask()
         trackImageView.image = nil
         checkboxButton.isSelected = false
-        contentView.backgroundColor = .clear
-        trackNameLabel.textColor = .label
+        contentView.backgroundColor = CustomColor.background
+        trackNameLabel.textColor = CustomColor.primaryText
         explicitBadge.isHidden = true
         popularityLabel.isHidden = true
         track = nil

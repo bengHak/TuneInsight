@@ -26,21 +26,25 @@ public final class PlayerView: UIView {
     // MARK: - UI Components
     
     private let containerView = UIView().then {
-        $0.backgroundColor = CustomColor.white85
-        $0.layer.cornerRadius = 12
-        $0.layer.shadowColor = CustomColor.label.cgColor
-        $0.layer.shadowOpacity = 0.1
-        $0.layer.shadowOffset = CGSize(width: 0, height: 2)
-        $0.layer.shadowRadius = 8
+        $0.backgroundColor = CustomColor.surfaceElevated
+        $0.layer.cornerRadius = 16
+        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowOpacity = 0.25
+        $0.layer.shadowOffset = CGSize(width: 0, height: 8)
+        $0.layer.shadowRadius = 18
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
     }
     
     private let albumImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 8
-        $0.backgroundColor = .systemGray5
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
+        $0.backgroundColor = CustomColor.surface
         $0.image = UIImage(systemName: "music.note")
-        $0.tintColor = .systemGray3
+        $0.tintColor = CustomColor.secondaryText
     }
     
     private let trackInfoStackView = UIStackView().then {
@@ -52,7 +56,7 @@ public final class PlayerView: UIView {
     
     private let trackNameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 1
         $0.text = "현재 재생중이지 않습니다."
         $0.accessibilityIdentifier = "player_track_name"
@@ -60,7 +64,7 @@ public final class PlayerView: UIView {
     
     private let artistNameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 1
         $0.text = ""
         $0.accessibilityIdentifier = "player_artist_name"
@@ -75,7 +79,7 @@ public final class PlayerView: UIView {
     
     private let previousButton = UIButton(type: .system).then {
         $0.setImage(UIImage(systemName: "backward.fill"), for: .normal)
-        $0.tintColor = .label
+        $0.tintColor = CustomColor.primaryText
         $0.isEnabled = false
         $0.accessibilityLabel = "이전 곡"
         $0.accessibilityIdentifier = "player_previous_button"
@@ -83,7 +87,7 @@ public final class PlayerView: UIView {
     
     private let playPauseButton = UIButton(type: .system).then {
         $0.setImage(UIImage(systemName: "play.fill"), for: .normal)
-        $0.tintColor = .label
+        $0.tintColor = CustomColor.primaryText
         $0.isEnabled = false
         $0.accessibilityLabel = "재생"
         $0.accessibilityIdentifier = "player_play_pause_button"
@@ -91,7 +95,7 @@ public final class PlayerView: UIView {
     
     private let nextButton = UIButton(type: .system).then {
         $0.setImage(UIImage(systemName: "forward.fill"), for: .normal)
-        $0.tintColor = .label
+        $0.tintColor = CustomColor.primaryText
         $0.isEnabled = false
         $0.accessibilityLabel = "다음 곡"
         $0.accessibilityIdentifier = "player_next_button"
@@ -105,8 +109,8 @@ public final class PlayerView: UIView {
     }
     
     private let progressView = UIProgressView(progressViewStyle: .default).then {
-        $0.progressTintColor = .systemGreen
-        $0.trackTintColor = .systemGray5
+        $0.progressTintColor = CustomColor.accent
+        $0.trackTintColor = CustomColor.overlay
         $0.progress = 0.0
     }
     
@@ -119,14 +123,14 @@ public final class PlayerView: UIView {
     
     private let currentTimeLabel = UILabel().then {
         $0.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.text = "0:00"
         $0.accessibilityIdentifier = "player_current_time"
     }
     
     private let totalTimeLabel = UILabel().then {
         $0.font = .monospacedDigitSystemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.text = "0:00"
         $0.accessibilityIdentifier = "player_total_time"
     }
@@ -134,7 +138,7 @@ public final class PlayerView: UIView {
     private let emptyStateLabel = UILabel().then {
         $0.text = "현재 재생중이지 않습니다."
         $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.textAlignment = .center
         $0.numberOfLines = 0
         $0.isHidden = false
@@ -309,6 +313,7 @@ public final class PlayerView: UIView {
         // 기존 데이터 초기화
         albumImageView.kf.cancelDownloadTask()
         albumImageView.image = UIImage(systemName: "music.note")
+        albumImageView.tintColor = CustomColor.secondaryText
         progressView.progress = 0.0
         currentTimeLabel.text = "0:00"
         totalTimeLabel.text = "0:00"
@@ -343,15 +348,17 @@ public final class PlayerView: UIView {
                     .cacheOriginalImage
                 ]
             )
+            albumImageView.tintColor = nil
         } else {
             albumImageView.image = UIImage(systemName: "music.note")
+            albumImageView.tintColor = CustomColor.secondaryText
         }
     }
     
     
     private func updatePlaybackState(_ isPlaying: Bool) {
         self.isPlaying = isPlaying
-        
+
         if playbackDisplay?.track == nil {
             playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
             playPauseButton.accessibilityLabel = "재생"
@@ -362,12 +369,36 @@ public final class PlayerView: UIView {
             playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
             playPauseButton.accessibilityLabel = "재생"
         }
+
+        updatePlayPauseTint()
     }
-    
+
     private func updateControlButtons(enabled: Bool) {
+        let tint = enabled ? CustomColor.primaryText : CustomColor.tertiaryText
+
+        [previousButton, nextButton].forEach { button in
+            button.isEnabled = enabled
+            button.tintColor = tint
+            button.alpha = enabled ? 1.0 : 0.4
+        }
+
         playPauseButton.isEnabled = enabled
-        previousButton.isEnabled = enabled
-        nextButton.isEnabled = enabled
+        playPauseButton.alpha = enabled ? 1.0 : 0.4
+
+        if enabled {
+            updatePlayPauseTint()
+        } else {
+            playPauseButton.tintColor = CustomColor.tertiaryText
+        }
+    }
+
+    private func updatePlayPauseTint() {
+        guard playbackDisplay?.track != nil else {
+            playPauseButton.tintColor = CustomColor.tertiaryText
+            return
+        }
+
+        playPauseButton.tintColor = isPlaying ? CustomColor.accent : CustomColor.primaryText
     }
     
 }

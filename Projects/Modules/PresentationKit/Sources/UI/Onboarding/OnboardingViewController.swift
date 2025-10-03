@@ -13,7 +13,7 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
         $0.text = "Onboarding"
         $0.font = .preferredFont(forTextStyle: .largeTitle)
         $0.textAlignment = .center
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 0
         $0.accessibilityIdentifier = "onboarding_title_label"
     }
@@ -21,8 +21,8 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     private let nextButton = UIButton(type: .system).then {
         $0.setTitle("다음", for: .normal)
         $0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
-        $0.backgroundColor = CustomColor.systemBlue
-        $0.setTitleColor(CustomColor.white, for: .normal)
+        $0.backgroundColor = CustomColor.accent
+        $0.setTitleColor(CustomColor.background, for: .normal)
         $0.layer.cornerRadius = 12
         $0.accessibilityIdentifier = "onboarding_next_button"
     }
@@ -46,7 +46,7 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     }
     
     private func configureSubviews() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
 
         view.addSubview(titleLabel)
         view.addSubview(nextButton)

@@ -5,14 +5,20 @@ public final class MainTabBarController: UITabBarController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = CustomColor.background
         setupTabBar()
     }
     
     private func setupTabBar() {
-        tabBar.tintColor = .systemGreen
+        tabBar.tintColor = CustomColor.accent
+        tabBar.unselectedItemTintColor = CustomColor.secondaryText
         if #unavailable(iOS 26) {
             let appearance = UITabBarAppearance()
-            appearance.backgroundColor = .systemBackground
+            appearance.backgroundColor = CustomColor.background
+            appearance.stackedLayoutAppearance.normal.iconColor = CustomColor.secondaryText
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: CustomColor.secondaryText]
+            appearance.stackedLayoutAppearance.selected.iconColor = CustomColor.accent
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: CustomColor.accent]
             tabBar.standardAppearance = appearance
             tabBar.scrollEdgeAppearance = appearance
         }

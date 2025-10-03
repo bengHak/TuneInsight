@@ -22,12 +22,13 @@ public final class SignInViewController: UIViewController {
 		$0.font = .preferredFont(forTextStyle: .title1)
 		$0.textAlignment = .center
 		$0.numberOfLines = 0
+        $0.textColor = CustomColor.primaryText
 	}
 	private let loginButton = UIButton(type: .system).then {
 		$0.setTitle("Continue with Spotify", for: .normal)
 		$0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
 		$0.backgroundColor = CustomColor.spotifyGreen
-		$0.setTitleColor(CustomColor.black, for: .normal)
+		$0.setTitleColor(CustomColor.background, for: .normal)
 		$0.layer.cornerRadius = 12
 		$0.accessibilityIdentifier = "spotify_login_button"
 	}
@@ -49,7 +50,7 @@ public final class SignInViewController: UIViewController {
 	public override func viewDidLoad() {
 		super.viewDidLoad()
 		navigationItem.backButtonDisplayMode = .minimal
-		view.backgroundColor = .systemBackground
+		view.backgroundColor = CustomColor.background
 		layout()
 		bind()
 	}

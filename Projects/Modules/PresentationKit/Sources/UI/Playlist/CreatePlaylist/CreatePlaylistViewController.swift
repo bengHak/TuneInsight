@@ -20,19 +20,19 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     private let contentView = UIView()
 
     private let headerView = UIView().then {
-        $0.backgroundColor = .systemBackground
+        $0.backgroundColor = CustomColor.background
     }
 
     private let titleLabel = UILabel().then {
         $0.text = "새 플레이리스트"
         $0.font = .systemFont(ofSize: 28, weight: .bold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
     private let subtitleLabel = UILabel().then {
         $0.text = "나만의 플레이리스트를 만들어보세요"
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
     }
 
     private let formStackView = UIStackView().then {
@@ -46,14 +46,25 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     private let nameLabel = UILabel().then {
         $0.text = "플레이리스트 이름 *"
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
     private let nameTextField = UITextField().then {
-        $0.placeholder = "플레이리스트 이름을 입력하세요"
+        $0.attributedPlaceholder = NSAttributedString(
+            string: "플레이리스트 이름을 입력하세요",
+            attributes: [.foregroundColor: CustomColor.tertiaryText]
+        )
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.borderStyle = .roundedRect
-        $0.backgroundColor = .secondarySystemBackground
+        $0.borderStyle = .none
+        $0.backgroundColor = CustomColor.surface
+        $0.layer.cornerRadius = 8
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 44))
+        $0.leftView = paddingView
+        $0.leftViewMode = .always
+        $0.textColor = CustomColor.primaryText
+        $0.tintColor = CustomColor.accent
         $0.clearButtonMode = .whileEditing
         $0.autocapitalizationType = .words
         $0.returnKeyType = .next
@@ -70,24 +81,26 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     private let descriptionLabel = UILabel().then {
         $0.text = "설명"
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
     private let descriptionTextView = UITextView().then {
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = CustomColor.surface
         $0.layer.cornerRadius = 8
         $0.layer.borderWidth = 0.5
-        $0.layer.borderColor = CustomColor.separator.cgColor
+        $0.layer.borderColor = CustomColor.border.cgColor
         $0.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         $0.isScrollEnabled = false
         $0.returnKeyType = .default
+        $0.textColor = CustomColor.primaryText
+        $0.tintColor = CustomColor.accent
     }
 
     private let descriptionPlaceholderLabel = UILabel().then {
         $0.text = "플레이리스트에 대한 설명을 작성하세요 (선택사항)"
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .placeholderText
+        $0.textColor = CustomColor.tertiaryText
     }
 
     // Settings Section
@@ -95,59 +108,61 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     private let settingsLabel = UILabel().then {
         $0.text = "설정"
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
     private let publicToggleView = UIView()
     private let publicLabel = UILabel().then {
         $0.text = "공개 플레이리스트"
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
     private let publicDescriptionLabel = UILabel().then {
         $0.text = "다른 사용자들이 플레이리스트를 볼 수 있습니다"
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
     }
 
     private let publicSwitch = UISwitch().then {
         $0.isOn = true
+        $0.onTintColor = CustomColor.accent
     }
 
     private let collaborativeToggleView = UIView()
     private let collaborativeLabel = UILabel().then {
         $0.text = "협업 플레이리스트"
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
     private let collaborativeDescriptionLabel = UILabel().then {
         $0.text = "다른 사용자들이 플레이리스트에 트랙을 추가할 수 있습니다"
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
     }
 
     private let collaborativeSwitch = UISwitch().then {
         $0.isOn = false
+        $0.onTintColor = CustomColor.accent
     }
 
     // Create Button
     private let createButton = UIButton(type: .system).then {
         $0.setTitle("플레이리스트 생성", for: .normal)
-        $0.setTitleColor(CustomColor.white, for: .normal)
-        $0.setTitleColor(CustomColor.white60, for: .disabled)
+        $0.setTitleColor(CustomColor.background, for: .normal)
+        $0.setTitleColor(CustomColor.background.withAlphaComponent(0.6), for: .disabled)
         $0.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        $0.backgroundColor = CustomColor.systemBlue
+        $0.backgroundColor = CustomColor.accent
         $0.layer.cornerRadius = 12
         $0.isEnabled = false
     }
 
     private let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
         $0.hidesWhenStopped = true
-        $0.color = .white
+        $0.color = CustomColor.background
     }
 
     // MARK: - Init
@@ -179,10 +194,12 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     // MARK: - Setup
 
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
+        scrollView.backgroundColor = .clear
+        contentView.backgroundColor = CustomColor.background
 
         contentView.addSubview(headerView)
         contentView.addSubview(formStackView)

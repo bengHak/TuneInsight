@@ -15,7 +15,7 @@ public final class HomeTopPlayedArtistView: UIView {
         let label = UILabel()
         label.text = "가장 많이 들은 아티스트"
         label.font = .systemFont(ofSize: 18, weight: .semibold)
-        label.textColor = .label
+        label.textColor = CustomColor.primaryText
         return label
     }()
     
@@ -51,8 +51,8 @@ public final class HomeTopPlayedArtistView: UIView {
     // MARK: - Setup
     
     private func setupUI() {
-        backgroundColor = .white.withAlphaComponent(0.4)
-        
+        backgroundColor = CustomColor.surface
+
         addSubview(titleLabel)
         addSubview(collectionView)
         
@@ -164,8 +164,10 @@ private final class TopArtistCell: UICollectionViewCell {
 
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = CustomColor.white80
+        view.backgroundColor = CustomColor.surface
         view.layer.cornerRadius = 12
+        view.layer.borderWidth = 1
+        view.layer.borderColor = CustomColor.border.cgColor
         view.layer.masksToBounds = true
         return view
     }()
@@ -175,15 +177,15 @@ private final class TopArtistCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
-        imageView.backgroundColor = .systemGray5
+        imageView.backgroundColor = CustomColor.surfaceElevated
         return imageView
     }()
     
     private let rankLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .bold)
-        label.textColor = .white
-        label.backgroundColor = .systemGreen
+        label.textColor = CustomColor.background
+        label.backgroundColor = CustomColor.accent
         label.textAlignment = .center
         label.layer.cornerRadius = 12
         label.layer.masksToBounds = true
@@ -193,7 +195,7 @@ private final class TopArtistCell: UICollectionViewCell {
     private let artistNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
-        label.textColor = .label
+        label.textColor = CustomColor.primaryText
         label.numberOfLines = 2
         label.textAlignment = .center
         return label
@@ -213,8 +215,8 @@ private final class TopArtistCell: UICollectionViewCell {
     // MARK: - Setup
     
     private func setupUI() {
-        backgroundColor = .clear
-        contentView.backgroundColor = .clear
+        backgroundColor = CustomColor.clear
+        contentView.backgroundColor = CustomColor.clear
         contentView.addSubview(containerView)
 
         containerView.addSubview(artistImageView)
@@ -270,7 +272,7 @@ private final class TopArtistCell: UICollectionViewCell {
             artistImageView.kf.setImage(with: url)
         } else {
             artistImageView.image = UIImage(systemName: "person.circle.fill")
-            artistImageView.tintColor = .systemGray3
+            artistImageView.tintColor = CustomColor.secondaryText
         }
     }
 }

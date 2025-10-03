@@ -11,16 +11,18 @@ final class AlbumDetailView: UIView {
         $0.showsVerticalScrollIndicator = false
         $0.rowHeight = UITableView.automaticDimension
         $0.estimatedRowHeight = 120
+        $0.backgroundColor = CustomColor.clear
     }
 
     private let loadingIndicator = UIActivityIndicatorView(style: .large).then {
         $0.hidesWhenStopped = true
+        $0.color = CustomColor.accent
     }
 
     private let emptyLabel = UILabel().then {
         $0.text = "트랙 정보를 불러올 수 없습니다."
         $0.textAlignment = .center
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
         $0.isHidden = true
     }
@@ -45,6 +47,7 @@ final class AlbumDetailView: UIView {
 
     // MARK: - Setup
     private func setupUI() {
+        backgroundColor = CustomColor.background
         addSubview(tableView)
         addSubview(loadingIndicator)
         addSubview(emptyLabel)
@@ -66,7 +69,9 @@ final class AlbumDetailView: UIView {
         tableView.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.tableFooterView = UIView(frame: .zero)
+        let footerView = UIView(frame: .zero)
+        footerView.backgroundColor = CustomColor.background
+        tableView.tableFooterView = footerView
     }
 
     // MARK: - Exposed UI
@@ -139,8 +144,6 @@ extension AlbumDetailView: UITableViewDataSource {
             }
             let track = tracks[indexPath.row]
             cell.configure(with: makeTrackViewModel(from: track, index: indexPath.row + 1))
-            cell.accessoryType = .disclosureIndicator
-            cell.selectionStyle = .default
             return cell
         }
     }
@@ -216,20 +219,20 @@ private final class AlbumInfoCell: UITableViewCell {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 12
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = CustomColor.surfaceElevated
         $0.accessibilityIdentifier = "albumdetail_cover"
     }
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 24, weight: .bold)
         $0.numberOfLines = 2
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.accessibilityIdentifier = "albumdetail_title"
     }
 
     private let artistsLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
         $0.accessibilityIdentifier = "albumdetail_artists"
     }
@@ -246,6 +249,7 @@ private final class AlbumInfoCell: UITableViewCell {
     let copyURIButton = UIButton(type: .system).then {
         $0.setTitle("복사", for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.setTitleColor(CustomColor.accent, for: .normal)
         $0.accessibilityIdentifier = "albumdetail_copy_uri"
     }
 
@@ -279,6 +283,9 @@ private final class AlbumInfoCell: UITableViewCell {
     private func setupLayout() {
         selectionStyle = .none
         backgroundColor = .clear
+        contentView.backgroundColor = CustomColor.surface
+        contentView.layer.cornerRadius = 16
+        contentView.layer.masksToBounds = true
 
         contentView.addSubview(coverImageView)
         contentView.addSubview(titleLabel)
@@ -332,7 +339,7 @@ private final class AlbumInfoCell: UITableViewCell {
             coverImageView.kf.setImage(with: url)
         } else {
             coverImageView.image = UIImage(systemName: "opticaldisc")
-            coverImageView.tintColor = .systemGray3
+            coverImageView.tintColor = CustomColor.secondaryText
         }
     }
 
@@ -340,14 +347,14 @@ private final class AlbumInfoCell: UITableViewCell {
         return UILabel().then {
             $0.text = text
             $0.font = .systemFont(ofSize: 14, weight: .semibold)
-            $0.textColor = .secondaryLabel
+            $0.textColor = CustomColor.secondaryText
         }
     }
 
     private static func makeValueLabel(identifier: String) -> UILabel {
         return UILabel().then {
             $0.font = .systemFont(ofSize: 14, weight: .regular)
-            $0.textColor = .label
+            $0.textColor = CustomColor.primaryText
             $0.numberOfLines = 0
             $0.accessibilityIdentifier = identifier
         }

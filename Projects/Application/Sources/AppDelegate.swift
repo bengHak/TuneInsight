@@ -2,6 +2,7 @@
 //  SpotifyStats
 import UIKit
 import DIKit
+import PresentationKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -12,7 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         setupDependencyInjection()
-        UINavigationBar.appearance().tintColor = .black
+        PresentationKitModule.shared.configure()
         return true
     }
     

@@ -18,37 +18,51 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
         $0.searchBar.searchBarStyle = .minimal
         $0.obscuresBackgroundDuringPresentation = false
         $0.hidesNavigationBarDuringPresentation = false
+        $0.searchBar.tintColor = CustomColor.accent
+        if let textField = $0.searchBar.value(forKey: "searchField") as? UITextField {
+            textField.backgroundColor = CustomColor.surface
+            textField.textColor = CustomColor.primaryText
+            textField.attributedPlaceholder = NSAttributedString(
+                string: "트랙 검색",
+                attributes: [.foregroundColor: CustomColor.tertiaryText]
+            )
+        }
     }
 
     private let tableView = UITableView(frame: .zero, style: .plain).then {
         $0.separatorStyle = .singleLine
-        $0.tableFooterView = UIView()
+        let footerView = UIView()
+        footerView.backgroundColor = CustomColor.background
+        $0.tableFooterView = footerView
         $0.rowHeight = 72
         $0.register(TrackSearchCell.self, forCellReuseIdentifier: TrackSearchCell.identifier)
         $0.keyboardDismissMode = .onDrag
         $0.accessibilityIdentifier = "track_search_table"
+        $0.backgroundColor = CustomColor.background
+        $0.separatorColor = CustomColor.separator
     }
 
     private let emptyStateView = UIView().then {
         $0.isHidden = true
+        $0.backgroundColor = CustomColor.background
     }
 
     private let emptyImageView = UIImageView().then {
         $0.image = UIImage(systemName: "magnifyingglass")
-        $0.tintColor = .secondaryLabel
+        $0.tintColor = CustomColor.secondaryText
         $0.contentMode = .scaleAspectFit
     }
 
     private let emptyTitleLabel = UILabel().then {
         $0.text = "트랙 검색"
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.primaryText
         $0.font = .systemFont(ofSize: 20, weight: .semibold)
         $0.textAlignment = .center
     }
 
     private let emptyDescriptionLabel = UILabel().then {
         $0.text = "플레이리스트에 추가할 트랙을 검색해보세요"
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 16, weight: .regular)
         $0.textAlignment = .center
         $0.numberOfLines = 0
@@ -56,32 +70,34 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
 
     private let noResultsView = UIView().then {
         $0.isHidden = true
+        $0.backgroundColor = CustomColor.background
     }
 
     private let noResultsImageView = UIImageView().then {
         $0.image = UIImage(systemName: "music.note.list")
-        $0.tintColor = .secondaryLabel
+        $0.tintColor = CustomColor.secondaryText
         $0.contentMode = .scaleAspectFit
     }
 
     private let noResultsLabel = UILabel().then {
         $0.text = "검색 결과가 없습니다"
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 18, weight: .medium)
         $0.textAlignment = .center
     }
 
     private let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
         $0.hidesWhenStopped = true
+        $0.color = CustomColor.accent
     }
 
     private let addButton = UIButton(type: .system).then {
         $0.setTitle("플레이리스트에 추가", for: .normal)
-        $0.setTitleColor(CustomColor.white, for: .normal)
+        $0.setTitleColor(CustomColor.background, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.backgroundColor = CustomColor.systemBlue
+        $0.backgroundColor = CustomColor.accent
         $0.layer.cornerRadius = 25
-        $0.layer.shadowColor = CustomColor.black.cgColor
+        $0.layer.shadowColor = CustomColor.accent.cgColor
         $0.layer.shadowOffset = CGSize(width: 0, height: 2)
         $0.layer.shadowRadius = 4
         $0.layer.shadowOpacity = 0.1
@@ -89,9 +105,9 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
     }
 
     private let addButtonCountLabel = UILabel().then {
-        $0.textColor = .white
+        $0.textColor = CustomColor.background
         $0.font = .systemFont(ofSize: 14, weight: .medium)
-        $0.backgroundColor = .systemRed
+        $0.backgroundColor = CustomColor.accent
         $0.textAlignment = .center
         $0.layer.cornerRadius = 10
         $0.clipsToBounds = true
@@ -138,7 +154,7 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
 
     private func setupUI() {
         title = "트랙 검색"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
 
         view.addSubview(tableView)
         view.addSubview(emptyStateView)

@@ -13,31 +13,33 @@ final class PlaylistListCell: UITableViewCell {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 8
-        $0.backgroundColor = .secondarySystemBackground
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
+        $0.backgroundColor = CustomColor.surfaceElevated
     }
 
     private let placeholderImageView = UIImageView().then {
         $0.image = UIImage(systemName: "music.note.list")
-        $0.tintColor = .tertiaryLabel
+        $0.tintColor = CustomColor.secondaryText
         $0.contentMode = .scaleAspectFit
         $0.isHidden = true
     }
 
     private let nameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
 
     private let detailLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 13, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
     }
 
     private let publicBadge = UILabel().then {
         $0.text = "공개"
         $0.font = .systemFont(ofSize: 11, weight: .medium)
-        $0.textColor = .systemGreen
-        $0.backgroundColor = .systemGreen.withAlphaComponent(0.15)
+        $0.textColor = CustomColor.background
+        $0.backgroundColor = CustomColor.accent
         $0.layer.cornerRadius = 4
         $0.clipsToBounds = true
         $0.textAlignment = .center
@@ -47,8 +49,8 @@ final class PlaylistListCell: UITableViewCell {
     private let privateBadge = UILabel().then {
         $0.text = "비공개"
         $0.font = .systemFont(ofSize: 11, weight: .medium)
-        $0.textColor = .systemGray
-        $0.backgroundColor = .systemGray.withAlphaComponent(0.15)
+        $0.textColor = CustomColor.secondaryText
+        $0.backgroundColor = CustomColor.surface
         $0.layer.cornerRadius = 4
         $0.clipsToBounds = true
         $0.textAlignment = .center
@@ -69,6 +71,14 @@ final class PlaylistListCell: UITableViewCell {
     // MARK: - Setup
 
     private func setupUI() {
+        backgroundColor = CustomColor.background
+        contentView.backgroundColor = CustomColor.background
+        let selectedBackground = UIView()
+        selectedBackground.backgroundColor = CustomColor.accentMuted
+        selectedBackground.layer.cornerRadius = 12
+        selectedBackground.layer.masksToBounds = true
+        selectedBackgroundView = selectedBackground
+
         contentView.addSubview(playlistImageView)
         playlistImageView.addSubview(placeholderImageView)
         contentView.addSubview(nameLabel)

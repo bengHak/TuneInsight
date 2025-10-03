@@ -41,8 +41,10 @@ public final class RecentTrackCell: UITableViewCell {
 
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = CustomColor.white80
+        view.backgroundColor = CustomColor.surface
         view.layer.cornerRadius = 12
+        view.layer.borderWidth = 1
+        view.layer.borderColor = CustomColor.border.cgColor
         view.layer.masksToBounds = true
         return view
     }()
@@ -52,14 +54,14 @@ public final class RecentTrackCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
-        imageView.backgroundColor = .systemGray5
+        imageView.backgroundColor = CustomColor.surfaceElevated
         return imageView
     }()
 
     private let rankLabel: UILabel = {
         let label = UILabel()
         label.font = .monospacedDigitSystemFont(ofSize: 13, weight: .semibold)
-        label.textColor = .secondaryLabel
+        label.textColor = CustomColor.accent
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         return label
@@ -68,7 +70,7 @@ public final class RecentTrackCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .label
+        label.textColor = CustomColor.primaryText
         label.numberOfLines = 2
         return label
     }()
@@ -92,7 +94,7 @@ public final class RecentTrackCell: UITableViewCell {
     private let artistLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = CustomColor.secondaryText
         label.numberOfLines = 1
         return label
     }()
@@ -100,7 +102,7 @@ public final class RecentTrackCell: UITableViewCell {
     private let albumLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .tertiaryLabel
+        label.textColor = CustomColor.tertiaryText
         label.numberOfLines = 1
         return label
     }()
@@ -108,7 +110,7 @@ public final class RecentTrackCell: UITableViewCell {
     private let playedAtLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .tertiaryLabel
+        label.textColor = CustomColor.secondaryText
         label.textAlignment = .right
         label.numberOfLines = 1
         return label
@@ -117,7 +119,7 @@ public final class RecentTrackCell: UITableViewCell {
     private let durationLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .tertiaryLabel
+        label.textColor = CustomColor.secondaryText
         label.textAlignment = .right
         label.numberOfLines = 1
         return label
@@ -145,8 +147,8 @@ public final class RecentTrackCell: UITableViewCell {
 
     private func setupLayout() {
         selectionStyle = .none
-        backgroundColor = .clear
-        contentView.backgroundColor = .clear
+        backgroundColor = CustomColor.clear
+        contentView.backgroundColor = CustomColor.clear
 
         contentView.addSubview(containerView)
         containerView.addSubview(artworkImageView)
@@ -170,7 +172,7 @@ public final class RecentTrackCell: UITableViewCell {
         artworkImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(6)
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(60)
+            make.width.height.equalTo(76)
         }
 
         infoStackView.snp.makeConstraints { make in
@@ -247,7 +249,7 @@ public final class RecentTrackCell: UITableViewCell {
         } else {
             let placeholder = UIImage(systemName: viewModel.placeholderSystemName)
             artworkImageView.image = placeholder
-            artworkImageView.tintColor = .secondaryLabel
+            artworkImageView.tintColor = CustomColor.secondaryText
         }
     }
 }

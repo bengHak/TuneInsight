@@ -6,6 +6,7 @@ final class AppCoordinator: Coordinator {
     var presentationCoordinators: [AnyObject] = []
     let navigationController: UINavigationController
     private let window: UIWindow
+    private var splashCoordinator: SplashCoordinator?
     
     init(window: UIWindow) {
         self.window = window
@@ -22,10 +23,10 @@ final class AppCoordinator: Coordinator {
     
     private func showSplash() {
         let splashCoordinator = SplashCoordinator(
-            navigationController: navigationController,
-            parentCoordinator: self
+            navigationController: navigationController
         )
-        addChild(splashCoordinator)
+        splashCoordinator.delegate = self
+        self.splashCoordinator = splashCoordinator
         splashCoordinator.start()
     }
     
@@ -65,6 +66,13 @@ extension AppCoordinator: OnboardingCoordinatorDelegate {
     func showMainTab(_ coordinator: OnboardingCoordinator) {
         removePresentationChild(coordinator)
         showMainTabBar()
+    }
+}
+
+extension AppCoordinator: SplashCoordinatorDelegate {
+    func splashCoordinatorDidFinish(_ coordinator: SplashCoordinator) {
+        splashCoordinator = nil
+        showOnboarding()
     }
 }
 

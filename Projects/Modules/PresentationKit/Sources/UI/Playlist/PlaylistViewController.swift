@@ -16,39 +16,46 @@ public final class PlaylistViewController: UIViewController, ReactorKit.View {
 
     private let tableView = UITableView(frame: .zero, style: .plain).then {
         $0.separatorStyle = .singleLine
-        $0.tableFooterView = UIView()
+        let footerView = UIView()
+        footerView.backgroundColor = CustomColor.background
+        $0.tableFooterView = footerView
         $0.rowHeight = 72
         $0.register(PlaylistListCell.self, forCellReuseIdentifier: PlaylistListCell.identifier)
         $0.refreshControl = UIRefreshControl()
         $0.accessibilityIdentifier = "playlist_list_table"
+        $0.backgroundColor = CustomColor.background
+        $0.separatorColor = CustomColor.separator
+        $0.refreshControl?.tintColor = CustomColor.accent
     }
 
     private let emptyView = UIView().then {
         $0.isHidden = true
+        $0.backgroundColor = CustomColor.background
     }
 
     private let emptyImageView = UIImageView().then {
         $0.image = UIImage(systemName: "music.note.list")
-        $0.tintColor = .secondaryLabel
+        $0.tintColor = CustomColor.secondaryText
         $0.contentMode = .scaleAspectFit
     }
 
     private let emptyLabel = UILabel().then {
         $0.text = "플레이리스트가 없습니다"
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.primaryText
         $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.textAlignment = .center
     }
 
     private let emptyDescriptionLabel = UILabel().then {
         $0.text = "새로운 플레이리스트를 만들어보세요"
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 14, weight: .regular)
         $0.textAlignment = .center
     }
 
     private let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
         $0.hidesWhenStopped = true
+        $0.color = CustomColor.accent
     }
 
     // MARK: - Properties
@@ -90,7 +97,7 @@ public final class PlaylistViewController: UIViewController, ReactorKit.View {
 
     private func setupUI() {
         title = "플레이리스트"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
 
         view.addSubview(tableView)
         view.addSubview(emptyView)
@@ -140,6 +147,7 @@ public final class PlaylistViewController: UIViewController, ReactorKit.View {
             target: nil,
             action: nil
         )
+        addButton.tintColor = CustomColor.accent
         navigationItem.rightBarButtonItem = addButton
         
         guard let reactor else { return }
@@ -305,4 +313,3 @@ extension PlaylistViewController: UITableViewDelegate {
         }
     }
 }
-

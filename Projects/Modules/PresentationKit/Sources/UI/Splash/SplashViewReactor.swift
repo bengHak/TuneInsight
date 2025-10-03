@@ -6,13 +6,16 @@ public final class SplashViewReactor: Reactor {
     public enum Action {
         case viewDidAppear
     }
+
     public enum Mutation {
         case startTimer
         case timerCompleted
     }
+
     public struct State {
         public var isLoading: Bool = true
         public var shouldRouteToOnboarding: Bool = false
+
         public init() {}
     }
 

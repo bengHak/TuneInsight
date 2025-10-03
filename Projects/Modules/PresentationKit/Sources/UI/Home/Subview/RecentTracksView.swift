@@ -14,7 +14,7 @@ public final class RecentTracksView: UIView {
         let label = UILabel()
         label.text = "최근 재생된 트랙"
         label.font = .systemFont(ofSize: 18, weight: .semibold)
-        label.textColor = .label
+        label.textColor = CustomColor.primaryText
         return label
     }()
     
@@ -23,7 +23,7 @@ public final class RecentTracksView: UIView {
         tv.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
         tv.rowHeight = RecentTrackCell.cellHeight
         tv.separatorStyle = .none
-        tv.backgroundColor = .clear
+        tv.backgroundColor = CustomColor.surface
         tv.isScrollEnabled = false
         return tv
     }()
@@ -52,8 +52,8 @@ public final class RecentTracksView: UIView {
     // MARK: - Setup
     
     private func setupUI() {
-        backgroundColor = .white.withAlphaComponent(0.4)
-        
+        backgroundColor = CustomColor.surface
+
         addSubview(titleLabel)
         addSubview(tableView)
         tableView.dataSource = self

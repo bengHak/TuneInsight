@@ -8,7 +8,7 @@ public final class SubscriptionViewController: UIViewController {
         $0.text = "구독 상태"
         $0.font = .preferredFont(forTextStyle: .largeTitle)
         $0.textAlignment = .left
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 1
         $0.accessibilityIdentifier = "subscription_title_label"
     }
@@ -17,7 +17,7 @@ public final class SubscriptionViewController: UIViewController {
         $0.text = "구독 상태 확인 중..."
         $0.font = .preferredFont(forTextStyle: .body)
         $0.textAlignment = .left
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
         $0.accessibilityIdentifier = "subscription_status_label"
     }
@@ -25,13 +25,16 @@ public final class SubscriptionViewController: UIViewController {
     private let refreshButton = UIButton(type: .system).then {
         $0.setTitle("새로고침", for: .normal)
         $0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
+        $0.backgroundColor = CustomColor.accent
+        $0.setTitleColor(CustomColor.background, for: .normal)
+        $0.layer.cornerRadius = 12
         $0.accessibilityIdentifier = "subscription_refresh_button"
     }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.backButtonDisplayMode = .minimal
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
         title = "구독관리"
         setupUI()
         bind()
@@ -87,7 +90,7 @@ public final class SubscriptionViewController: UIViewController {
             let active = info.entitlements.active
             if active.isEmpty {
                 self.statusLabel.text = "구독 중이 아닙니다."
-                self.statusLabel.textColor = .label
+                self.statusLabel.textColor = CustomColor.primaryText
             } else {
                 // 임의로 첫 번째 활성 엔타이틀먼트를 표시
                 if let first = active.first {
@@ -103,9 +106,8 @@ public final class SubscriptionViewController: UIViewController {
                 } else {
                     self.statusLabel.text = "구독 중"
                 }
-                self.statusLabel.textColor = .label
+                self.statusLabel.textColor = CustomColor.primaryText
             }
         }
     }
 }
-

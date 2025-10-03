@@ -22,31 +22,31 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     private let contentView = UIView()
 
     private let headerView = UIView().then {
-        $0.backgroundColor = .systemBackground
+        $0.backgroundColor = CustomColor.background
     }
 
     private let playlistImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 8
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = CustomColor.surfaceElevated
     }
 
     private let playlistNameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 24, weight: .bold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 0
     }
 
     private let playlistDescriptionLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
     }
 
     private let playlistInfoLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .medium)
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.tertiaryText
     }
 
     private let actionsStackView = UIStackView().then {
@@ -57,37 +57,45 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
 
     private let playNextButton = UIButton(type: .system).then {
         $0.setTitle("다음에 재생", for: .normal)
-        $0.setTitleColor(CustomColor.systemBlue, for: .normal)
+        $0.setTitleColor(CustomColor.accent, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.backgroundColor = CustomColor.systemBlue10
+        $0.backgroundColor = CustomColor.surface
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.accent.cgColor
         $0.layer.cornerRadius = 8
         $0.accessibilityIdentifier = "playlist_play_next_button"
     }
 
     private let addTracksButton = UIButton(type: .system).then {
         $0.setTitle("트랙 추가", for: .normal)
-        $0.setTitleColor(CustomColor.systemBlue, for: .normal)
+        $0.setTitleColor(CustomColor.background, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.backgroundColor = CustomColor.systemBlue10
+        $0.backgroundColor = CustomColor.accent
         $0.layer.cornerRadius = 8
     }
 
     private let editPlaylistButton = UIButton(type: .system).then {
         $0.setTitle("편집", for: .normal)
-        $0.setTitleColor(CustomColor.systemBlue, for: .normal)
+        $0.setTitleColor(CustomColor.accent, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.backgroundColor = CustomColor.systemBlue10
+        $0.backgroundColor = CustomColor.surface
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.accent.cgColor
         $0.layer.cornerRadius = 8
     }
 
     private let tableView = UITableView(frame: .zero, style: .plain).then {
         $0.separatorStyle = .none
-        $0.tableFooterView = UIView()
+        let footerView = UIView()
+        footerView.backgroundColor = CustomColor.background
+        $0.tableFooterView = footerView
         $0.rowHeight = RecentTrackCell.cellHeight
         $0.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
         $0.refreshControl = UIRefreshControl()
         $0.isScrollEnabled = false
         $0.accessibilityIdentifier = "playlist_tracks_table"
+        $0.backgroundColor = CustomColor.background
+        $0.refreshControl?.tintColor = CustomColor.accent
     }
 
     private let addedDateFormatter: DateFormatter = {
@@ -99,30 +107,32 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
 
     private let emptyView = UIView().then {
         $0.isHidden = true
+        $0.backgroundColor = CustomColor.background
     }
 
     private let emptyImageView = UIImageView().then {
         $0.image = UIImage(systemName: "music.note")
-        $0.tintColor = .secondaryLabel
+        $0.tintColor = CustomColor.secondaryText
         $0.contentMode = .scaleAspectFit
     }
 
     private let emptyLabel = UILabel().then {
         $0.text = "트랙이 없습니다"
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.primaryText
         $0.font = .systemFont(ofSize: 16, weight: .medium)
         $0.textAlignment = .center
     }
 
     private let emptyDescriptionLabel = UILabel().then {
         $0.text = "새로운 트랙을 추가해보세요"
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 14, weight: .regular)
         $0.textAlignment = .center
     }
 
     private let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
         $0.hidesWhenStopped = true
+        $0.color = CustomColor.accent
     }
 
     // MARK: - Properties
@@ -158,7 +168,9 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
     // MARK: - Setup
 
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
+        contentView.backgroundColor = CustomColor.background
+        scrollView.backgroundColor = .clear
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)

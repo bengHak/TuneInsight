@@ -66,7 +66,7 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     // MARK: - Setup
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = CustomColor.background
 
         configureBackgroundGradient()
         view.addSubview(scrollView)
@@ -84,10 +84,10 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     private func configureBackgroundGradient() {
         gradientLayer.colors = [
-            CustomColor.systemGreen.cgColor,
-            CustomColor.white.cgColor
+            CustomColor.accent.withAlphaComponent(0.35).cgColor,
+            CustomColor.background.cgColor
         ]
-        gradientLayer.locations = [0.0, 1.0]
+        gradientLayer.locations = [0.0, 0.7]
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
         if gradientLayer.superlayer == nil {

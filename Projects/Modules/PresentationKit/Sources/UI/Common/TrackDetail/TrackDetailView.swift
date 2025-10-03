@@ -17,27 +17,27 @@ final class TrackDetailView: UIView {
     private let albumImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = CustomColor.surfaceElevated
         $0.accessibilityIdentifier = "trackdetail_album_image"
     }
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 22, weight: .bold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 2
         $0.accessibilityIdentifier = "trackdetail_title"
     }
 
     private let artistLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 1
         $0.accessibilityIdentifier = "trackdetail_artist"
     }
 
     private let albumLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.tertiaryText
         $0.numberOfLines = 1
         $0.accessibilityIdentifier = "trackdetail_album"
     }
@@ -51,20 +51,20 @@ final class TrackDetailView: UIView {
 
     private let durationLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.accessibilityIdentifier = "trackdetail_duration"
     }
 
     private let popularityLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.accessibilityIdentifier = "trackdetail_popularity"
     }
 
     private let albumSectionTitleLabel = UILabel().then {
         $0.text = "앨범"
         $0.font = .systemFont(ofSize: 18, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.isHidden = true
     }
 
@@ -84,8 +84,8 @@ final class TrackDetailView: UIView {
     let addToQueueButton = UIButton(type: .system).then {
         $0.setTitle("대기열에 추가", for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.tintColor = .white
-        $0.backgroundColor = .systemGreen
+        $0.tintColor = CustomColor.background
+        $0.backgroundColor = CustomColor.accent
         $0.layer.cornerRadius = 10
         $0.contentEdgeInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
         $0.accessibilityIdentifier = "trackdetail_add_to_queue"
@@ -94,8 +94,10 @@ final class TrackDetailView: UIView {
     let skipNextButton = UIButton(type: .system).then {
         $0.setTitle("바로 재생", for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.tintColor = .white
-        $0.backgroundColor = .systemBlue
+        $0.tintColor = CustomColor.accent
+        $0.backgroundColor = CustomColor.surface
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.accent.cgColor
         $0.layer.cornerRadius = 10
         $0.contentEdgeInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
         $0.accessibilityIdentifier = "trackdetail_skip_next"
@@ -131,7 +133,11 @@ final class TrackDetailView: UIView {
 
     // MARK: - Setup
     private func setupUI() {
-        backgroundColor = .systemBackground
+        backgroundColor = CustomColor.background
+        contentView.backgroundColor = CustomColor.background
+        playerContainerView.backgroundColor = CustomColor.background
+        scrollView.backgroundColor = .clear
+        scrollView.refreshControl?.tintColor = CustomColor.accent
 
         addSubview(scrollView)
         addSubview(playerContainerView)
@@ -275,19 +281,19 @@ private final class AlbumSummaryCell: UICollectionViewCell {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 10
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = CustomColor.surfaceElevated
     }
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 2
         $0.textAlignment = .center
     }
 
     private let artistLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 2
         $0.textAlignment = .center
     }
@@ -297,6 +303,9 @@ private final class AlbumSummaryCell: UICollectionViewCell {
         contentView.addSubview(imageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(artistLabel)
+        contentView.backgroundColor = CustomColor.surface
+        contentView.layer.cornerRadius = 12
+        contentView.layer.masksToBounds = true
 
         imageView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
@@ -334,7 +343,7 @@ private final class AlbumSummaryCell: UICollectionViewCell {
             imageView.kf.setImage(with: url)
         } else {
             imageView.image = UIImage(systemName: "opticaldisc")
-            imageView.tintColor = .systemGray3
+            imageView.tintColor = CustomColor.secondaryText
         }
     }
 }

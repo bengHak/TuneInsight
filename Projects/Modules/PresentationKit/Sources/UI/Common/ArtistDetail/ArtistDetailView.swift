@@ -16,73 +16,75 @@ final class ArtistDetailView: UIView {
     let artistImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
-        $0.backgroundColor = .secondarySystemBackground
+        $0.layer.cornerRadius = 0
+        $0.backgroundColor = CustomColor.surfaceElevated
         $0.accessibilityIdentifier = "artistdetail_image"
     }
-    
+
     let nameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 24, weight: .bold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 2
         $0.accessibilityIdentifier = "artistdetail_name"
     }
-    
+
     let popularityLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.accessibilityIdentifier = "artistdetail_popularity"
     }
-    
+
     let genresTitleLabel = UILabel().then {
         $0.text = "장르"
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
     }
-    
+
     let genresLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .regular)
-        $0.textColor = .label
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 0
         $0.accessibilityIdentifier = "artistdetail_genres"
     }
-    
+
     let idTitleLabel = UILabel().then {
         $0.text = "아티스트 ID"
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
     }
-    
+
     let idValueLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.tertiaryText
         $0.numberOfLines = 1
         $0.accessibilityIdentifier = "artistdetail_id"
     }
-    
+
     let uriTitleLabel = UILabel().then {
         $0.text = "Spotify URI"
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
     }
-    
+
     let uriValueLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .tertiaryLabel
+        $0.textColor = CustomColor.tertiaryText
         $0.numberOfLines = 1
         $0.lineBreakMode = .byTruncatingMiddle
         $0.accessibilityIdentifier = "artistdetail_uri"
     }
-    
+
     let copyURIButton = UIButton(type: .system).then {
         $0.setTitle("복사", for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.setTitleColor(CustomColor.accent, for: .normal)
         $0.accessibilityIdentifier = "artistdetail_copy_uri"
     }
     
     let albumsTitleLabel = UILabel().then {
         $0.text = "대표 앨범"
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.isHidden = true
     }
     
@@ -110,13 +112,13 @@ final class ArtistDetailView: UIView {
     let topTracksTitleLabel = UILabel().then {
         $0.text = "인기 트랙"
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.isHidden = true
     }
-    
+
     private let topTracksTableView: UITableView = {
         let tv = UITableView()
-        tv.backgroundColor = .clear
+        tv.backgroundColor = CustomColor.clear
         tv.separatorStyle = .none
         tv.showsVerticalScrollIndicator = false
         tv.isScrollEnabled = false
@@ -140,8 +142,11 @@ final class ArtistDetailView: UIView {
     
     // MARK: - Setup
     private func setupUI() {
+        backgroundColor = CustomColor.background
+        scrollView.backgroundColor = .clear
         addSubview(scrollView)
         scrollView.addSubview(contentView)
+        contentView.backgroundColor = CustomColor.background
         
         contentView.addSubview(artistImageView)
         contentView.addSubview(nameLabel)
@@ -160,7 +165,9 @@ final class ArtistDetailView: UIView {
 
         topTracksTableView.dataSource = self
         topTracksTableView.delegate = self
-        topTracksTableView.tableFooterView = UIView()
+        let footerView = UIView()
+        footerView.backgroundColor = CustomColor.background
+        topTracksTableView.tableFooterView = footerView
 
         setupConstraints()
     }
@@ -266,7 +273,7 @@ final class ArtistDetailView: UIView {
             artistImageView.kf.setImage(with: url)
         } else {
             artistImageView.image = UIImage(systemName: "person.crop.square")
-            artistImageView.tintColor = .systemGray3
+            artistImageView.tintColor = CustomColor.secondaryText
         }
     }
     
@@ -364,8 +371,10 @@ private final class AlbumCell: UICollectionViewCell {
     static let identifier = String(describing: AlbumCell.self)
     
     private let containerView = UIView().then {
-        $0.backgroundColor = .secondarySystemBackground
+        $0.backgroundColor = CustomColor.surface
         $0.layer.cornerRadius = 12
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
         $0.clipsToBounds = true
     }
 
@@ -373,23 +382,27 @@ private final class AlbumCell: UICollectionViewCell {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 8
-        $0.backgroundColor = .tertiarySystemFill
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
+        $0.backgroundColor = CustomColor.surfaceElevated
     }
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 13, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 2
     }
 
     private let artistLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 11, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 1
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = CustomColor.background
+        contentView.backgroundColor = CustomColor.background
         contentView.addSubview(containerView)
         containerView.addSubview(imageView)
         containerView.addSubview(titleLabel)
@@ -400,9 +413,9 @@ private final class AlbumCell: UICollectionViewCell {
         }
 
         imageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(12)
+            make.leading.equalToSuperview().inset(4)
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(64)
+            make.width.height.equalTo(88)
         }
 
         titleLabel.snp.makeConstraints { make in
@@ -438,7 +451,7 @@ private final class AlbumCell: UICollectionViewCell {
             imageView.kf.setImage(with: url)
         } else {
             imageView.image = UIImage(systemName: "opticaldisc")
-            imageView.tintColor = .systemGray3
+            imageView.tintColor = CustomColor.secondaryText
         }
     }
 }

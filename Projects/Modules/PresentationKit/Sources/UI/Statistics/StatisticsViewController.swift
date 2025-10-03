@@ -17,8 +17,15 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
         let items = ["아티스트", "트랙"]
         let sc = UISegmentedControl(items: items)
         sc.selectedSegmentIndex = 0
-        sc.backgroundColor = .secondarySystemBackground
-        sc.selectedSegmentTintColor = .systemGreen
+        sc.backgroundColor = CustomColor.surface
+        sc.selectedSegmentTintColor = CustomColor.accent
+        sc.setTitleTextAttributes([
+            .foregroundColor: CustomColor.secondaryText
+        ], for: .normal)
+        sc.setTitleTextAttributes([
+            .foregroundColor: CustomColor.background,
+            .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ], for: .selected)
         return sc
     }()
 
@@ -26,23 +33,34 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
         let items = SpotifyTimeRange.allCases.map { $0.displayName }
         let sc = UISegmentedControl(items: items)
         sc.selectedSegmentIndex = SpotifyTimeRange.allCases.firstIndex(of: .mediumTerm) ?? 1
-        sc.backgroundColor = .secondarySystemBackground
-        sc.selectedSegmentTintColor = .systemGreen
+        sc.backgroundColor = CustomColor.surface
+        sc.selectedSegmentTintColor = CustomColor.accent
+        sc.setTitleTextAttributes([
+            .foregroundColor: CustomColor.secondaryText
+        ], for: .normal)
+        sc.setTitleTextAttributes([
+            .foregroundColor: CustomColor.background,
+            .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
+        ], for: .selected)
         return sc
     }()
 
     private let tableView = UITableView(frame: .zero, style: .plain).then {
         $0.separatorStyle = .singleLine
-        $0.tableFooterView = UIView()
+        let footerView = UIView()
+        footerView.backgroundColor = CustomColor.background
+        $0.tableFooterView = footerView
         $0.rowHeight = 64
         $0.register(TopArtistRowCell.self, forCellReuseIdentifier: TopArtistRowCell.identifier)
         $0.register(TopTrackRowCell.self, forCellReuseIdentifier: TopTrackRowCell.identifier)
         $0.accessibilityIdentifier = "statistics_artists_table"
+        $0.backgroundColor = CustomColor.background
+        $0.separatorColor = CustomColor.separator
     }
 
     private let emptyLabel = UILabel().then {
         $0.text = "데이터가 없습니다."
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.font = .systemFont(ofSize: 15, weight: .regular)
         $0.textAlignment = .center
         $0.isHidden = true
@@ -50,6 +68,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
     private let loadingIndicator = UIActivityIndicatorView(style: .medium).then {
         $0.hidesWhenStopped = true
+        $0.color = CustomColor.accent
     }
 
     // MARK: - Data
@@ -82,7 +101,7 @@ public final class StatisticsViewController: UIViewController, ReactorKit.View {
 
     private func setupUI() {
         title = "통계"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = CustomColor.background
 
         view.addSubview(categoryControl)
         view.addSubview(segmentedControl)
@@ -240,9 +259,9 @@ private final class TopArtistRowCell: UITableViewCell {
 
     private let rankLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .bold)
-        $0.textColor = .white
+        $0.textColor = CustomColor.background
         $0.textAlignment = .center
-        $0.backgroundColor = .systemGreen
+        $0.backgroundColor = CustomColor.accent
         $0.layer.cornerRadius = 14
         $0.layer.masksToBounds = true
         $0.widthAnchor.constraint(equalToConstant: 28).isActive = true
@@ -253,20 +272,22 @@ private final class TopArtistRowCell: UITableViewCell {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 8
-        $0.backgroundColor = .systemGray5
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
+        $0.backgroundColor = CustomColor.surface
         $0.widthAnchor.constraint(equalToConstant: 44).isActive = true
         $0.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
 
     private let nameLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 1
     }
 
     private let subLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 1
     }
 
@@ -291,6 +312,13 @@ private final class TopArtistRowCell: UITableViewCell {
 
     private func setup() {
         selectionStyle = .default
+        backgroundColor = CustomColor.background
+        contentView.backgroundColor = CustomColor.background
+        let selectedView = UIView()
+        selectedView.backgroundColor = CustomColor.accentMuted
+        selectedView.layer.cornerRadius = 12
+        selectedView.layer.masksToBounds = true
+        selectedBackgroundView = selectedView
         vStack.addArrangedSubview(nameLabel)
         vStack.addArrangedSubview(subLabel)
 
@@ -321,7 +349,7 @@ private final class TopArtistRowCell: UITableViewCell {
             avatarView.kf.setImage(with: url)
         } else {
             avatarView.image = UIImage(systemName: "person.crop.square")
-            avatarView.tintColor = .systemGray3
+            avatarView.tintColor = CustomColor.secondaryText
         }
     }
 }
@@ -332,9 +360,9 @@ private final class TopTrackRowCell: UITableViewCell {
 
     private let rankLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 14, weight: .bold)
-        $0.textColor = .white
+        $0.textColor = CustomColor.background
         $0.textAlignment = .center
-        $0.backgroundColor = .systemGreen
+        $0.backgroundColor = CustomColor.accent
         $0.layer.cornerRadius = 14
         $0.layer.masksToBounds = true
         $0.widthAnchor.constraint(equalToConstant: 28).isActive = true
@@ -345,20 +373,22 @@ private final class TopTrackRowCell: UITableViewCell {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 8
-        $0.backgroundColor = .systemGray5
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = CustomColor.border.cgColor
+        $0.backgroundColor = CustomColor.surface
         $0.widthAnchor.constraint(equalToConstant: 44).isActive = true
         $0.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
 
     private let titleLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.textColor = .label
+        $0.textColor = CustomColor.primaryText
         $0.numberOfLines = 1
     }
 
     private let artistLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 12, weight: .regular)
-        $0.textColor = .secondaryLabel
+        $0.textColor = CustomColor.secondaryText
         $0.numberOfLines = 1
     }
 
@@ -383,6 +413,13 @@ private final class TopTrackRowCell: UITableViewCell {
 
     private func setup() {
         selectionStyle = .default
+        backgroundColor = CustomColor.background
+        contentView.backgroundColor = CustomColor.background
+        let selectedView = UIView()
+        selectedView.backgroundColor = CustomColor.accentMuted
+        selectedView.layer.cornerRadius = 12
+        selectedView.layer.masksToBounds = true
+        selectedBackgroundView = selectedView
         vStack.addArrangedSubview(titleLabel)
         vStack.addArrangedSubview(artistLabel)
 
@@ -413,7 +450,7 @@ private final class TopTrackRowCell: UITableViewCell {
             coverView.kf.setImage(with: url)
         } else {
             coverView.image = UIImage(systemName: "music.note")
-            coverView.tintColor = .systemGray3
+            coverView.tintColor = CustomColor.secondaryText
         }
     }
 }
