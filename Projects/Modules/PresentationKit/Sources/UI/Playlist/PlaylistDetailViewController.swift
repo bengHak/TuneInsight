@@ -89,8 +89,8 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
         let footerView = UIView()
         footerView.backgroundColor = CustomColor.background
         $0.tableFooterView = footerView
-        $0.rowHeight = RecentTrackCell.cellHeight
-        $0.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
+        $0.rowHeight = TrackCell.cellHeight
+        $0.register(TrackCell.self, forCellReuseIdentifier: TrackCell.identifier)
         $0.refreshControl = UIRefreshControl()
         $0.isScrollEnabled = false
         $0.accessibilityIdentifier = "playlist_tracks_table"
@@ -488,9 +488,9 @@ extension PlaylistDetailViewController: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: RecentTrackCell.identifier,
+            withIdentifier: TrackCell.identifier,
             for: indexPath
-        ) as? RecentTrackCell else {
+        ) as? TrackCell else {
             return UITableViewCell()
         }
 
@@ -545,11 +545,11 @@ extension PlaylistDetailViewController: UITableViewDelegate {
 }
 
 private extension PlaylistDetailViewController {
-    func makeTrackViewModel(from track: PlaylistTrack) -> RecentTrackCell.ViewModel {
+    func makeTrackViewModel(from track: PlaylistTrack) -> TrackCell.ViewModel {
         let artworkURL = track.albumImageUrl.flatMap(URL.init)
         let addedDate = track.addedAt.map { addedDateFormatter.string(from: $0) }
 
-        return RecentTrackCell.ViewModel(
+        return TrackCell.ViewModel(
             titleText: track.name,
             artistText: track.artistsText,
             albumText: track.album,

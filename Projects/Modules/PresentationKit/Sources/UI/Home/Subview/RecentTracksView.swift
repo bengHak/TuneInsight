@@ -20,8 +20,8 @@ public final class RecentTracksView: UIView {
     
     private let tableView: UITableView = {
         let tv = UITableView()
-        tv.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
-        tv.rowHeight = RecentTrackCell.cellHeight
+        tv.register(TrackCell.self, forCellReuseIdentifier: TrackCell.identifier)
+        tv.rowHeight = TrackCell.cellHeight
         tv.separatorStyle = .none
         tv.backgroundColor = CustomColor.surface
         tv.isScrollEnabled = false
@@ -96,7 +96,7 @@ public final class RecentTracksView: UIView {
 
     public func getHeight() -> CGFloat {
         let titleHeight: CGFloat = 60 // 타이틀 + 패딩
-        let tableHeight = CGFloat(tracks.count) * RecentTrackCell.cellHeight
+        let tableHeight = CGFloat(tracks.count) * TrackCell.cellHeight
 
         return titleHeight + tableHeight
     }
@@ -116,10 +116,10 @@ extension RecentTracksView: UITableViewDataSource {
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: RecentTrackCell.identifier,
+            withIdentifier: TrackCell.identifier,
             for: indexPath
-        ) as? RecentTrackCell else {
-            assertionFailure("RecentTrackCell not registered")
+        ) as? TrackCell else {
+            assertionFailure("TrackCell not registered")
             return UITableViewCell()
         }
         
@@ -130,11 +130,11 @@ extension RecentTracksView: UITableViewDataSource {
 }
 
 private extension RecentTracksView {
-    func makeViewModel(from track: RecentTrack) -> RecentTrackCell.ViewModel {
+    func makeViewModel(from track: RecentTrack) -> TrackCell.ViewModel {
         let artworkURL = track.track.album.images.first.flatMap { URL(string: $0.url) }
         let playedAtText = relativeDateFormatter.localizedString(for: track.playedAt, relativeTo: Date())
 
-        return RecentTrackCell.ViewModel(
+        return TrackCell.ViewModel(
             titleText: track.track.name,
             artistText: track.track.artists.map { $0.name }.joined(separator: ", "),
             albumText: track.track.album.name,

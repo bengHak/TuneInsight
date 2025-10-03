@@ -2,7 +2,7 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-public final class RecentTrackCell: UITableViewCell {
+public final class TrackCell: UITableViewCell {
     public struct ViewModel {
         public let titleText: String
         public let artistText: String
@@ -34,7 +34,7 @@ public final class RecentTrackCell: UITableViewCell {
         }
     }
 
-    public static let identifier = String(describing: RecentTrackCell.self)
+    public static let identifier = String(describing: TrackCell.self)
     public static let cellHeight: CGFloat = 96
 
     // MARK: - UI

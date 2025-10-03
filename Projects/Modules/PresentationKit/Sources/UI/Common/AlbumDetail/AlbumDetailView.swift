@@ -68,7 +68,7 @@ final class AlbumDetailView: UIView {
         }
 
         tableView.register(AlbumInfoCell.self, forCellReuseIdentifier: AlbumInfoCell.identifier)
-        tableView.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
+        tableView.register(TrackCell.self, forCellReuseIdentifier: TrackCell.identifier)
         tableView.dataSource = self
         tableView.delegate = self
         let footerView = UIView(frame: .zero)
@@ -139,9 +139,9 @@ extension AlbumDetailView: UITableViewDataSource {
             return cell
         case .tracks:
             guard let cell = tableView.dequeueReusableCell(
-                withIdentifier: RecentTrackCell.identifier,
+                withIdentifier: TrackCell.identifier,
                 for: indexPath
-            ) as? RecentTrackCell else {
+            ) as? TrackCell else {
                 return UITableViewCell()
             }
             let track = tracks[indexPath.row]
@@ -183,7 +183,7 @@ extension AlbumDetailView: UITableViewDelegate {
         case .info:
             return UITableView.automaticDimension
         case .tracks:
-            return RecentTrackCell.cellHeight
+            return TrackCell.cellHeight
         }
     }
 
@@ -201,11 +201,11 @@ private extension AlbumDetailView {
         didTapOpenInSpotify?(uri)
     }
 
-    func makeTrackViewModel(from track: SpotifyAlbumTrack, index: Int) -> RecentTrackCell.ViewModel {
+    func makeTrackViewModel(from track: SpotifyAlbumTrack, index: Int) -> TrackCell.ViewModel {
         let albumArtworkURL = album?.images.first.flatMap { URL(string: $0.url) }
         let rankText = String(format: "%02d", index)
 
-        return RecentTrackCell.ViewModel(
+        return TrackCell.ViewModel(
             titleText: track.name,
             artistText: track.artistNames,
             albumText: nil,

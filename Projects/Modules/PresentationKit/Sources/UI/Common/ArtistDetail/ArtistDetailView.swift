@@ -101,8 +101,8 @@ final class ArtistDetailView: UIView {
         tv.separatorStyle = .none
         tv.showsVerticalScrollIndicator = false
         tv.isScrollEnabled = false
-        tv.rowHeight = RecentTrackCell.cellHeight
-        tv.register(RecentTrackCell.self, forCellReuseIdentifier: RecentTrackCell.identifier)
+        tv.rowHeight = TrackCell.cellHeight
+        tv.register(TrackCell.self, forCellReuseIdentifier: TrackCell.identifier)
         return tv
     }()
 
@@ -253,7 +253,7 @@ final class ArtistDetailView: UIView {
         topTracksTableView.isHidden = isEmpty
         topTracksTableView.reloadData()
 
-        let contentHeight = isEmpty ? 0 : CGFloat(topTrackItems.count) * RecentTrackCell.cellHeight
+        let contentHeight = isEmpty ? 0 : CGFloat(topTrackItems.count) * TrackCell.cellHeight
         topTracksTableHeightConstraint?.update(offset: contentHeight)
         layoutIfNeeded()
     }
@@ -292,9 +292,9 @@ extension ArtistDetailView: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: RecentTrackCell.identifier,
+            withIdentifier: TrackCell.identifier,
             for: indexPath
-        ) as? RecentTrackCell else {
+        ) as? TrackCell else {
             return UITableViewCell()
         }
 
@@ -311,11 +311,11 @@ extension ArtistDetailView: UITableViewDataSource, UITableViewDelegate {
 }
 
 private extension ArtistDetailView {
-    func makeTopTrackViewModel(from track: SpotifyTrack, index: Int) -> RecentTrackCell.ViewModel {
+    func makeTopTrackViewModel(from track: SpotifyTrack, index: Int) -> TrackCell.ViewModel {
         let artworkURL = track.album.images.first.flatMap { URL(string: $0.url) }
         let rankText = String(format: "%02d", index)
 
-        return RecentTrackCell.ViewModel(
+        return TrackCell.ViewModel(
             titleText: track.name,
             artistText: track.artistNames,
             albumText: track.album.name,
