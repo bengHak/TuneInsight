@@ -199,7 +199,7 @@ final class ArtistDetailView: UIView {
         albumsCollectionView.snp.makeConstraints { make in
             make.top.equalTo(albumsTitleLabel.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(160)
+            make.height.equalTo(96)
         }
         
         topTracksTitleLabel.snp.makeConstraints { make in
