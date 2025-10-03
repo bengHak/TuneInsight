@@ -60,7 +60,7 @@ public final class SettingsViewController: UIViewController, ReactorKit.View {
         tableView.delegate = self
 
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.edges.equalToSuperview()
         }
     }
 

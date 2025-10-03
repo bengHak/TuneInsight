@@ -50,8 +50,7 @@ public final class TrackDetailViewController: UIViewController, ReactorKit.View 
         playerView.delegate = self
         rootView.playerContainerView.addSubview(playerView)
         playerView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.edges.equalToSuperview()
         }
 
         rootView.didSelectAlbum = { [weak self] album in

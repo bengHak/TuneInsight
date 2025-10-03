@@ -8,9 +8,12 @@ import FoundationKit
 final class TrackDetailView: UIView {
     // MARK: - UI
     private let scrollView = UIScrollView().then {
+        $0.backgroundColor = .clear
         $0.alwaysBounceVertical = true
         $0.showsVerticalScrollIndicator = false
         $0.refreshControl = UIRefreshControl()
+        $0.refreshControl?.tintColor = CustomColor.accent
+        $0.contentInset = .init(top: 0, left: 0, bottom: 160, right: 0)
     }
 
     private let contentView = UIView()
@@ -136,9 +139,6 @@ final class TrackDetailView: UIView {
     private func setupUI() {
         backgroundColor = CustomColor.background
         contentView.backgroundColor = CustomColor.background
-        playerContainerView.backgroundColor = CustomColor.background
-        scrollView.backgroundColor = .clear
-        scrollView.refreshControl?.tintColor = CustomColor.accent
 
         addSubview(scrollView)
         addSubview(playerContainerView)
@@ -171,13 +171,12 @@ final class TrackDetailView: UIView {
         }
 
         scrollView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(playerContainerView.snp.top)
+            make.edges.equalToSuperview()
         }
 
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.width.equalToSuperview()
+            make.width.equalTo(self.snp.width)
         }
 
         albumImageView.snp.makeConstraints { make in
