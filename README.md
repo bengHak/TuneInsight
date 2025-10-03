@@ -11,7 +11,7 @@ SpotifyStats는 Spotify 청취 데이터를 분석하고 시각화하는 iOS 앱
 - [주요 기능](#주요-기능)
 - [아키텍처 하이라이트](#아키텍처-하이라이트)
 - [의존 라이브러리](#의존-라이브러리)
-- [빌드 · 테스트 가이드](#빌드--테스트-가이드)
+- [빌드 가이드](#빌드-가이드)
 - [Tuist & 스크립트 활용](#tuist--스크립트-활용)
 - [라이선스](#라이선스)
 
@@ -245,19 +245,16 @@ stateDiagram-v2
 
 SPM 의존성은 `Tuist/Package.swift`에서 관리하며, 필요 시 버전을 조정한 뒤 `tuist fetch`를 실행하세요.
 
-## 빌드 · 테스트 가이드
+## 빌드 가이드
 ```bash
 # 워크스페이스 생성
 tuist generate --no-open
 
 # 빌드 (동일 기능: ./Scripts/build.sh)
 tuist build
-
-# 전 모듈 테스트 실행
-tuist test
 ```
 
-`BuildConfigurations/*.xcconfig`에서 공통 빌드 설정을 조정할 수 있습니다. DI/네트워크 레이어 단위 테스트는 각 모듈의 `Projects/*/Tests` 디렉터리에 위치합니다.
+`BuildConfigurations/*.xcconfig`에서 공통 빌드 설정을 조정할 수 있습니다.
 
 ## Tuist & 스크립트 활용
 - `tuist graph --skip-test-targets` : 모듈 의존 그래프 재생성 → `graph.png` 업데이트
