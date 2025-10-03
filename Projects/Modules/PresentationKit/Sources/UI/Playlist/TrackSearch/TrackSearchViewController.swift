@@ -77,11 +77,11 @@ public final class TrackSearchViewController: UIViewController, ReactorKit.View 
 
     private let addButton = UIButton(type: .system).then {
         $0.setTitle("플레이리스트에 추가", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
+        $0.setTitleColor(CustomColor.white, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        $0.backgroundColor = .systemBlue
+        $0.backgroundColor = CustomColor.systemBlue
         $0.layer.cornerRadius = 25
-        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowColor = CustomColor.black.cgColor
         $0.layer.shadowOffset = CGSize(width: 0, height: 2)
         $0.layer.shadowRadius = 4
         $0.layer.shadowOpacity = 0.1

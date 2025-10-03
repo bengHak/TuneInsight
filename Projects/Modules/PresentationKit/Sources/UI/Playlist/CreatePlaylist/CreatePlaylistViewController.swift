@@ -78,7 +78,7 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
         $0.backgroundColor = .secondarySystemBackground
         $0.layer.cornerRadius = 8
         $0.layer.borderWidth = 0.5
-        $0.layer.borderColor = UIColor.separator.cgColor
+        $0.layer.borderColor = CustomColor.separator.cgColor
         $0.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         $0.isScrollEnabled = false
         $0.returnKeyType = .default
@@ -137,10 +137,10 @@ public final class CreatePlaylistViewController: UIViewController, ReactorKit.Vi
     // Create Button
     private let createButton = UIButton(type: .system).then {
         $0.setTitle("플레이리스트 생성", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
-        $0.setTitleColor(.white.withAlphaComponent(0.6), for: .disabled)
+        $0.setTitleColor(CustomColor.white, for: .normal)
+        $0.setTitleColor(CustomColor.white60, for: .disabled)
         $0.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        $0.backgroundColor = .systemBlue
+        $0.backgroundColor = CustomColor.systemBlue
         $0.layer.cornerRadius = 12
         $0.isEnabled = false
     }

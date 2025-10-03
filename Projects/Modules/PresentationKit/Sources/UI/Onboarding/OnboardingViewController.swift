@@ -21,8 +21,8 @@ public final class OnboardingViewController: UIViewController, ReactorKit.View {
     private let nextButton = UIButton(type: .system).then {
         $0.setTitle("다음", for: .normal)
         $0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
-        $0.backgroundColor = UIColor.systemBlue
-        $0.setTitleColor(.white, for: .normal)
+        $0.backgroundColor = CustomColor.systemBlue
+        $0.setTitleColor(CustomColor.white, for: .normal)
         $0.layer.cornerRadius = 12
         $0.accessibilityIdentifier = "onboarding_next_button"
     }

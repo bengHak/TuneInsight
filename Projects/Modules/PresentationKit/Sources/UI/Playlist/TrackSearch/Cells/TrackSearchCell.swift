@@ -213,10 +213,10 @@ public final class TrackSearchCell: UITableViewCell {
         // Visual feedback for selection
         UIView.animate(withDuration: 0.2) {
             self.contentView.backgroundColor = isSelected ?
-                UIColor.systemBlue.withAlphaComponent(0.1) :
-                UIColor.clear
+                CustomColor.systemBlue10 :
+                CustomColor.clear
 
-            self.trackNameLabel.textColor = isSelected ? .systemBlue : .label
+            self.trackNameLabel.textColor = isSelected ? CustomColor.systemBlue : CustomColor.label
         }
     }
 

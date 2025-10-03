@@ -26,8 +26,8 @@ public final class SignInViewController: UIViewController {
 	private let loginButton = UIButton(type: .system).then {
 		$0.setTitle("Continue with Spotify", for: .normal)
 		$0.titleLabel?.font = .preferredFont(forTextStyle: .headline)
-		$0.backgroundColor = UIColor(red: 30/255, green: 215/255, blue: 96/255, alpha: 1)
-		$0.setTitleColor(.black, for: .normal)
+		$0.backgroundColor = CustomColor.spotifyGreen
+		$0.setTitleColor(CustomColor.black, for: .normal)
 		$0.layer.cornerRadius = 12
 		$0.accessibilityIdentifier = "spotify_login_button"
 	}

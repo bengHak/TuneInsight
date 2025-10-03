@@ -57,26 +57,26 @@ public final class PlaylistDetailViewController: UIViewController, ReactorKit.Vi
 
     private let playNextButton = UIButton(type: .system).then {
         $0.setTitle("다음에 재생", for: .normal)
-        $0.setTitleColor(.systemBlue, for: .normal)
+        $0.setTitleColor(CustomColor.systemBlue, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.backgroundColor = .systemBlue.withAlphaComponent(0.1)
+        $0.backgroundColor = CustomColor.systemBlue10
         $0.layer.cornerRadius = 8
         $0.accessibilityIdentifier = "playlist_play_next_button"
     }
 
     private let addTracksButton = UIButton(type: .system).then {
         $0.setTitle("트랙 추가", for: .normal)
-        $0.setTitleColor(.systemBlue, for: .normal)
+        $0.setTitleColor(CustomColor.systemBlue, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.backgroundColor = .systemBlue.withAlphaComponent(0.1)
+        $0.backgroundColor = CustomColor.systemBlue10
         $0.layer.cornerRadius = 8
     }
 
     private let editPlaylistButton = UIButton(type: .system).then {
         $0.setTitle("편집", for: .normal)
-        $0.setTitleColor(.systemBlue, for: .normal)
+        $0.setTitleColor(CustomColor.systemBlue, for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        $0.backgroundColor = .systemBlue.withAlphaComponent(0.1)
+        $0.backgroundColor = CustomColor.systemBlue10
         $0.layer.cornerRadius = 8
     }
 

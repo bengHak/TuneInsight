@@ -83,8 +83,8 @@ public final class HomeViewController: UIViewController, ReactorKit.View {
     
     private func configureBackgroundGradient() {
         gradientLayer.colors = [
-            UIColor.systemGreen.cgColor,
-            UIColor.white.cgColor
+            CustomColor.systemGreen.cgColor,
+            CustomColor.white.cgColor
         ]
         gradientLayer.locations = [0.0, 1.0]
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)

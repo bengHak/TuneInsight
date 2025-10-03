@@ -164,7 +164,7 @@ private final class TopArtistCell: UICollectionViewCell {
 
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        view.backgroundColor = CustomColor.white80
         view.layer.cornerRadius = 12
         view.layer.masksToBounds = true
         return view

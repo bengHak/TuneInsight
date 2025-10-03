@@ -26,9 +26,9 @@ public final class PlayerView: UIView {
     // MARK: - UI Components
     
     private let containerView = UIView().then {
-        $0.backgroundColor = UIColor.white.withAlphaComponent(0.85)
+        $0.backgroundColor = CustomColor.white85
         $0.layer.cornerRadius = 12
-        $0.layer.shadowColor = UIColor.label.cgColor
+        $0.layer.shadowColor = CustomColor.label.cgColor
         $0.layer.shadowOpacity = 0.1
         $0.layer.shadowOffset = CGSize(width: 0, height: 2)
         $0.layer.shadowRadius = 8
